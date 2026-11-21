@@ -9,6 +9,7 @@ https://new-meta-monkey.github.io/mini-apps/
 | --- | --- | --- |
 | Wonder Kids GK | `wonder-kids-gk/` | Kids' general knowledge: flip-card learning + Challenge quiz, 11 topics, Supabase leaderboard |
 | SleepPulse | `sleep-pulse/` | One-click sleep tracker: log bedtime and wake-up, weekly chart, private local storage |
+| ShopPulse | `shop-pulse/` | Offline shop manager: POS billing, stock, sales, expenses, customers, reports, multi-shop |
 
 Each app is its own installable PWA (own `manifest.json` + `sw.js`, scoped to its
 folder), so it installs separately on a phone with its own icon and works offline.

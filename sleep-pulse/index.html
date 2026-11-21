@@ -6,7 +6,7 @@
   <title>SleepPulse — One-Click Sleep Monitor</title>
 
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#4f46e5" id="meta-theme-color" />
+  <meta name="theme-color" content="#7B61FF" id="meta-theme-color" />
   <meta name="description" content="Zero-friction one-click sleep monitor with private local storage." />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -18,48 +18,51 @@
   <link rel="apple-touch-icon" href="./icon.svg" />
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { cream: '#FFF9F0', navy: '#1B2A4A', coral: '#FF6B6B', sunny: '#FFC93C', teal: '#2EC4B6', grape: '#7B61FF' }, fontFamily: { fredoka: ['Fredoka', 'sans-serif'], nunito: ['Nunito', 'sans-serif'] } } } };
+  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Nunito', system-ui, sans-serif;
       transition: background-color 0.4s ease, color 0.4s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .card-shadow {
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 6px 24px rgba(27, 42, 74, 0.07);
     }
     .dark-card-shadow {
       box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-cream text-navy font-nunito min-h-screen flex flex-col justify-between">
 
   <!-- Top Header -->
   <header class="w-full max-w-4xl mx-auto px-4 pt-6 pb-4 flex flex-wrap items-center justify-between gap-4">
     <div>
       <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span>
-        <h1 class="text-xl font-bold tracking-tight" id="app-title">SleepPulse</h1>
-        <span id="pwa-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Installed App</span>
+        <span class="w-3 h-3 rounded-full bg-grape inline-block"></span>
+        <h1 class="text-xl font-fredoka font-semibold tracking-tight" id="app-title">🌙 SleepPulse</h1>
+        <span id="pwa-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#DFF5F2] text-[#0E7C74]">Installed App</span>
       </div>
-      <p class="text-xs text-slate-500 mt-0.5" id="current-date-display"></p>
+      <p class="text-xs text-[#5A6B8A] mt-0.5" id="current-date-display"></p>
     </div>
 
     <div class="flex items-center gap-2">
-      <button id="install-btn" onclick="installPWA()" class="hidden text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+      <button id="install-btn" onclick="installPWA()" class="hidden text-xs px-3 py-1.5 rounded-xl bg-grape hover:bg-[#6A50E8] text-white font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
         </svg>
         <span>Install App</span>
       </button>
-      <button onclick="seedDemoData()" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 font-medium transition" id="demo-btn">
+      <button onclick="seedDemoData()" class="text-xs px-3 py-1.5 rounded-xl border border-[#F0E6D8] bg-white hover:bg-[#FFF9F0] text-[#5A6B8A] font-semibold transition" id="demo-btn">
         Load 7-Day Demo
       </button>
-      <button onclick="exportCSV()" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 font-medium transition" id="export-btn">
+      <button onclick="exportCSV()" class="text-xs px-3 py-1.5 rounded-xl border border-[#F0E6D8] bg-white hover:bg-[#FFF9F0] text-[#5A6B8A] font-semibold transition" id="export-btn">
         Export CSV
       </button>
-      <button onclick="toggleTheme()" class="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition" title="Toggle Day/Night Mode" id="theme-btn">
+      <button onclick="toggleTheme()" class="p-2 rounded-xl border border-[#F0E6D8] bg-white hover:bg-[#FFF9F0] text-[#5A6B8A] transition" title="Toggle Day/Night Mode" id="theme-btn">
         <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
         </svg>
@@ -71,27 +74,27 @@
   <main class="w-full max-w-4xl mx-auto px-4 py-2 space-y-6 flex-grow">
 
     <!-- Status Banner -->
-    <div id="status-card" class="rounded-2xl p-6 bg-white border border-slate-200/80 card-shadow transition-all">
+    <div id="status-card" class="rounded-[22px] p-6 bg-white border border-[#F0E6D8] card-shadow transition-all">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="space-y-1">
-          <span id="state-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span id="state-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFE9A8] text-navy">
+            <span class="w-1.5 h-1.5 rounded-full bg-sunny animate-pulse"></span>
             Awake & Active
           </span>
-          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight pt-1" id="live-clock">00:00:00 AM</h2>
-          <p class="text-sm text-slate-500" id="state-subtext">Ready to log bedtime whenever you turn in.</p>
+          <h2 class="text-2xl sm:text-3xl font-fredoka font-semibold tracking-tight pt-1" id="live-clock">00:00:00 AM</h2>
+          <p class="text-sm text-[#5A6B8A]" id="state-subtext">Ready to log bedtime whenever you turn in.</p>
         </div>
 
         <!-- Primary One-Click Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <button id="btn-sleep" onclick="logSleep()" class="flex-1 md:flex-initial flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold shadow-sm transition cursor-pointer">
+          <button id="btn-sleep" onclick="logSleep()" class="flex-1 md:flex-initial flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-grape hover:bg-[#6A50E8] active:scale-[0.98] text-white font-bold shadow-sm transition cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
             </svg>
             <span>Going to Sleep</span>
           </button>
 
-          <button id="btn-wake" onclick="logWake()" class="flex-1 md:flex-initial flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-semibold shadow-sm transition cursor-pointer">
+          <button id="btn-wake" onclick="logWake()" class="flex-1 md:flex-initial flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-sunny hover:bg-[#F5BC1E] active:scale-[0.98] text-navy font-bold shadow-sm transition cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
             </svg>
@@ -101,14 +104,14 @@
       </div>
 
       <!-- Optional Quick Quality & Undo Strip -->
-      <div id="post-log-bar" class="hidden mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-sm">
+      <div id="post-log-bar" class="hidden mt-5 pt-4 border-t border-[#F0E6D8] flex flex-wrap items-center justify-between gap-3 text-sm">
         <div class="flex items-center gap-2" id="quality-selector">
-          <span class="text-slate-500 text-xs font-medium">Rate sleep quality:</span>
-          <button onclick="setLastQuality('Rested')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition">Rested</button>
-          <button onclick="setLastQuality('Okay')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 transition">Okay</button>
-          <button onclick="setLastQuality('Groggy')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition">Groggy</button>
+          <span class="text-[#5A6B8A] text-xs font-medium">Rate sleep quality:</span>
+          <button onclick="setLastQuality('Rested')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#DFF5F2] text-[#0E7C74] hover:bg-[#C8EFEA] border border-[#BDE8E2] transition">Rested</button>
+          <button onclick="setLastQuality('Okay')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#EFEAFE] text-[#6A50E8] hover:bg-[#E2D9FF] border border-[#D8CBFF] transition">Okay</button>
+          <button onclick="setLastQuality('Groggy')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FFE3E3] text-[#C73E3E] hover:bg-[#FFD2D2] border border-[#FFC9C9] transition">Groggy</button>
         </div>
-        <button onclick="undoLastAction()" class="text-xs text-rose-600 hover:underline font-medium ml-auto">
+        <button onclick="undoLastAction()" class="text-xs text-coral hover:underline font-medium ml-auto">
           Undo last timestamp
         </button>
       </div>
@@ -116,76 +119,76 @@
 
     <!-- KPI Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 card-shadow theme-card">
-        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">7-Day Avg Duration</p>
+      <div class="p-5 rounded-[22px] bg-white border border-[#F0E6D8] card-shadow theme-card">
+        <p class="text-xs font-bold text-[#5A6B8A] uppercase tracking-wider">7-Day Avg Duration</p>
         <div class="mt-2 flex items-baseline gap-2">
           <span class="text-2xl font-bold" id="kpi-avg-duration">--</span>
-          <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700" id="kpi-goal-tag">Goal: 8h</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#EFEAFE] text-[#6A50E8]" id="kpi-goal-tag">Goal: 8h</span>
         </div>
       </div>
 
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 card-shadow theme-card">
-        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Bedtime / Wake</p>
+      <div class="p-5 rounded-[22px] bg-white border border-[#F0E6D8] card-shadow theme-card">
+        <p class="text-xs font-bold text-[#5A6B8A] uppercase tracking-wider">Avg Bedtime / Wake</p>
         <div class="mt-2 flex items-baseline gap-2">
           <span class="text-lg font-bold" id="kpi-avg-times">-- / --</span>
         </div>
-        <p class="text-xs text-slate-400 mt-0.5" id="kpi-consistency">Log 2+ nights for consistency</p>
+        <p class="text-xs text-[#8A97B0] mt-0.5" id="kpi-consistency">Log 2+ nights for consistency</p>
       </div>
 
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 card-shadow theme-card">
-        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Weekly Sleep Balance</p>
+      <div class="p-5 rounded-[22px] bg-white border border-[#F0E6D8] card-shadow theme-card">
+        <p class="text-xs font-bold text-[#5A6B8A] uppercase tracking-wider">Weekly Sleep Balance</p>
         <div class="mt-2 flex items-baseline gap-2">
           <span class="text-2xl font-bold" id="kpi-debt">--</span>
-          <span class="text-xs text-slate-500">vs 56h target</span>
+          <span class="text-xs text-[#5A6B8A]">vs 56h target</span>
         </div>
       </div>
     </div>
 
     <!-- 7-Day Visual Bar Chart -->
-    <div class="p-6 rounded-2xl bg-white border border-slate-200/80 card-shadow theme-card">
+    <div class="p-6 rounded-[22px] bg-white border border-[#F0E6D8] card-shadow theme-card">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h3 class="text-base font-semibold">Recent Sleep Duration</h3>
-          <p class="text-xs text-slate-500">Last 7 completed sleep sessions (dashed line = 8h target)</p>
+          <h3 class="text-base font-fredoka font-semibold">Sleep This Week</h3>
+          <p class="text-xs text-[#5A6B8A]">Last 7 completed sleep sessions (dashed line = 8h target)</p>
         </div>
-        <button onclick="openManualModal()" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+        <button onclick="openManualModal()" class="text-xs font-bold text-[#6A50E8] hover:text-[#5A3FD4] bg-[#EFEAFE] hover:bg-[#E2D9FF] px-3 py-1.5 rounded-xl transition">
           + Manual Entry
         </button>
       </div>
 
-      <div class="relative h-44 flex items-end justify-between gap-2 sm:gap-4 pt-6 pb-2 px-2 border-b border-slate-100" id="chart-container">
-        <div class="absolute left-0 right-0 border-t border-dashed border-emerald-400/70 pointer-events-none flex justify-end" style="bottom: 66.6%;">
-          <span class="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 rounded -mt-2.5">8h</span>
+      <div class="relative h-44 flex items-end justify-between gap-2 sm:gap-4 pt-6 pb-2 px-2 border-b border-[#F0E6D8]" id="chart-container">
+        <div class="absolute left-0 right-0 border-t border-dashed border-teal/70 pointer-events-none flex justify-end" style="bottom: 66.6%;">
+          <span class="text-[10px] font-bold text-[#0E7C74] bg-[#E6F7F5] px-1.5 rounded -mt-2.5">8h</span>
         </div>
       </div>
-      <div class="flex justify-between gap-2 sm:gap-4 px-2 pt-2 text-[11px] text-slate-400 font-medium" id="chart-labels"></div>
+      <div class="flex justify-between gap-2 sm:gap-4 px-2 pt-2 text-[11px] text-[#8A97B0] font-semibold" id="chart-labels"></div>
     </div>
 
     <!-- Actionable Feedback & Insights Box -->
-    <div class="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-start gap-3.5" id="feedback-box">
-      <div class="p-2 rounded-xl bg-indigo-600 text-white shrink-0 mt-0.5">
+    <div class="p-5 rounded-[22px] bg-[#F3F0FF] border border-[#E4DCFF] flex items-start gap-3.5" id="feedback-box">
+      <div class="p-2 rounded-xl bg-grape text-white shrink-0 mt-0.5">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
       </div>
       <div>
-        <h4 class="text-sm font-semibold text-indigo-950" id="feedback-title">Sleep Coach Insight</h4>
-        <p class="text-xs sm:text-sm text-indigo-900/80 mt-0.5 leading-relaxed" id="feedback-text">
+        <h4 class="text-sm font-fredoka font-semibold text-navy" id="feedback-title">Sleep Coach Insight</h4>
+        <p class="text-xs sm:text-sm text-[#4A5578] mt-0.5 leading-relaxed" id="feedback-text">
           Tap "Going to Sleep" tonight and "Woke Up" tomorrow morning to start generating personalized circadian rhythm feedback.
         </p>
       </div>
     </div>
 
     <!-- History Table -->
-    <div class="rounded-2xl bg-white border border-slate-200/80 card-shadow overflow-hidden theme-card">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="text-base font-semibold">Sleep Log History</h3>
-        <button onclick="clearAllData()" class="text-xs text-slate-400 hover:text-rose-600 transition">Clear All</button>
+    <div class="rounded-[22px] bg-white border border-[#F0E6D8] card-shadow overflow-hidden theme-card">
+      <div class="px-6 py-4 border-b border-[#F0E6D8] flex items-center justify-between">
+        <h3 class="text-base font-fredoka font-semibold">Sleep Log History</h3>
+        <button onclick="clearAllData()" class="text-xs text-[#8A97B0] hover:text-coral transition">Clear All</button>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <tr class="border-b border-[#F0E6D8] text-[11px] font-bold uppercase tracking-wider text-[#8A97B0]">
               <th class="py-3 px-6">Date</th>
               <th class="py-3 px-4">Bedtime</th>
               <th class="py-3 px-4">Wake Time</th>
@@ -194,7 +197,7 @@
               <th class="py-3 px-6 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="history-tbody" class="divide-y divide-slate-100 text-sm"></tbody>
+          <tbody id="history-tbody" class="divide-y divide-[#F5EDE0] text-sm"></tbody>
         </table>
       </div>
     </div>
@@ -202,44 +205,44 @@
   </main>
 
   <!-- Manual Entry Modal -->
-  <div id="manual-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 text-slate-800">
+  <div id="manual-modal" class="fixed inset-0 bg-navy/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-[22px] max-w-md w-full p-6 shadow-xl border border-[#F0E6D8] text-navy">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold">Add / Edit Sleep Log</h3>
-        <button onclick="closeManualModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+        <h3 class="text-lg font-fredoka font-semibold">Add / Edit Sleep Log</h3>
+        <button onclick="closeManualModal()" class="text-[#8A97B0] hover:text-navy">&times;</button>
       </div>
       <form onsubmit="saveManualEntry(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Bedtime (Evening)</label>
-          <input type="datetime-local" id="manual-sleep" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-indigo-500" />
+          <label class="block text-xs font-bold text-[#5A6B8A] mb-1">Bedtime (Evening)</label>
+          <input type="datetime-local" id="manual-sleep" required class="w-full px-3 py-2 rounded-xl border border-[#E4DCCF] text-sm focus:outline-none focus:border-grape" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Wake Time (Morning)</label>
-          <input type="datetime-local" id="manual-wake" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-indigo-500" />
+          <label class="block text-xs font-bold text-[#5A6B8A] mb-1">Wake Time (Morning)</label>
+          <input type="datetime-local" id="manual-wake" required class="w-full px-3 py-2 rounded-xl border border-[#E4DCCF] text-sm focus:outline-none focus:border-grape" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">How did you feel?</label>
-          <select id="manual-quality" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs font-bold text-[#5A6B8A] mb-1">How did you feel?</label>
+          <select id="manual-quality" class="w-full px-3 py-2 rounded-xl border border-[#E4DCCF] text-sm focus:outline-none focus:border-grape">
             <option value="Rested">Rested</option>
             <option value="Okay">Okay</option>
             <option value="Groggy">Groggy</option>
           </select>
         </div>
         <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeManualModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700">Save Entry</button>
+          <button type="button" onclick="closeManualModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-[#5A6B8A] hover:bg-[#FFF9F0]">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-grape text-white hover:bg-[#6A50E8]">Save Entry</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+  <div id="toast" class="fixed bottom-5 right-5 bg-navy text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
     Saved to LocalStorage
   </div>
 
-  <footer class="w-full max-w-4xl mx-auto px-4 py-6 text-center text-xs text-slate-400">
-    Installable Offline PWA &bull; Data stored privately in browser <code class="bg-slate-200/60 px-1.5 py-0.5 rounded text-slate-600">localStorage</code>.
+  <footer class="w-full max-w-4xl mx-auto px-4 py-6 text-center text-xs text-[#8A97B0]">
+    Installable Offline PWA &bull; Data stored privately in browser <code class="bg-[#F0E6D8] px-1.5 py-0.5 rounded text-[#5A6B8A]">localStorage</code>.
   </footer>
 
   <script>
@@ -508,21 +511,21 @@
       const btnWake = document.getElementById('btn-wake');
 
       if (active) {
-        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300';
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span> Sleeping Now';
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-grape/20 text-[#B9A8FF]';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-grape animate-ping"></span> Sleeping Now';
         subtext.textContent = `Bedtime recorded at ${formatTime(active)}. Tap "Woke Up" in the morning.`;
         btnSleep.classList.add('opacity-60');
-        btnWake.classList.add('ring-4', 'ring-amber-400/40');
+        btnWake.classList.add('ring-4', 'ring-sunny/50');
         postBar.classList.remove('hidden');
         qualitySel.classList.add('hidden');
       } else {
-        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Awake & Active';
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFE9A8] text-navy';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sunny"></span> Awake & Active';
         subtext.textContent = logs.length
           ? `Last session: ${formatDuration(logs[0].durationHours)} (woke at ${formatTime(logs[0].wakeTime)})`
           : 'Ready to log bedtime whenever you turn in.';
         btnSleep.classList.remove('opacity-60');
-        btnWake.classList.remove('ring-4', 'ring-amber-400/40');
+        btnWake.classList.remove('ring-4', 'ring-sunny/50');
 
         if (justWoke) {
           postBar.classList.remove('hidden');
@@ -555,7 +558,7 @@
       const diff = totalHrs - targetHrs;
       const debtEl = document.getElementById('kpi-debt');
       debtEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + 'h';
-      debtEl.className = `text-2xl font-bold ${diff >= 0 ? 'text-emerald-500' : 'text-amber-500'}`;
+      debtEl.className = `text-2xl font-bold ${diff >= 0 ? 'text-teal' : 'text-coral'}`;
 
       let sleepMinsSum = 0;
       let wakeMinsSum = 0;
@@ -585,7 +588,7 @@
 
       const last7 = logs.slice(0, 7).reverse();
       if (last7.length === 0) {
-        container.innerHTML += `<div class="w-full h-full flex items-center justify-center text-xs text-slate-400">No sleep sessions logged yet</div>`;
+        container.innerHTML += `<div class="w-full h-full flex items-center justify-center text-xs text-[#8A97B0]">No sleep sessions logged yet</div>`;
         return;
       }
 
@@ -593,10 +596,10 @@
       last7.forEach(log => {
         const pct = Math.min(100, Math.round((log.durationHours / maxScale) * 100));
         const barColor = log.durationHours >= 7.5
-          ? 'bg-indigo-600 hover:bg-indigo-500'
+          ? 'bg-teal hover:bg-[#25B3A6]'
           : log.durationHours >= 6
-            ? 'bg-sky-500 hover:bg-sky-400'
-            : 'bg-amber-500 hover:bg-amber-400';
+            ? 'bg-grape hover:bg-[#6A50E8]'
+            : 'bg-coral hover:bg-[#F25C5C]';
 
         const barCol = document.createElement('div');
         barCol.className = 'flex-1 flex flex-col items-center justify-end h-full group relative';
@@ -642,29 +645,29 @@
     function renderTable(logs) {
       const tbody = document.getElementById('history-tbody');
       if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">No entries recorded yet. Click "Going to Sleep" or "Load 7-Day Demo" above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-[#8A97B0]">No entries recorded yet. Click "Going to Sleep" or "Load 7-Day Demo" above.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = logs.map(log => {
         const wakeDate = new Date(log.wakeTime).toLocaleDateString([], { month: 'short', day: 'numeric', weekday: 'short' });
         const qBadge = log.quality === 'Rested'
-          ? 'bg-emerald-100 text-emerald-800'
+          ? 'bg-[#DFF5F2] text-[#0E7C74]'
           : log.quality === 'Groggy'
-            ? 'bg-rose-100 text-rose-800'
-            : 'bg-sky-100 text-sky-800';
+            ? 'bg-[#FFE3E3] text-[#C73E3E]'
+            : 'bg-[#EFEAFE] text-[#6A50E8]';
 
         return `
-          <tr class="hover:bg-slate-500/5 transition">
+          <tr class="hover:bg-[#FFF9F0] transition">
             <td class="py-3.5 px-6 font-medium">${wakeDate}</td>
-            <td class="py-3.5 px-4 text-slate-500">${formatTime(log.sleepTime)}</td>
-            <td class="py-3.5 px-4 text-slate-500">${formatTime(log.wakeTime)}</td>
+            <td class="py-3.5 px-4 text-[#5A6B8A]">${formatTime(log.sleepTime)}</td>
+            <td class="py-3.5 px-4 text-[#5A6B8A]">${formatTime(log.wakeTime)}</td>
             <td class="py-3.5 px-4 font-semibold">${formatDuration(log.durationHours)}</td>
             <td class="py-3.5 px-4">
               <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${qBadge}">${log.quality || 'Rested'}</span>
             </td>
             <td class="py-3.5 px-6 text-right">
-              <button onclick="deleteLog('${log.id}')" class="text-xs text-slate-400 hover:text-rose-600 transition">Delete</button>
+              <button onclick="deleteLog('${log.id}')" class="text-xs text-[#8A97B0] hover:text-coral transition">Delete</button>
             </td>
           </tr>
         `;
@@ -685,33 +688,33 @@
       const metaTheme = document.getElementById('meta-theme-color');
 
       if (isDark) {
-        metaTheme.setAttribute('content', '#020617');
-        body.classList.remove('bg-slate-50', 'text-slate-800');
-        body.classList.add('bg-slate-950', 'text-slate-100');
-        statusCard.classList.remove('bg-white', 'border-slate-200/80', 'card-shadow');
-        statusCard.classList.add('bg-slate-900', 'border-slate-800', 'dark-card-shadow');
+        metaTheme.setAttribute('content', '#101B33');
+        body.classList.remove('bg-cream', 'text-navy');
+        body.classList.add('bg-[#101B33]', 'text-[#FFF9F0]');
+        statusCard.classList.remove('bg-white', 'border-[#F0E6D8]', 'card-shadow');
+        statusCard.classList.add('bg-navy', 'border-[#2A3A5C]', 'dark-card-shadow');
         cards.forEach(c => {
-          c.classList.remove('bg-white', 'border-slate-200/80', 'card-shadow');
-          c.classList.add('bg-slate-900', 'border-slate-800', 'dark-card-shadow');
+          c.classList.remove('bg-white', 'border-[#F0E6D8]', 'card-shadow');
+          c.classList.add('bg-navy', 'border-[#2A3A5C]', 'dark-card-shadow');
         });
-        feedbackBox.classList.remove('bg-indigo-50/70', 'border-indigo-100');
-        feedbackBox.classList.add('bg-indigo-950/50', 'border-indigo-900/60');
-        document.getElementById('feedback-title').classList.replace('text-indigo-950', 'text-indigo-200');
-        document.getElementById('feedback-text').classList.replace('text-indigo-900/80', 'text-indigo-300/80');
+        feedbackBox.classList.remove('bg-[#F3F0FF]', 'border-[#E4DCFF]');
+        feedbackBox.classList.add('bg-[#2A2350]', 'border-[#3D3468]');
+        document.getElementById('feedback-title').classList.replace('text-navy', 'text-[#EFEAFE]');
+        document.getElementById('feedback-text').classList.replace('text-[#4A5578]', 'text-[#C9BFFF]');
       } else {
-        metaTheme.setAttribute('content', '#4f46e5');
-        body.classList.add('bg-slate-50', 'text-slate-800');
-        body.classList.remove('bg-slate-950', 'text-slate-100');
-        statusCard.classList.add('bg-white', 'border-slate-200/80', 'card-shadow');
-        statusCard.classList.remove('bg-slate-900', 'border-slate-800', 'dark-card-shadow');
+        metaTheme.setAttribute('content', '#7B61FF');
+        body.classList.add('bg-cream', 'text-navy');
+        body.classList.remove('bg-[#101B33]', 'text-[#FFF9F0]');
+        statusCard.classList.add('bg-white', 'border-[#F0E6D8]', 'card-shadow');
+        statusCard.classList.remove('bg-navy', 'border-[#2A3A5C]', 'dark-card-shadow');
         cards.forEach(c => {
-          c.classList.add('bg-white', 'border-slate-200/80', 'card-shadow');
-          c.classList.remove('bg-slate-900', 'border-slate-800', 'dark-card-shadow');
+          c.classList.add('bg-white', 'border-[#F0E6D8]', 'card-shadow');
+          c.classList.remove('bg-navy', 'border-[#2A3A5C]', 'dark-card-shadow');
         });
-        feedbackBox.classList.add('bg-indigo-50/70', 'border-indigo-100');
-        feedbackBox.classList.remove('bg-indigo-950/50', 'border-indigo-900/60');
-        document.getElementById('feedback-title').classList.replace('text-indigo-200', 'text-indigo-950');
-        document.getElementById('feedback-text').classList.replace('text-indigo-300/80', 'text-indigo-900/80');
+        feedbackBox.classList.add('bg-[#F3F0FF]', 'border-[#E4DCFF]');
+        feedbackBox.classList.remove('bg-[#2A2350]', 'border-[#3D3468]');
+        document.getElementById('feedback-title').classList.replace('text-[#EFEAFE]', 'text-navy');
+        document.getElementById('feedback-text').classList.replace('text-[#C9BFFF]', 'text-[#4A5578]');
       }
     }
 

@@ -1,13 +1,13 @@
 {
-  "name": "SleepPulse — One-Click Sleep Monitor",
+  "name": "SleepPulse \u2014 One-Click Sleep Monitor",
   "short_name": "SleepPulse",
   "description": "Zero-friction one-click sleep tracker with private offline local storage.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#020617",
-  "theme_color": "#4f46e5",
+  "background_color": "#101B33",
+  "theme_color": "#7B61FF",
   "icons": [
     {
       "src": "./icon.svg",
@@ -22,14 +22,24 @@
       "short_name": "Sleep",
       "description": "Log bedtime right now",
       "url": "./index.html?action=sleep",
-      "icons": [{ "src": "./icon.svg", "sizes": "any" }]
+      "icons": [
+        {
+          "src": "./icon.svg",
+          "sizes": "any"
+        }
+      ]
     },
     {
       "name": "Woke Up",
       "short_name": "Wake Up",
       "description": "Log morning wake-up time",
       "url": "./index.html?action=wake",
-      "icons": [{ "src": "./icon.svg", "sizes": "any" }]
+      "icons": [
+        {
+          "src": "./icon.svg",
+          "sizes": "any"
+        }
+      ]
     }
   ]
 }
