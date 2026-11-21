@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Apps</title>
+  <meta name="description" content="Small apps, one tap each. Open one, or install it on your phone." />
+  <meta name="theme-color" content="#FFF9F0" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #FFF9F0;
+      color: #1B2A4A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 32px;
+    }
+    header { text-align: center; max-width: 560px; }
+    h1 {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    header p { margin-top: 8px; font-size: 17px; color: #5A6B8A; line-height: 1.5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+      gap: 20px;
+      justify-content: center;
+      width: 100%;
+      max-width: 760px;
+      margin-top: 36px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 6px 24px rgba(27, 42, 74, 0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card img {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 4px 14px rgba(27, 42, 74, 0.12);
+    }
+    .card h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 22px; font-weight: 600; }
+    .card p { font-size: 15px; line-height: 1.55; color: #5A6B8A; flex-grow: 1; }
+    .open {
+      display: inline-block;
+      text-align: center;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .open.gk { background: #FF6B6B; }
+    .open.sleep { background: #4F46E5; }
+    .install-note { font-size: 13px; color: #8A97B0; }
+    footer { margin-top: 40px; font-size: 13px; color: #8A97B0; text-align: center; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mini Apps</h1>
+    <p>Small apps, one tap each. Open one below, or install it on your phone like a real app.</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <img src="./wonder-kids-gk/icon-192.png" alt="Wonder Kids GK icon" />
+      <h2>Wonder Kids GK</h2>
+      <p>Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard.</p>
+      <a class="open gk" href="./wonder-kids-gk/">Open Wonder Kids GK</a>
+      <span class="install-note">Installable app &middot; works offline</span>
+    </section>
+
+    <section class="card">
+      <img src="./sleep-pulse/icon.svg" alt="SleepPulse icon" />
+      <h2>SleepPulse</h2>
+      <p>One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device.</p>
+      <a class="open sleep" href="./sleep-pulse/">Open SleepPulse</a>
+      <span class="install-note">Installable app &middot; works offline</span>
+    </section>
+  </main>
+
+  <footer>
+    Each app installs separately &mdash; open it, then use your browser&rsquo;s Install option.<br />
+    More mini apps coming soon.
+  </footer>
+</body>
+</html>
