@@ -222,19 +222,21 @@
       align-items: flex-end;
       justify-content: center;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
-    .overlay.open { opacity: 1; visibility: visible; }
+    .overlay.open { opacity: 1; pointer-events: auto; }
     .sheet {
       background: #fff;
       width: 100%;
       max-height: 88vh;
+      max-height: 88dvh;
       border-radius: 24px 24px 0 0;
       overflow-y: auto;
       overscroll-behavior: contain;
       transform: translateY(102%);
       transition: transform 0.3s ease;
+      will-change: transform;
       position: relative;
       box-shadow: 0 -8px 32px rgba(27, 42, 74, 0.2);
     }
@@ -243,7 +245,7 @@
       width: 40px;
       height: 4px;
       border-radius: 999px;
-      background: #E5DCC8;
+      background: #C9C2B0;
       margin: 12px auto 4px;
       flex-shrink: 0;
     }
@@ -261,14 +263,14 @@
       line-height: 1;
       cursor: pointer;
     }
-    .sheet-body { padding: 6px 24px 30px; }
+    .sheet-body { padding: 6px 24px 30px; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)); text-align: left; }
     .sheet-body img.app-icon {
       width: 96px; height: 96px;
       border-radius: 22px;
       object-fit: cover;
       box-shadow: 0 4px 14px rgba(27, 42, 74, 0.12);
     }
-    .sheet-body h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 28px; font-weight: 700; margin-top: 14px; padding-right: 36px; }
+    .sheet-body h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 28px; font-weight: 700; margin-top: 14px; padding-right: 36px; color: #1B2A4A; opacity: 1; }
     .sheet-body .tagline { font-size: 16px; color: #5A6B8A; line-height: 1.55; margin-top: 8px; }
     .sheet-body p.desc { font-size: 15px; color: #1B2A4A; line-height: 1.6; margin-top: 12px; }
     .sheet-body ul { margin: 14px 0 4px 20px; font-size: 15px; line-height: 1.7; color: #5A6B8A; }
@@ -297,6 +299,7 @@
       .sheet {
         width: min(560px, 92vw);
         max-height: 86vh;
+        max-height: 86dvh;
         border-radius: 22px;
         transform: translateY(12px) scale(0.97);
       }
@@ -320,10 +323,12 @@
         gap: 8px;
         border-radius: 18px;
       }
-      .card img { width: 60px; height: 60px; border-radius: 16px; }
-      .card h2 { font-size: 13px; padding-right: 0; line-height: 1.3; }
+      .card img { width: 60px; height: 60px; border-radius: 16px; order: 1; }
+      .card h2 { font-size: 13px; padding-right: 0; line-height: 1.3; order: 2; }
       .card .cat, .card p, .card .open, .card .install-note { display: none; }
-      .star { top: 6px; right: 6px; font-size: 18px; }
+      .star { position: static; order: 3; font-size: 18px; margin-top: 2px; }
+      .sheet { left: 0; right: 0; width: auto; }
+      .overlay { align-items: flex-end; }
     }
   </style>
 </head>
@@ -515,6 +520,7 @@ function render() {
 /* ---------- Bottom sheet / modal ---------- */
 
 function showSheet() {
+  document.getElementById('sheet').scrollTop = 0;
   document.getElementById('sheetOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
