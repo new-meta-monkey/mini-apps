@@ -272,10 +272,17 @@
     }
     .sheet-body h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 28px; font-weight: 700; margin-top: 14px; padding-right: 36px; color: #1B2A4A; opacity: 1; }
     .sheet-body .tagline { font-size: 16px; color: #5A6B8A; line-height: 1.55; margin-top: 8px; }
-    .sheet-body p.desc { font-size: 15px; color: #1B2A4A; line-height: 1.6; margin-top: 12px; }
-    .sheet-body ul { margin: 14px 0 4px 20px; font-size: 15px; line-height: 1.7; color: #5A6B8A; }
+    .sheet-head { display: flex; gap: 16px; align-items: flex-start; margin-top: 10px; }
+    .sheet-head img.app-icon { width: 72px; height: 72px; border-radius: 18px; flex: 0 0 auto; }
+    .sheet-head-text { min-width: 0; }
+    .sheet-head-text h2 { margin-top: 2px; }
+    .sheet-head-text .tagline { margin-top: 6px; }
+    .sheet-section-title { margin-top: 22px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #8A97B0; }
+    .sheet-body ul { margin: 10px 0 0 18px; font-size: 15px; line-height: 1.55; color: #5A6B8A; }
+    .sheet-body ul li { margin-bottom: 6px; }
     .sheet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
     .sheet-actions .open { flex: 1 1 160px; }
+    .sheet-actions .fav-btn { flex: 0 0 48px; font-size: 22px; padding: 12px 0; }
     .ghost-btn {
       flex: 1 1 160px;
       text-align: center;
@@ -350,6 +357,14 @@
 
   <main id="grid" class="grid"></main>
 
+  <noscript>
+    <div style="max-width: 620px; margin: 28px auto 0; text-align: center; line-height: 1.7; font-size: 15px; color: #5A6B8A;">
+      <p><strong>Wonder Kids GK</strong> — Kids &amp; Learning. Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard. <a href="./wonder-kids-gk/">Open Wonder Kids GK</a></p>
+      <p><strong>SleepPulse</strong> — Health. One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device. <a href="./sleep-pulse/">Open SleepPulse</a></p>
+      <p><strong>ShopPulse</strong> — Money. Offline shop manager — POS billing, stock, sales, expenses and reports. Multi-shop, works without internet. <a href="./shop-pulse/">Open ShopPulse</a></p>
+    </div>
+  </noscript>
+
   <div id="sheetOverlay" class="overlay">
     <div id="sheet" class="sheet" role="dialog" aria-modal="true">
       <div class="sheet-handle" id="sheetHandle"></div>
@@ -373,7 +388,7 @@ var APPS = [
     icon: './wonder-kids-gk/icon-192.png',
     tagline: 'Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard.',
     desc: 'A general knowledge quiz app for kids. Flip through photo cards to learn, then take the Challenge quiz in each topic. Scores save to a leaderboard, and everything works offline once installed.',
-    features: ['11 topics: animals, space, world, science, food, India and Tamil Nadu', '330 learn cards and 330 quiz questions', 'Streak boost: 3 correct in a row doubles points', 'Leaderboard with player names'],
+    features: ['11 topics · 330 learn cards · 330 quiz questions', 'Streak boost: 3 correct in a row doubles points', 'Leaderboard with player names'],
     folder: './wonder-kids-gk/',
     zip: './downloads/wonder-kids-gk.zip'
   },
@@ -385,7 +400,7 @@ var APPS = [
     icon: './sleep-pulse/icon.svg',
     tagline: 'One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device.',
     desc: 'Tap once when you sleep and once when you wake. SleepPulse works out your hours, your weekly balance against the 8-hour goal, and shows a simple sleep coach note. No account, no cloud, everything stays on your phone.',
-    features: ['One-tap sleep and wake logging', '7-day average duration, bedtime and wake time', 'Weekly balance against the 56-hour goal', 'History table, quality rating and CSV export'],
+    features: ['One-tap sleep and wake logging', '7-day averages against the 8-hour goal', 'History, quality rating and CSV export'],
     folder: './sleep-pulse/',
     zip: './downloads/sleep-pulse.zip'
   },
@@ -397,7 +412,7 @@ var APPS = [
     icon: './shop-pulse/icon.svg',
     tagline: 'Offline shop manager — POS billing, stock, sales, expenses and reports. Multi-shop, works without internet.',
     desc: 'A full shop manager that runs entirely offline. Billing with invoices, stock, purchases, customers, expenses, staff and reports across multiple shops, with its own backup and restore built in.',
-    features: ['POS billing with invoices and returns', 'Stock, purchases, customers and suppliers', 'Expenses, payroll and profit reports', 'Multi-shop, with per-shop backup and restore'],
+    features: ['POS billing with invoices and returns', 'Stock, customers and suppliers', 'Expenses, payroll and profit reports'],
     folder: './shop-pulse/',
     zip: './downloads/shop-pulse.zip'
   }
@@ -545,20 +560,24 @@ function renderAppSheet(id) {
   var a = null;
   APPS.forEach(function (x) { if (x.id === id) a = x; });
   if (!a) return;
+  var fav = isFav(a.id);
   var feats = a.features.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('');
   document.getElementById('sheetBody').innerHTML =
-    '<img class="app-icon" src="' + a.icon + '" alt="' + esc(a.name) + ' icon" />'
+    '<div class="sheet-head">'
+    + '<img class="app-icon" src="' + a.icon + '" alt="' + esc(a.name) + ' icon" />'
+    + '<div class="sheet-head-text">'
     + '<h2>' + esc(a.name) + '</h2>'
     + '<span class="cat">' + esc(catLabel(a.cat)) + '</span>'
     + '<p class="tagline">' + esc(a.tagline) + '</p>'
-    + '<p class="desc">' + esc(a.desc) + '</p>'
+    + '</div></div>'
+    + '<div class="sheet-section-title">About this app</div>'
     + '<ul>' + feats + '</ul>'
     + '<div class="sheet-actions">'
     + '<a class="open" style="background:' + a.accent + '" href="' + a.folder + '">Open ' + esc(a.name) + '</a>'
     + '<a class="ghost-btn" href="' + a.zip + '" download>Download app</a>'
-    + '<button type="button" class="ghost-btn" id="sheetFavBtn">' + (isFav(a.id) ? '★ Favourited' : '☆ Add to favourites') + '</button>'
+    + '<button type="button" class="ghost-btn fav-btn" id="sheetFavBtn" aria-label="' + (fav ? 'Remove from favourites' : 'Add to favourites') + '">' + (fav ? '★' : '☆') + '</button>'
     + '</div>'
-    + '<span class="install-note">Installable app &middot; works offline. Download app saves a copy of this app (with its own icon) that you can keep or install on its own.</span>';
+    + '<span class="install-note">Installable app &middot; works offline.</span>';
   document.getElementById('sheetFavBtn').addEventListener('click', function () {
     toggleFav(a.id);
   });
