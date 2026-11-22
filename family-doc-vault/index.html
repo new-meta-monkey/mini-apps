@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f2f4f8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="DocVault" />
+  <title>Family Doc Vault</title>
+  <meta name="description" content="Family Doc Vault — an offline-first, AES-256 encrypted family document wallet. Auto-OCR fills Aadhaar, PAN, passport and more. Biometric unlock. Everything stays on your device." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://myapps.kovai.fyi/family-doc-vault/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Family Doc Vault — Encrypted Family Document Wallet" />
+  <meta property="og:description" content="Offline-first, AES-256 encrypted family document wallet with auto-OCR and biometric unlock. Aadhaar, PAN, passport and more, safe on your phone." />
+  <meta property="og:url" content="https://myapps.kovai.fyi/family-doc-vault/" />
+  <meta property="og:image" content="https://myapps.kovai.fyi/family-doc-vault/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Family Doc Vault — Encrypted Family Document Wallet" />
+  <meta name="twitter:description" content="Offline-first, AES-256 encrypted family document wallet with auto-OCR and biometric unlock." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    "name": "Family Doc Vault",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Android, iOS",
+    "offers": { "@type": "Offer", "price": "0" },
+    "url": "https://myapps.kovai.fyi/family-doc-vault/"
+  }
+  </script>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    :root {
+      --bg: #f2f4f8;
+      --surface: #ffffff;
+      --surface-muted: #f1f5f9;
+      --border: rgba(15, 23, 42, 0.08);
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-soft: #eef2ff;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --tab-h: 64px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Inter, sans-serif;
+      overscroll-behavior-y: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Center mobile app frame nicely on desktop while full-bleed on mobile */
+    .mobile-shell {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      background: var(--bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 540px) {
+      body { background: #e2e8f0; }
+      .mobile-shell {
+        box-shadow: 0 0 50px rgba(15, 23, 42, 0.12);
+      }
+    }
+
+    /* ============================================================
+       LOCK SCREEN (Native Biometric + Passcode Feel)
+       ============================================================ */
+    .lock-screen {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(44px + var(--safe-top)) 24px calc(28px + var(--safe-bottom));
+      background: linear-gradient(180deg, #eef2ff 0%, #f2f4f8 45%, #ffffff 100%);
+    }
+    .lock-top {
+      text-align: center;
+      margin-top: 24px;
+    }
+    .lock-emblem {
+      width: 76px;
+      height: 76px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 14px 28px rgba(79, 70, 229, 0.28);
+      margin-bottom: 18px;
+    }
+    .lock-top h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .lock-top p {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .lock-card {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .bio-btn {
+      width: 100%;
+      padding: 15px 18px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.30);
+      margin-bottom: 16px;
+      transition: transform 0.12s ease;
+    }
+    .bio-btn:active { transform: scale(0.98); }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .divider-text::before, .divider-text::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Native Inputs & Buttons */
+    .input-group { margin-bottom: 14px; }
+    .input-group label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="password"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: var(--surface-muted);
+      font-size: 1rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      background: var(--surface);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14);
+    }
+    textarea { min-height: 84px; resize: vertical; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 13px 18px;
+      border-radius: 14px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.12s ease, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-soft { background: var(--primary-soft); color: var(--primary); }
+    .btn-muted { background: var(--surface-muted); color: var(--text); }
+    .btn-danger { background: var(--danger-soft); color: var(--danger); }
+    .btn-sm { padding: 9px 13px; font-size: 0.84rem; border-radius: 11px; }
+    .btn-block { width: 100%; }
+
+    /* ============================================================
+       NATIVE MOBILE HEADER
+       ============================================================ */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      padding: calc(12px + var(--safe-top)) 16px 12px;
+      background: rgba(242, 244, 248, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .header-title-wrap { display: flex; align-items: center; gap: 10px; }
+    .header-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .header-sub {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-sub::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      display: inline-block;
+    }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .icon-btn:active { transform: scale(0.94); }
+
+    /* Native Spotlight Search Bar */
+    .search-wrap {
+      margin-top: 12px;
+      position: relative;
+    }
+    .search-wrap input {
+      padding: 10px 14px 10px 38px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.06);
+      border: none;
+      font-size: 0.94rem;
+    }
+    .search-wrap input:focus {
+      background: var(--surface);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       MAIN SCROLLABLE BODY
+       ============================================================ */
+    .app-main {
+      flex: 1;
+      padding: 12px 0 calc(var(--tab-h) + var(--safe-bottom) + 22px);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      margin: 14px 0 10px;
+    }
+    .section-head h2 {
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+    .section-head span {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* ============================================================
+       SWIPEABLE WALLET CARD SLIDER (Native Carousel)
+       ============================================================ */
+    .wallet-slider {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 4px 16px 10px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .wallet-slider::-webkit-scrollbar { display: none; }
+
+    .wallet-card {
+      flex: 0 0 84%;
+      scroll-snap-align: center;
+      border-radius: 22px;
+      padding: 18px 20px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      min-height: 158px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .wallet-card:active { transform: scale(0.98); }
+    .wallet-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      right: -40px;
+      top: -40px;
+      pointer-events: none;
+    }
+    .wc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .wc-type {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 9px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+    .wc-member {
+      font-size: 0.78rem;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+    .wc-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-top: 10px;
+      letter-spacing: -0.01em;
+    }
+    .wc-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .wc-num-label { font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; }
+    .wc-num {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .wc-copy-pill {
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+    .wc-copy-pill:active { background: rgba(255, 255, 255, 0.38); }
+
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .slider-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      transition: all 0.2s;
+    }
+    .slider-dot.active { width: 18px; background: var(--primary); }
+
+    /* ============================================================
+       MEMBER AVATAR STRIP (Swipeable Horizontal Chips)
+       ============================================================ */
+    .member-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 16px 8px;
+      scrollbar-width: none;
+    }
+    .member-strip::-webkit-scrollbar { display: none; }
+    .member-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px 6px 6px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s;
+    }
+    .member-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .chip-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .member-chip.active .chip-avatar {
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
+    }
+
+    /* ============================================================
+       NATIVE INSET GROUPED LISTINGS
+       ============================================================ */
+    .inset-list {
+      margin: 0 16px;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.12s;
+    }
+    .list-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 66px;
+      right: 14px;
+      bottom: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .list-item:active { background: var(--surface-muted); }
+
+    .item-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+    .item-body { flex: 1; min-width: 0; }
+    .item-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .item-title {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .mini-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+    }
+    .mini-badge.warn { background: var(--warning-soft); color: #b45309; }
+    .mini-badge.danger { background: var(--danger-soft); color: var(--danger); }
+
+    .quick-copy-icon {
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .quick-copy-icon:active { transform: scale(0.94); }
+
+    /* Empty State */
+    .empty-box {
+      margin: 12px 16px;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 38px 22px;
+      text-align: center;
+      border: 1px dashed rgba(15, 23, 42, 0.14);
+    }
+    .empty-box h3 { font-size: 1.05rem; margin-bottom: 6px; }
+    .empty-box p { font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px; }
+
+    /* ============================================================
+       NATIVE BOTTOM TAB BAR
+       ============================================================ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 520px;
+      height: calc(var(--tab-h) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      z-index: 30;
+    }
+    .nav-tab {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: var(--text-secondary);
+      font-size: 0.69rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 6px 0;
+      font-family: inherit;
+    }
+    .nav-tab.active { color: var(--primary); }
+    .nav-tab .add-pill {
+      width: 44px;
+      height: 32px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.30);
+    }
+    .nav-tab:active { opacity: 0.7; }
+
+    /* ============================================================
+       NATIVE SLIDE-UP BOTTOM SHEETS
+       ============================================================ */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.18s ease;
+    }
+    .sheet {
+      width: 100%;
+      max-width: 520px;
+      max-height: 92dvh;
+      background: var(--surface);
+      border-radius: 26px 26px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.25, 1);
+      padding-bottom: var(--safe-bottom);
+    }
+    .sheet-handle {
+      width: 38px;
+      height: 5px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      margin: 10px auto 4px;
+      flex-shrink: 0;
+    }
+    .sheet-header {
+      padding: 8px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sheet-header h2 { font-size: 1.08rem; font-weight: 800; }
+    .sheet-body {
+      padding: 16px 18px 20px;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sheet-footer {
+      padding: 12px 18px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* ============================================================
+       DOCUMENT DETAIL SHEET: SWIPEABLE IMAGE SLIDER & COPY ROWS
+       ============================================================ */
+    .detail-gallery {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin: -4px -18px 14px;
+      padding: 4px 18px 8px;
+      scrollbar-width: none;
+    }
+    .detail-gallery::-webkit-scrollbar { display: none; }
+    .detail-slide {
+      flex: 0 0 88%;
+      scroll-snap-align: center;
+      height: 195px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      position: relative;
+      cursor: zoom-in;
+    }
+    .detail-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .slide-count-pill {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .copy-list {
+      background: var(--bg);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .copy-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--surface);
+    }
+    .copy-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+    .copy-key { font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+    .copy-val { font-size: 0.96rem; font-weight: 700; color: var(--text); word-break: break-word; }
+
+    /* ============================================================
+       OCR & UPLOAD PANEL IN ADD SHEET
+       ============================================================ */
+    .scan-card {
+      background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+      border: 1.5px dashed #a5b4fc;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .scan-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .scan-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 13px 10px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid rgba(79, 70, 229, 0.16);
+      color: var(--primary);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .scan-action-btn:active { transform: scale(0.97); }
+
+    .preview-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+    .preview-thumb {
+      position: relative;
+      width: 84px;
+      height: 66px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-del {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(15, 23, 42, 0.78);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .ocr-progress {
+      margin-top: 10px;
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+      border: 1px solid rgba(79, 70, 229, 0.18);
+    }
+    .ocr-track {
+      height: 5px;
+      background: #e0e7ff;
+      border-radius: 999px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .ocr-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.2s;
+    }
+
+    .df-row {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr 36px;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+    .df-row input { padding: 10px 11px; font-size: 0.9rem; border-radius: 11px; }
+
+    /* ============================================================
+       FULLSCREEN SWIPEABLE LIGHTBOX GALLERY
+       ============================================================ */
+    .fullscreen-gallery {
+      position: fixed;
+      inset: 0;
+      background: #020617;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.18s ease;
+    }
+    .fg-top {
+      padding: calc(14px + var(--safe-top)) 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+    }
+    .fg-title { font-size: 0.96rem; font-weight: 700; }
+    .fg-track {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      align-items: center;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fg-track::-webkit-scrollbar { display: none; }
+    .fg-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      scroll-snap-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .fg-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .fg-bottom {
+      padding: 12px 16px calc(18px + var(--safe-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    /* ============================================================
+       SETTINGS NATIVE GROUPED ROWS & TOGGLE SWITCH
+       ============================================================ */
+    .settings-group {
+      margin: 0 16px 16px;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .settings-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+    .sr-title { font-size: 0.94rem; font-weight: 700; }
+    .sr-desc { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
+
+    /* iOS-style Toggle Switch */
+    .switch {
+      position: relative;
+      width: 50px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
+      position: absolute;
+      inset: 0;
+      background: #cbd5e1;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .switch-slider::before {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: 0.2s;
+    }
+    .switch input:checked + .switch-slider { background: var(--success); }
+    .switch input:checked + .switch-slider::before { transform: translateX(20px); }
+
+    /* Native Toast Pill */
+    .toast {
+      position: fixed;
+      top: calc(16px + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: rgba(15, 23, 42, 0.94);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 120;
+      transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="mobile-shell">
+
+    <!-- ================================================================
+         1. LOCK / BIOMETRIC UNLOCK SCREEN
+         ================================================================ -->
+    <section id="lockScreen" class="lock-screen">
+      <div class="lock-top">
+        <div class="lock-emblem">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h1 id="lockTitle">Family Doc Vault</h1>
+        <p id="lockSubtitle">Encrypted local wallet for your family's documents.</p>
+      </div>
+
+      <div class="lock-card">
+        <!-- Biometric Unlock Button (shown when enrolled) -->
+        <div id="biometricUnlockArea" class="hidden">
+          <button type="button" id="biometricUnlockBtn" class="bio-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"></path>
+              <path d="M14 13.12c0 2.38 0 6.38-1 8.88"></path>
+              <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"></path>
+              <path d="M2 12a10 10 0 0 1 18-6"></path>
+              <path d="M2 16h.01"></path>
+              <path d="M21.8 16c.2-2 .131-5.354 0-6"></path>
+              <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"></path>
+              <path d="M8.65 22c.21-.66.45-1.32.57-2"></path>
+              <path d="M9 6.8a6 6 0 0 1 9 5.2v2"></path>
+            </svg>
+            Unlock with Biometrics
+          </button>
+          <div class="divider-text">or enter password</div>
+        </div>
+
+        <form id="authForm">
+          <div class="input-group">
+            <label for="masterPass">Master Password / PIN</label>
+            <input type="password" id="masterPass" placeholder="Enter password" required autocomplete="current-password" />
+          </div>
+          <div class="input-group hidden" id="confirmPassGroup">
+            <label for="confirmPass">Confirm Password</label>
+            <input type="password" id="confirmPass" placeholder="Re-enter password" autocomplete="new-password" />
+          </div>
+          <p id="authError" style="color: var(--danger); font-size: 0.84rem; font-weight: 600; margin-bottom: 12px;" class="hidden"></p>
+          <button type="submit" id="authSubmitBtn" class="btn btn-primary btn-block">Unlock Vault</button>
+        </form>
+      </div>
+
+      <div style="text-align:center; font-size:0.75rem; color:var(--text-secondary);">
+        AES-256-GCM Encrypted &bull; 100% On-Device Storage
+      </div>
+    </section>
+
+    <!-- ================================================================
+         2. MAIN NATIVE APP SHELL
+         ================================================================ -->
+    <div id="appShell" class="hidden" style="display:flex; flex-direction:column; min-height:100dvh;">
+      <header class="app-header">
+        <div class="header-row">
+          <div class="header-title-wrap">
+            <div class="header-logo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="2" y="5" width="20" height="14" rx="3"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="header-title" id="headerTitle">DocVault</div>
+              <div class="header-sub" id="headerSub">Encrypted Locally</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="installBtn" class="btn btn-soft btn-sm hidden">Install</button>
+            <button id="lockBtn" class="icon-btn" title="Lock Vault" aria-label="Lock Vault">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="headerSearchWrap" class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search Aadhaar, PAN, member, number..." />
+        </div>
+      </header>
+
+      <!-- TAB 1: VAULT HOME -->
+      <main id="tabVault" class="app-main">
+        <!-- Swipeable Wallet Carousel -->
+        <div id="carouselSection">
+          <div class="section-head">
+            <h2>Quick Cards</h2>
+            <span id="cardCountLabel">0 stored</span>
+          </div>
+          <div id="walletSlider" class="wallet-slider"></div>
+          <div id="sliderDots" class="slider-dots"></div>
+        </div>
+
+        <!-- Swipeable Family Member Filter Strip -->
+        <div class="section-head" style="margin-top:16px;">
+          <h2>Family Members</h2>
+        </div>
+        <div id="memberStrip" class="member-strip"></div>
+
+        <!-- Grouped Native Listings -->
+        <div class="section-head">
+          <h2>All Documents</h2>
+          <select id="typeFilter" style="width:auto; padding:5px 10px; font-size:0.78rem; border-radius:9px; background:var(--surface);">
+            <option value="ALL">All Types</option>
+          </select>
+        </div>
+
+        <div id="docList" class="inset-list"></div>
+        <div id="emptyVault" class="empty-box hidden">
+          <h3>Your Family Vault is Ready</h3>
+          <p>Tap the + button below to snap a photo with OCR or pick a document template.</p>
+          <button class="btn btn-primary btn-sm" onclick="openAddSheet()">+ Add First Document</button>
+        </div>
+      </main>
+
+      <!-- TAB 2: EXPIRING & RENEWALS -->
+      <main id="tabExpiring" class="app-main hidden">
+        <div class="section-head">
+          <h2>Expiry &amp; Renewal Radar</h2>
+          <span id="expiringCountLabel">0 alerts</span>
+        </div>
+        <div id="expiringList" class="inset-list"></div>
+        <div id="emptyExpiring" class="empty-box hidden">
+          <h3>All Clear!</h3>
+          <p>Documents with expiry dates (Passport, DL, Insurance) will be tracked here automatically.</p>
+        </div>
+      </main>
+
+      <!-- TAB 3: SETTINGS, BIOMETRICS & BACKUP -->
+      <main id="tabSettings" class="app-main hidden">
+        <div class="section-head">
+          <h2>Security &amp; Biometrics</h2>
+        </div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div>
+              <div class="sr-title">Biometric Unlock</div>
+              <div class="sr-desc" id="bioStatusDesc">Use Face ID / Touch ID / Fingerprint to unlock</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="bioToggle" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row" style="cursor:pointer;" onclick="openPasswordSheet()">
+            <div>
+              <div class="sr-title">Change Master Password</div>
+              <div class="sr-desc">Re-encrypt all local documents with a new password</div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Backup &amp; Portability</h2>
+        </div>
+        <div class="settings-group">
+          <div class="settings-row" style="cursor:pointer;" onclick="exportVault()">
+            <div>
+              <div class="sr-title">Export Encrypted Vault</div>
+              <div class="sr-desc">Download portable .json backup (includes Base64 photos)</div>
+            </div>
+            <span class="btn btn-soft btn-sm">Export</span>
+          </div>
+          <label class="settings-row" style="cursor:pointer;">
+            <div>
+              <div class="sr-title">Import Vault Backup</div>
+              <div class="sr-desc">Restore from a previously exported .json file</div>
+            </div>
+            <span class="btn btn-muted btn-sm">Import</span>
+            <input type="file" id="importVaultInput" accept=".json,application/json" class="hidden" />
+          </label>
+        </div>
+
+        <div class="section-head">
+          <h2>Danger Zone</h2>
+        </div>
+        <div class="settings-group">
+          <div class="settings-row" style="cursor:pointer;" onclick="resetEntireVault()">
+            <div>
+              <div class="sr-title" style="color:var(--danger);">Wipe Local Vault</div>
+              <div class="sr-desc">Permanently delete all documents &amp; keys on this device</div>
+            </div>
+            <span class="btn btn-danger btn-sm">Wipe</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- NATIVE BOTTOM NAVIGATION BAR -->
+      <nav class="bottom-nav">
+        <button class="nav-tab active" data-tab="vault" onclick="switchTab('vault')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <rect x="2" y="5" width="20" height="14" rx="3"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <span>Vault</span>
+        </button>
+        <button class="nav-tab" onclick="openAddSheet()">
+          <div class="add-pill">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </div>
+          <span>Scan / Add</span>
+        </button>
+        <button class="nav-tab" data-tab="expiring" onclick="switchTab('expiring')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <circle cx="12" cy="12" r="9"></circle>
+            <polyline points="12 7 12 12 15 15"></polyline>
+          </svg>
+          <span>Expiring</span>
+        </button>
+        <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       BOTTOM SHEET 1: DOCUMENT DETAIL (Swipeable Photos + Quick Copy)
+       ================================================================ -->
+  <div id="detailSheetBackdrop" class="sheet-backdrop hidden" onclick="closeDetailSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div>
+          <h2 id="detailTitle">Document</h2>
+          <div id="detailSubtitle" style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;"></div>
+        </div>
+        <button class="btn btn-muted btn-sm" onclick="closeDetailSheet()">Done</button>
+      </div>
+      <div class="sheet-body">
+        <div id="detailGallery" class="detail-gallery hidden"></div>
+        <div id="detailFields" class="copy-list"></div>
+        <div id="detailNotesWrap" class="hidden" style="margin-top:14px;">
+          <div style="font-size:0.74rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; margin-bottom:6px;">Notes / OCR Text</div>
+          <div id="detailNotes" style="background:var(--surface-muted); padding:12px; border-radius:14px; font-size:0.86rem; white-space:pre-wrap; word-break:break-word;"></div>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-danger" style="flex:0.4;" id="detailDeleteBtn">Delete</button>
+        <button class="btn btn-primary" style="flex:1;" id="detailEditBtn">Edit Document</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       BOTTOM SHEET 2: ADD / EDIT DOCUMENT + AUTO-OCR
+       ================================================================ -->
+  <div id="addSheetBackdrop" class="sheet-backdrop hidden" onclick="closeAddSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2 id="addSheetTitle">Add Document</h2>
+        <button class="btn btn-muted btn-sm" onclick="closeAddSheet()">Cancel</button>
+      </div>
+      <div class="sheet-body">
+        <form id="docForm">
+          <input type="hidden" id="docId" />
+
+          <!-- Prominent Camera + Upload + OCR Scanner Card -->
+          <div class="scan-card">
+            <div class="scan-btn-grid">
+              <label class="scan-action-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Take Photo
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" />
+              </label>
+              <label class="scan-action-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Upload Gallery
+                <input type="file" id="fileUploadInput" accept="image/*" multiple class="hidden" />
+              </label>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <label style="display:flex; align-items:center; gap:7px; font-size:0.8rem; font-weight:600; color:var(--text); cursor:pointer;">
+                <input type="checkbox" id="autoOcrCheck" checked style="width:16px; height:16px; accent-color:var(--primary);" />
+                Auto-run OCR on photo
+              </label>
+              <button type="button" id="runOcrBtn" class="btn btn-soft btn-sm" disabled>Scan OCR Now</button>
+            </div>
+
+            <div id="previewStrip" class="preview-strip"></div>
+
+            <div id="ocrProgressBox" class="ocr-progress hidden">
+              <div id="ocrStatusText">Preparing OCR...</div>
+              <div class="ocr-track"><div id="ocrProgressFill" class="ocr-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="docType">Document Template (DOCTYPE)</label>
+            <select id="docType" required></select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="input-group">
+              <label for="docMember">Family Member</label>
+              <input type="text" id="docMember" list="memberSuggestions" placeholder="Self, Spouse..." required />
+              <datalist id="memberSuggestions">
+                <option value="Self"></option>
+                <option value="Spouse"></option>
+                <option value="Elder Son"></option>
+                <option value="Younger Son"></option>
+                <option value="Parents"></option>
+                <option value="Family"></option>
+              </datalist>
+            </div>
+            <div class="input-group">
+              <label for="docExpiry">Expiry Date</label>
+              <input type="date" id="docExpiry" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="docTitle">Document Title</label>
+            <input type="text" id="docTitle" placeholder="e.g. Aadhaar - Self" required />
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; margin: 14px 0 8px;">
+            <label style="font-size:0.76rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">Copyable Fields</label>
+            <button type="button" class="btn btn-soft btn-sm" onclick="addFieldRow('', '')">+ Field</button>
+          </div>
+          <div id="dynamicFieldsContainer"></div>
+
+          <div class="input-group" style="margin-top:12px;">
+            <label for="docNotes">Notes / OCR Extracted Text</label>
+            <textarea id="docNotes" placeholder="Raw OCR text or extra notes..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="sheet-footer">
+        <button type="button" class="btn btn-primary btn-block" onclick="saveDocument()">Save Encrypted Document</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       BOTTOM SHEET 3: CHANGE PASSWORD
+       ================================================================ -->
+  <div id="passSheetBackdrop" class="sheet-backdrop hidden" onclick="closePasswordSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2>Change Master Password</h2>
+        <button class="btn btn-muted btn-sm" onclick="closePasswordSheet()">Close</button>
+      </div>
+      <div class="sheet-body">
+        <div class="input-group">
+          <label for="newMasterPass">New Master Password</label>
+          <input type="password" id="newMasterPass" placeholder="At least 4 characters" />
+        </div>
+        <div class="input-group">
+          <label for="confirmNewMasterPass">Confirm New Password</label>
+          <input type="password" id="confirmNewMasterPass" placeholder="Re-enter new password" />
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-primary btn-block" onclick="changeMasterPassword()">Update &amp; Re-encrypt Vault</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       FULLSCREEN SWIPEABLE IMAGE GALLERY LIGHTBOX
+       ================================================================ -->
+  <div id="fgOverlay" class="fullscreen-gallery hidden">
+    <div class="fg-top">
+      <div class="fg-title" id="fgTitle">Document</div>
+      <div style="display:flex; gap:8px;">
+        <a id="fgDownload" class="btn btn-soft btn-sm" download="document.jpg">Save</a>
+        <button class="btn btn-muted btn-sm" onclick="closeFullscreenGallery()">Close</button>
+      </div>
+    </div>
+    <div id="fgTrack" class="fg-track"></div>
+    <div class="fg-bottom">
+      <span id="fgCounter">1 / 1</span>
+      <span>Swipe left / right</span>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    /* =========================================================================
+       1. TEMPLATES & CARD THEMES
+       ========================================================================= */
+    const DOC_TEMPLATES = {
+      "Aadhaar Card": { fields: ["Full Name", "Aadhaar Number", "DOB", "Gender", "Address"], grad: "linear-gradient(135deg, #4f46e5, #7c3aed)", short: "UID" },
+      "PAN Card": { fields: ["Full Name", "PAN Number", "Father's Name", "DOB"], grad: "linear-gradient(135deg, #0284c7, #2563eb)", short: "PAN" },
+      "Passport": { fields: ["Full Name", "Passport Number", "DOB", "Issue Date", "Expiry Date", "Place of Issue"], grad: "linear-gradient(135deg, #1e293b, #334155)", short: "PSP" },
+      "Driving License": { fields: ["Full Name", "DL Number", "DOB", "Blood Group", "Valid Till", "Vehicle Class"], grad: "linear-gradient(135deg, #059669, #10b981)", short: "DL" },
+      "Vehicle RC": { fields: ["Owner Name", "Registration Number", "Chassis Number", "Engine Number", "Vehicle Model"], grad: "linear-gradient(135deg, #ea580c, #f59e0b)", short: "RC" },
+      "Insurance Policy": { fields: ["Policy Holder", "Insurer Name", "Policy Number", "Member / TPA ID", "Sum Insured", "Customer Care"], grad: "linear-gradient(135deg, #0d9488, #0891b2)", short: "INS" },
+      "Bank Account": { fields: ["Account Holder", "Bank Name", "Account Number", "IFSC Code", "Branch", "Customer ID"], grad: "linear-gradient(135deg, #4338ca, #1d4ed8)", short: "BNK" },
+      "Voter ID / Ration": { fields: ["Holder Name", "ID / Card Number", "Relation Name", "Address"], grad: "linear-gradient(135deg, #9333ea, #c026d3)", short: "ID" },
+      "Birth / Education": { fields: ["Student / Child Name", "Certificate / Roll No", "Institution", "Year"], grad: "linear-gradient(135deg, #db2777, #f43f5e)", short: "EDU" },
+      "Custom Document": { fields: ["ID / Reference No", "Holder Name", "Detail"], grad: "linear-gradient(135deg, #475569, #64748b)", short: "DOC" }
+    };
+
+    /* =========================================================================
+       2. INDEXEDDB LAYER
+       ========================================================================= */
+    const DB_NAME = "FamilyDocVaultDB";
+    const DB_VERSION = 1;
+    let db = null;
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains("meta")) d.createObjectStore("meta", { keyPath: "key" });
+          if (!d.objectStoreNames.contains("docs")) d.createObjectStore("docs", { keyPath: "id" });
+        };
+        req.onsuccess = () => { db = req.result; resolve(db); };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbGet(store, key) {
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(store, "readonly").objectStore(store).get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    function idbGetAll(store) {
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(store, "readonly").objectStore(store).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    function idbPut(store, val) {
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(store, "readwrite").objectStore(store).put(val);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+    function idbDelete(store, key) {
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(store, "readwrite").objectStore(store).delete(key);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+    function idbClear(store) {
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(store, "readwrite").objectStore(store).clear();
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    /* =========================================================================
+       3. WEB CRYPTO (AES-256-GCM + PBKDF2)
+       ========================================================================= */
+    let activeCryptoKey = null;
+    let activeRawPass = null; // Held only in RAM while unlocked to allow enabling biometrics
+
+    function bufToB64(buf) {
+      const bytes = new Uint8Array(buf);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i += 8192) {
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+      }
+      return btoa(bin);
+    }
+    function b64ToBuf(b64) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes.buffer;
+    }
+
+    async function deriveKey(password, saltBuf) {
+      const baseKey = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: saltBuf, iterations: 100000, hash: "SHA-256" },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    async function deriveKeyFromRawBytes(rawBytes, saltBuf) {
+      const baseKey = await crypto.subtle.importKey("raw", rawBytes, "HKDF", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey(
+        { name: "HKDF", hash: "SHA-256", salt: saltBuf, info: new TextEncoder().encode("FamilyDocVault-Biometric") },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    async function encryptJSON(obj, key = activeCryptoKey) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+      return { iv: bufToB64(iv), data: bufToB64(cipher) };
+    }
+
+    async function decryptJSON(payload, key = activeCryptoKey) {
+      const iv = new Uint8Array(b64ToBuf(payload.iv));
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, b64ToBuf(payload.data));
+      return JSON.parse(new TextDecoder().decode(plain));
+    }
+
+    /* =========================================================================
+       4. BIOMETRIC UNLOCK (WebAuthn Platform + PRF with Device-Key Fallback)
+       ========================================================================= */
+    async function checkBiometricAvailability() {
+      if (!window.PublicKeyCredential) return false;
+      try {
+        return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      } catch {
+        return false;
+      }
+    }
+
+    async function enableBiometrics() {
+      const available = await checkBiometricAvailability();
+      if (!available) {
+        showToast("Biometrics not available (requires HTTPS & device lock)");
+        document.getElementById("bioToggle").checked = false;
+        return;
+      }
+      if (!activeRawPass) {
+        showToast("Please unlock with password once to enable biometrics");
+        document.getElementById("bioToggle").checked = false;
+        return;
+      }
+
+      try {
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const userId = crypto.getRandomValues(new Uint8Array(16));
+        const prfSalt = crypto.getRandomValues(new Uint8Array(32));
+
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge,
+            rp: { name: "Family Doc Vault" },
+            user: { id: userId, name: "vault-owner", displayName: "Family Vault Owner" },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+            timeout: 60000,
+            extensions: { prf: { eval: { first: prfSalt } } }
+          }
+        });
+
+        const ext = cred.getClientExtensionResults?.();
+        const prfOut = ext?.prf?.results?.first;
+
+        if (prfOut) {
+          // Tier 1: Hardware-backed WebAuthn PRF key wrapping
+          const wrapKey = await deriveKeyFromRawBytes(new Uint8Array(prfOut), prfSalt);
+          const wrappedPass = await encryptJSON({ p: activeRawPass }, wrapKey);
+          await idbPut("meta", {
+            key: "biometric",
+            mode: "prf",
+            credId: bufToB64(cred.rawId),
+            prfSalt: bufToB64(prfSalt),
+            wrappedPass
+          });
+          showToast("Hardware Biometrics (PRF) enabled!");
+        } else {
+          // Tier 2: WebAuthn Biometric Gate + Non-extractable Device CryptoKey in IndexedDB
+          const deviceKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+          const wrappedPass = await encryptJSON({ p: activeRawPass }, deviceKey);
+          await idbPut("meta", {
+            key: "biometric",
+            mode: "gate",
+            credId: bufToB64(cred.rawId),
+            deviceKey,
+            wrappedPass
+          });
+          showToast("Biometric unlock enabled!");
+        }
+        updateBiometricUI();
+      } catch (err) {
+        console.error(err);
+        document.getElementById("bioToggle").checked = false;
+        showToast("Biometric setup cancelled or unsupported");
+      }
+    }
+
+    async function disableBiometrics() {
+      await idbDelete("meta", "biometric");
+      updateBiometricUI();
+      showToast("Biometric unlock disabled");
+    }
+
+    async function unlockWithBiometrics() {
+      const bioMeta = await idbGet("meta", "biometric");
+      if (!bioMeta) return;
+
+      try {
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const getOpts = {
+          publicKey: {
+            challenge,
+            allowCredentials: [{ type: "public-key", id: b64ToBuf(bioMeta.credId) }],
+            userVerification: "required",
+            timeout: 60000
+          }
+        };
+        if (bioMeta.mode === "prf") {
+          getOpts.publicKey.extensions = { prf: { eval: { first: b64ToBuf(bioMeta.prfSalt) } } };
+        }
+
+        const assertion = await navigator.credentials.get(getOpts);
+        let recoveredPass = null;
+
+        if (bioMeta.mode === "prf") {
+          const prfOut = assertion.getClientExtensionResults?.()?.prf?.results?.first;
+          if (!prfOut) throw new Error("PRF output unavailable");
+          const wrapKey = await deriveKeyFromRawBytes(new Uint8Array(prfOut), b64ToBuf(bioMeta.prfSalt));
+          recoveredPass = (await decryptJSON(bioMeta.wrappedPass, wrapKey)).p;
+        } else {
+          recoveredPass = (await decryptJSON(bioMeta.wrappedPass, bioMeta.deviceKey)).p;
+        }
+
+        await unlockWithPasswordString(recoveredPass);
+        showToast("Unlocked with Biometrics");
+      } catch (err) {
+        console.error(err);
+        showToast("Biometric unlock cancelled");
+      }
+    }
+
+    async function updateBiometricUI() {
+      const bioMeta = await idbGet("meta", "biometric");
+      const toggle = document.getElementById("bioToggle");
+      const desc = document.getElementById("bioStatusDesc");
+      const bioArea = document.getElementById("biometricUnlockArea");
+
+      if (bioMeta) {
+        toggle.checked = true;
+        desc.textContent = bioMeta.mode === "prf"
+          ? "Active (Hardware PRF Encryption)"
+          : "Active (Device Face ID / Fingerprint)";
+        bioArea.classList.remove("hidden");
+      } else {
+        toggle.checked = false;
+        desc.textContent = "Use Face ID / Touch ID / Fingerprint to unlock";
+        bioArea.classList.add("hidden");
+      }
+    }
+
+    document.getElementById("bioToggle").addEventListener("change", (e) => {
+      if (e.target.checked) enableBiometrics();
+      else disableBiometrics();
+    });
+    document.getElementById("biometricUnlockBtn").addEventListener("click", unlockWithBiometrics);
+
+    /* =========================================================================
+       5. AUTHENTICATION & INIT
+       ========================================================================= */
+    let documents = [];
+    let activeMemberFilter = "ALL";
+    let modalImages = [];
+    let isFirstSetup = false;
+
+    async function initApp() {
+      await openDB();
+      populateTemplates();
+      const authMeta = await idbGet("meta", "auth");
+      if (!authMeta) {
+        isFirstSetup = true;
+        document.getElementById("lockTitle").textContent = "Create Family Vault";
+        document.getElementById("lockSubtitle").textContent = "Set a master password to encrypt all documents on your device.";
+        document.getElementById("confirmPassGroup").classList.remove("hidden");
+        document.getElementById("authSubmitBtn").textContent = "Create Encrypted Vault";
+      } else {
+        isFirstSetup = false;
+        document.getElementById("lockTitle").textContent = "Family Doc Vault";
+        document.getElementById("lockSubtitle").textContent = "Unlock to access your family's documents.";
+        document.getElementById("confirmPassGroup").classList.add("hidden");
+        document.getElementById("authSubmitBtn").textContent = "Unlock Vault";
+      }
+      await updateBiometricUI();
+      registerPWA();
+    }
+
+    async function unlockWithPasswordString(pass) {
+      const authMeta = await idbGet("meta", "auth");
+      const candidateKey = await deriveKey(pass, b64ToBuf(authMeta.salt));
+      const checkObj = await decryptJSON(authMeta.verifier, candidateKey);
+      if (checkObj.check !== "FAMILY_VAULT_OK") throw new Error("Invalid");
+      activeCryptoKey = candidateKey;
+      activeRawPass = pass;
+      await loadAllDocuments();
+      enterVault();
+    }
+
+    document.getElementById("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pass = document.getElementById("masterPass").value;
+      const errEl = document.getElementById("authError");
+      errEl.classList.add("hidden");
+
+      if (!pass || pass.length < 4) {
+        errEl.textContent = "Password must be at least 4 characters.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        if (isFirstSetup) {
+          const confirm = document.getElementById("confirmPass").value;
+          if (pass !== confirm) {
+            errEl.textContent = "Passwords do not match.";
+            errEl.classList.remove("hidden");
+            return;
+          }
+          const salt = crypto.getRandomValues(new Uint8Array(16));
+          activeCryptoKey = await deriveKey(pass, salt);
+          activeRawPass = pass;
+          const verifier = await encryptJSON({ check: "FAMILY_VAULT_OK" }, activeCryptoKey);
+          await idbPut("meta", { key: "auth", salt: bufToB64(salt), verifier });
+          isFirstSetup = false;
+          documents = [];
+          enterVault();
+          showToast("Vault created! Enable Biometrics in Settings.");
+        } else {
+          await unlockWithPasswordString(pass);
+        }
+      } catch {
+        errEl.textContent = "Incorrect master password.";
+        errEl.classList.remove("hidden");
+      }
+    });
+
+    function enterVault() {
+      document.getElementById("masterPass").value = "";
+      document.getElementById("confirmPass").value = "";
+      document.getElementById("lockScreen").classList.add("hidden");
+      document.getElementById("appShell").classList.remove("hidden");
+      updateBiometricUI();
+      renderAll();
+    }
+
+    document.getElementById("lockBtn").addEventListener("click", () => {
+      activeCryptoKey = null;
+      activeRawPass = null;
+      documents = [];
+      document.getElementById("appShell").classList.add("hidden");
+      document.getElementById("lockScreen").classList.remove("hidden");
+      updateBiometricUI();
+      showToast("Vault locked");
+    });
+
+    async function loadAllDocuments() {
+      const rows = await idbGetAll("docs");
+      const out = [];
+      for (const row of rows) {
+        try {
+          const dec = await decryptJSON(row.payload);
+          out.push({ id: row.id, ...dec });
+        } catch (e) { console.error(e); }
+      }
+      documents = out.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }
+
+    /* =========================================================================
+       6. TABS & NATIVE RENDERING (Carousel + Member Strip + Grouped Listings)
+       ========================================================================= */
+    function switchTab(tab) {
+      document.getElementById("tabVault").classList.toggle("hidden", tab !== "vault");
+      document.getElementById("tabExpiring").classList.toggle("hidden", tab !== "expiring");
+      document.getElementById("tabSettings").classList.toggle("hidden", tab !== "settings");
+      document.getElementById("headerSearchWrap").classList.toggle("hidden", tab !== "vault");
+
+      const titles = { vault: "DocVault", expiring: "Expiring", settings: "Settings" };
+      document.getElementById("headerTitle").textContent = titles[tab] || "DocVault";
+
+      document.querySelectorAll(".nav-tab[data-tab]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+      if (tab === "expiring") renderExpiringTab();
+    }
+
+    function populateTemplates() {
+      const s1 = document.getElementById("docType");
+      const s2 = document.getElementById("typeFilter");
+      s1.innerHTML = "";
+      s2.innerHTML = '<option value="ALL">All Types</option>';
+      Object.keys(DOC_TEMPLATES).forEach((k) => {
+        s1.innerHTML += `<option value="${escapeAttr(k)}">${escapeHtml(k)}</option>`;
+        s2.innerHTML += `<option value="${escapeAttr(k)}">${escapeHtml(k)}</option>`;
+      });
+    }
+
+    function getPrimaryField(doc) {
+      const fields = (doc.fields || []).filter((f) => f.value && f.value.trim());
+      if (fields.length === 0) return null;
+      const numField = fields.find((f) => /number|no|id|ifsc|account|reg/i.test(f.key));
+      return numField || fields[0];
+    }
+
+    function getExpiryInfo(expiryStr) {
+      if (!expiryStr) return null;
+      const now = new Date(); now.setHours(0, 0, 0, 0);
+      const exp = new Date(expiryStr + "T00:00:00");
+      const days = Math.ceil((exp - now) / 86400000);
+      if (days < 0) return { label: `Expired ${Math.abs(days)}d ago`, cls: "danger", days, urgent: true };
+      if (days <= 60) return { label: `Expires in ${days}d`, cls: "warn", days, urgent: true };
+      return { label: `Valid (${expiryStr})`, cls: "", days, urgent: false };
+    }
+
+    function renderAll() {
+      renderWalletCarousel();
+      renderMemberStrip();
+      renderDocList();
+      renderExpiringTab();
+    }
+
+    function renderWalletCarousel() {
+      const sec = document.getElementById("carouselSection");
+      const slider = document.getElementById("walletSlider");
+      const dots = document.getElementById("sliderDots");
+      document.getElementById("cardCountLabel").textContent = `${documents.length} stored`;
+
+      if (documents.length === 0) {
+        sec.classList.add("hidden");
+        return;
+      }
+      sec.classList.remove("hidden");
+
+      const featured = documents.slice(0, 6);
+      slider.innerHTML = featured.map((doc) => {
+        const tpl = DOC_TEMPLATES[doc.type] || DOC_TEMPLATES["Custom Document"];
+        const pf = getPrimaryField(doc);
+        return `
+          <div class="wallet-card" style="background:${tpl.grad};" onclick="openDetailSheet('${doc.id}')">
+            <div class="wc-top">
+              <span class="wc-type">${escapeHtml(doc.type)}</span>
+              <span class="wc-member">${escapeHtml(doc.member)}</span>
+            </div>
+            <div class="wc-title">${escapeHtml(doc.title)}</div>
+            <div class="wc-bottom">
+              <div style="min-width:0;">
+                <div class="wc-num-label">${pf ? escapeHtml(pf.key) : "Document"}</div>
+                <div class="wc-num">${pf ? escapeHtml(pf.value) : "Tap to view"}</div>
+              </div>
+              ${pf ? `<button class="wc-copy-pill" onclick="event.stopPropagation(); copyText('${escapeJs(pf.value)}', '${escapeJs(pf.key)}')">Copy</button>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      dots.innerHTML = featured.map((_, i) => `<div class="slider-dot ${i === 0 ? "active" : ""}"></div>`).join("");
+      slider.onscroll = () => {
+        const cardW = slider.firstElementChild ? slider.firstElementChild.offsetWidth + 12 : 300;
+        const idx = Math.min(featured.length - 1, Math.max(0, Math.round(slider.scrollLeft / cardW)));
+        dots.querySelectorAll(".slider-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+      };
+    }
+
+    function renderMemberStrip() {
+      const strip = document.getElementById("memberStrip");
+      const members = ["ALL", ...Array.from(new Set(documents.map((d) => d.member).filter(Boolean))).sort()];
+      if (!members.includes(activeMemberFilter)) activeMemberFilter = "ALL";
+
+      strip.innerHTML = members.map((m) => {
+        const label = m === "ALL" ? "All Family" : m;
+        const init = m === "ALL" ? "★" : m.slice(0, 1).toUpperCase();
+        return `
+          <button class="member-chip ${activeMemberFilter === m ? "active" : ""}" onclick="setMemberFilter('${escapeJs(m)}')">
+            <span class="chip-avatar">${escapeHtml(init)}</span>
+            <span>${escapeHtml(label)}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function setMemberFilter(m) {
+      activeMemberFilter = m;
+      renderMemberStrip();
+      renderDocList();
+    }
+
+    function renderDocList() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const tFilter = document.getElementById("typeFilter").value;
+
+      const filtered = documents.filter((doc) => {
+        if (activeMemberFilter !== "ALL" && doc.member !== activeMemberFilter) return false;
+        if (tFilter !== "ALL" && doc.type !== tFilter) return false;
+        if (q) {
+          const hay = [doc.title, doc.type, doc.member, doc.notes || "", ...(doc.fields || []).map((f) => `${f.key} ${f.value}`)].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const listEl = document.getElementById("docList");
+      const emptyEl = document.getElementById("emptyVault");
+
+      if (filtered.length === 0) {
+        listEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+      listEl.classList.remove("hidden");
+      emptyEl.classList.add("hidden");
+
+      listEl.innerHTML = filtered.map((doc) => {
+        const tpl = DOC_TEMPLATES[doc.type] || DOC_TEMPLATES["Custom Document"];
+        const pf = getPrimaryField(doc);
+        const exp = getExpiryInfo(doc.expiry);
+        const photoCount = (doc.images || []).length;
+
+        return `
+          <div class="list-item" onclick="openDetailSheet('${doc.id}')">
+            <div class="item-icon" style="background:${tpl.grad};">${tpl.short}</div>
+            <div class="item-body">
+              <div class="item-title-row">
+                <div class="item-title">${escapeHtml(doc.title)}</div>
+              </div>
+              <div class="item-sub">${pf ? `${escapeHtml(pf.key)}: ${escapeHtml(pf.value)}` : escapeHtml(doc.type)}</div>
+              <div class="item-meta">
+                <span class="mini-badge">${escapeHtml(doc.member)}</span>
+                ${photoCount ? `<span class="mini-badge">${photoCount} photo${photoCount > 1 ? "s" : ""}</span>` : ""}
+                ${exp && exp.urgent ? `<span class="mini-badge ${exp.cls}">${exp.label}</span>` : ""}
+              </div>
+            </div>
+            ${pf ? `<button class="quick-copy-icon" onclick="event.stopPropagation(); copyText('${escapeJs(pf.value)}', '${escapeJs(pf.key)}')">Copy</button>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderExpiringTab() {
+      const withExpiry = documents
+        .map((d) => ({ doc: d, exp: getExpiryInfo(d.expiry) }))
+        .filter((x) => x.exp !== null)
+        .sort((a, b) => a.exp.days - b.exp.days);
+
+      const urgentCount = withExpiry.filter((x) => x.exp.urgent).length;
+      document.getElementById("expiringCountLabel").textContent = `${urgentCount} urgent`;
+
+      const listEl = document.getElementById("expiringList");
+      const emptyEl = document.getElementById("emptyExpiring");
+
+      if (withExpiry.length === 0) {
+        listEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+      listEl.classList.remove("hidden");
+      emptyEl.classList.add("hidden");
+
+      listEl.innerHTML = withExpiry.map(({ doc, exp }) => {
+        const tpl = DOC_TEMPLATES[doc.type] || DOC_TEMPLATES["Custom Document"];
+        return `
+          <div class="list-item" onclick="openDetailSheet('${doc.id}')">
+            <div class="item-icon" style="background:${tpl.grad};">${tpl.short}</div>
+            <div class="item-body">
+              <div class="item-title">${escapeHtml(doc.title)}</div>
+              <div class="item-sub">${escapeHtml(doc.member)} &bull; ${escapeHtml(doc.expiry)}</div>
+              <div class="item-meta">
+                <span class="mini-badge ${exp.cls}">${exp.label}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("searchInput").addEventListener("input", renderDocList);
+    document.getElementById("typeFilter").addEventListener("change", renderDocList);
+
+    /* =========================================================================
+       7. DOCUMENT DETAIL SHEET & FULLSCREEN SWIPEABLE GALLERY
+       ========================================================================= */
+    let currentDetailDocId = null;
+
+    function openDetailSheet(docId) {
+      const doc = documents.find((d) => d.id === docId);
+      if (!doc) return;
+      currentDetailDocId = docId;
+
+      document.getElementById("detailTitle").textContent = doc.title;
+      document.getElementById("detailSubtitle").textContent = `${doc.type} • ${doc.member}${doc.expiry ? " • Exp " + doc.expiry : ""}`;
+
+      const gal = document.getElementById("detailGallery");
+      if (doc.images && doc.images.length > 0) {
+        gal.classList.remove("hidden");
+        gal.innerHTML = doc.images.map((src, i) => `
+          <div class="detail-slide" onclick="openFullscreenGallery('${doc.id}', ${i})">
+            <img src="${src}" alt="Doc photo ${i + 1}" />
+            <div class="slide-count-pill">${i + 1} / ${doc.images.length} &bull; Tap to zoom</div>
+          </div>
+        `).join("");
+      } else {
+        gal.classList.add("hidden");
+      }
+
+      const fieldsEl = document.getElementById("detailFields");
+      const validFields = (doc.fields || []).filter((f) => f.key || f.value);
+      fieldsEl.innerHTML = validFields.length
+        ? validFields.map((f) => `
+            <div class="copy-row">
+              <div style="min-width:0; flex:1;">
+                <div class="copy-key">${escapeHtml(f.key)}</div>
+                <div class="copy-val">${escapeHtml(f.value)}</div>
+              </div>
+              <button class="quick-copy-icon" onclick="copyText('${escapeJs(f.value)}', '${escapeJs(f.key)}')">Copy</button>
+            </div>
+          `).join("")
+        : `<div class="copy-row"><div class="copy-key">No structured fields added</div></div>`;
+
+      const notesWrap = document.getElementById("detailNotesWrap");
+      if (doc.notes) {
+        notesWrap.classList.remove("hidden");
+        document.getElementById("detailNotes").textContent = doc.notes;
+      } else {
+        notesWrap.classList.add("hidden");
+      }
+
+      document.getElementById("detailEditBtn").onclick = () => { closeDetailSheet(); openAddSheet(doc); };
+      document.getElementById("detailDeleteBtn").onclick = () => deleteDocument(doc.id);
+
+      document.getElementById("detailSheetBackdrop").classList.remove("hidden");
+    }
+
+    function closeDetailSheet() {
+      document.getElementById("detailSheetBackdrop").classList.add("hidden");
+    }
+
+    function openFullscreenGallery(docId, startIdx = 0) {
+      const doc = documents.find((d) => d.id === docId);
+      if (!doc || !doc.images?.length) return;
+
+      const track = document.getElementById("fgTrack");
+      const counter = document.getElementById("fgCounter");
+      const dl = document.getElementById("fgDownload");
+      document.getElementById("fgTitle").textContent = doc.title;
+
+      track.innerHTML = doc.images.map((src, i) => `
+        <div class="fg-slide"><img src="${src}" alt="Page ${i + 1}" /></div>
+      `).join("");
+
+      const updateMeta = (idx) => {
+        counter.textContent = `${idx + 1} / ${doc.images.length}`;
+        dl.href = doc.images[idx];
+        dl.download = `${doc.title.replace(/[^a-z0-9]/gi, "_")}_${idx + 1}.jpg`;
+      };
+
+      document.getElementById("fgOverlay").classList.remove("hidden");
+      requestAnimationFrame(() => {
+        track.scrollTo({ left: startIdx * track.clientWidth, behavior: "instant" });
+        updateMeta(startIdx);
+      });
+
+      track.onscroll = () => {
+        const idx = Math.min(doc.images.length - 1, Math.max(0, Math.round(track.scrollLeft / track.clientWidth)));
+        updateMeta(idx);
+      };
+    }
+
+    function closeFullscreenGallery() {
+      document.getElementById("fgOverlay").classList.add("hidden");
+    }
+
+    /* =========================================================================
+       8. ADD / EDIT SHEET + BASE64 COMPRESSION + AUTO-OCR
+       ========================================================================= */
+    function openAddSheet(doc = null) {
+      document.getElementById("docForm").reset();
+      document.getElementById("autoOcrCheck").checked = true;
+      document.getElementById("ocrProgressBox").classList.add("hidden");
+      modalImages = [];
+
+      if (doc) {
+        document.getElementById("addSheetTitle").textContent = "Edit Document";
+        document.getElementById("docId").value = doc.id;
+        document.getElementById("docType").value = doc.type;
+        document.getElementById("docMember").value = doc.member;
+        document.getElementById("docTitle").value = doc.title;
+        document.getElementById("docExpiry").value = doc.expiry || "";
+        document.getElementById("docNotes").value = doc.notes || "";
+        modalImages = [...(doc.images || [])];
+        renderDynamicFields(doc.fields || []);
+      } else {
+        document.getElementById("addSheetTitle").textContent = "Scan / Add Document";
+        document.getElementById("docId").value = "";
+        document.getElementById("docType").value = "Aadhaar Card";
+        applyTemplateFields("Aadhaar Card");
+      }
+
+      renderPreviewStrip();
+      document.getElementById("addSheetBackdrop").classList.remove("hidden");
+    }
+
+    function closeAddSheet() {
+      document.getElementById("addSheetBackdrop").classList.add("hidden");
+    }
+
+    document.getElementById("docType").addEventListener("change", (e) => {
+      if (!document.getElementById("docId").value) {
+        applyTemplateFields(e.target.value);
+      }
+    });
+
+    function applyTemplateFields(docType) {
+      const tpl = DOC_TEMPLATES[docType] || DOC_TEMPLATES["Custom Document"];
+      renderDynamicFields(tpl.fields.map((k) => ({ key: k, value: "" })));
+    }
+
+    function renderDynamicFields(fields) {
+      const c = document.getElementById("dynamicFieldsContainer");
+      c.innerHTML = "";
+      fields.forEach((f) => addFieldRow(f.key, f.value));
+    }
+
+    function addFieldRow(key = "", value = "") {
+      const c = document.getElementById("dynamicFieldsContainer");
+      const row = document.createElement("div");
+      row.className = "df-row";
+      row.innerHTML = `
+        <input type="text" class="df-key" placeholder="Field" value="${escapeAttr(key)}" />
+        <input type="text" class="df-val" placeholder="Value" value="${escapeAttr(value)}" />
+        <button type="button" class="btn btn-danger btn-sm" style="padding:0;" onclick="this.parentElement.remove()">&times;</button>
+      `;
+      c.appendChild(row);
+    }
+
+    function compressImageToBase64(file, maxDim = 1400, quality = 0.78) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleImageFiles(fileList) {
+      const addedIndices = [];
+      for (const file of Array.from(fileList)) {
+        if (!file.type.startsWith("image/")) continue;
+        try {
+          const b64 = await compressImageToBase64(file);
+          modalImages.push(b64);
+          addedIndices.push(modalImages.length - 1);
+        } catch { showToast("Could not read image"); }
+      }
+      renderPreviewStrip();
+      if (addedIndices.length > 0 && document.getElementById("autoOcrCheck").checked) {
+        runOCR(addedIndices);
+      }
+    }
+
+    document.getElementById("fileUploadInput").addEventListener("change", (e) => { handleImageFiles(e.target.files); e.target.value = ""; });
+    document.getElementById("cameraInput").addEventListener("change", (e) => { handleImageFiles(e.target.files); e.target.value = ""; });
+
+    function renderPreviewStrip() {
+      const strip = document.getElementById("previewStrip");
+      strip.innerHTML = modalImages.map((src, i) => `
+        <div class="preview-thumb">
+          <img src="${src}" alt="Preview ${i + 1}" />
+          <button type="button" class="preview-del" onclick="removeModalImage(${i})">&times;</button>
+        </div>
+      `).join("");
+      document.getElementById("runOcrBtn").disabled = modalImages.length === 0;
+    }
+
+    function removeModalImage(i) {
+      modalImages.splice(i, 1);
+      renderPreviewStrip();
+    }
+
+    // Tesseract.js v5 on-demand loader
+    let tesseractPromise = null;
+    function loadTesseract() {
+      if (window.Tesseract) return Promise.resolve(window.Tesseract);
+      if (!tesseractPromise) {
+        tesseractPromise = new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+          s.onload = () => resolve(window.Tesseract);
+          s.onerror = () => reject(new Error("OCR requires internet on first load."));
+          document.head.appendChild(s);
+        });
+      }
+      return tesseractPromise;
+    }
+
+    async function runOCR(indices = null) {
+      const targets = indices || modalImages.map((_, i) => i);
+      if (targets.length === 0) return;
+
+      const box = document.getElementById("ocrProgressBox");
+      const txt = document.getElementById("ocrStatusText");
+      const fill = document.getElementById("ocrProgressFill");
+      const btn = document.getElementById("runOcrBtn");
+
+      box.classList.remove("hidden");
+      btn.disabled = true;
+      txt.textContent = "Loading OCR engine...";
+      fill.style.width = "12%";
+
+      try {
+        const Tesseract = await loadTesseract();
+        let combined = "";
+
+        for (let idx = 0; idx < targets.length; idx++) {
+          const imgSrc = modalImages[targets[idx]];
+          txt.textContent = `Scanning photo ${idx + 1} of ${targets.length}...`;
+          const res = await Tesseract.recognize(imgSrc, "eng", {
+            logger: (m) => {
+              if (m.status === "recognizing text" && m.progress) {
+                const pct = Math.round(((idx + m.progress) / targets.length) * 100);
+                fill.style.width = `${Math.max(15, pct)}%`;
+              }
+            }
+          });
+          combined += (res.data.text || "").trim() + "\n";
+        }
+
+        const clean = combined.trim();
+        const notesEl = document.getElementById("docNotes");
+        notesEl.value = notesEl.value ? `${notesEl.value}\n\n--- OCR ---\n${clean}` : clean;
+
+        const filled = smartFillFromOCR(clean);
+        fill.style.width = "100%";
+        txt.textContent = filled > 0
+          ? `OCR done! Auto-filled ${filled} field(s).`
+          : "OCR done! Full text saved to Notes below.";
+        showToast("OCR text extracted!");
+      } catch (err) {
+        txt.textContent = err.message || "OCR failed.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("runOcrBtn").addEventListener("click", () => runOCR());
+
+    function smartFillFromOCR(text) {
+      const p = {
+        aadhaar: text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0],
+        pan: text.match(/\b[A-Z]{5}[0-9]{4}[A-Z]\b/)?.[0],
+        passport: text.match(/\b[A-Z][0-9]{7}\b/)?.[0],
+        ifsc: text.match(/\b[A-Z]{4}0[A-Z0-9]{6}\b/)?.[0],
+        vehicle: text.match(/\b[A-Z]{2}\s?[0-9]{1,2}\s?[A-Z]{1,3}\s?[0-9]{4}\b/)?.[0],
+        dob: text.match(/\b\d{2}[\/\-]\d{2}[\/\-]\d{4}\b/)?.[0],
+        gender: text.match(/\b(MALE|FEMALE)\b/i)?.[0],
+        blood: text.match(/\b(A|B|AB|O)[+-]\b/)?.[0]
+      };
+      let count = 0;
+      document.querySelectorAll("#dynamicFieldsContainer .df-row").forEach((row) => {
+        const k = row.querySelector(".df-key").value.toLowerCase();
+        const vEl = row.querySelector(".df-val");
+        if (vEl.value.trim()) return;
+        if (k.includes("aadhaar") && p.aadhaar) { vEl.value = p.aadhaar; count++; }
+        else if (k.includes("pan") && p.pan) { vEl.value = p.pan; count++; }
+        else if (k.includes("passport") && p.passport) { vEl.value = p.passport; count++; }
+        else if (k.includes("ifsc") && p.ifsc) { vEl.value = p.ifsc; count++; }
+        else if (k.includes("registration") && p.vehicle) { vEl.value = p.vehicle; count++; }
+        else if (k.includes("dob") && p.dob) { vEl.value = p.dob; count++; }
+        else if (k.includes("gender") && p.gender) { vEl.value = p.gender; count++; }
+        else if (k.includes("blood") && p.blood) { vEl.value = p.blood; count++; }
+      });
+      return count;
+    }
+
+    async function saveDocument() {
+      const id = document.getElementById("docId").value || ("doc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7));
+      const type = document.getElementById("docType").value;
+      const member = document.getElementById("docMember").value.trim();
+      const title = document.getElementById("docTitle").value.trim() || `${type} - ${member}`;
+      const expiry = document.getElementById("docExpiry").value;
+      const notes = document.getElementById("docNotes").value.trim();
+
+      if (!member) { showToast("Enter a family member name"); return; }
+
+      const fields = [];
+      document.querySelectorAll("#dynamicFieldsContainer .df-row").forEach((row) => {
+        const k = row.querySelector(".df-key").value.trim();
+        const v = row.querySelector(".df-val").value.trim();
+        if (k || v) fields.push({ key: k || "Field", value: v });
+      });
+
+      const payload = await encryptJSON({ type, member, title, expiry, notes, fields, images: modalImages, updatedAt: Date.now() });
+      await idbPut("docs", { id, payload });
+      await loadAllDocuments();
+      closeAddSheet();
+      renderAll();
+      showToast("Saved & encrypted!");
+    }
+
+    async function deleteDocument(docId) {
+      if (!confirm("Delete this document permanently?")) return;
+      await idbDelete("docs", docId);
+      closeDetailSheet();
+      await loadAllDocuments();
+      renderAll();
+      showToast("Document deleted");
+    }
+
+    /* =========================================================================
+       9. EXPORT, IMPORT, PASSWORD CHANGE, WIPE
+       ========================================================================= */
+    function openPasswordSheet() { document.getElementById("passSheetBackdrop").classList.remove("hidden"); }
+    function closePasswordSheet() { document.getElementById("passSheetBackdrop").classList.add("hidden"); }
+
+    async function changeMasterPassword() {
+      const p1 = document.getElementById("newMasterPass").value;
+      const p2 = document.getElementById("confirmNewMasterPass").value;
+      if (!p1 || p1.length < 4) { showToast("Minimum 4 characters required"); return; }
+      if (p1 !== p2) { showToast("Passwords do not match"); return; }
+
+      const newSalt = crypto.getRandomValues(new Uint8Array(16));
+      const newKey = await deriveKey(p1, newSalt);
+      const newVerifier = await encryptJSON({ check: "FAMILY_VAULT_OK" }, newKey);
+
+      for (const doc of documents) {
+        const { id, ...data } = doc;
+        await idbPut("docs", { id, payload: await encryptJSON(data, newKey) });
+      }
+      await idbPut("meta", { key: "auth", salt: bufToB64(newSalt), verifier: newVerifier });
+      await idbDelete("meta", "biometric"); // Reset biometrics so user re-enrolls with new pass
+      activeCryptoKey = newKey;
+      activeRawPass = p1;
+
+      document.getElementById("newMasterPass").value = "";
+      document.getElementById("confirmNewMasterPass").value = "";
+      closePasswordSheet();
+      updateBiometricUI();
+      showToast("Password updated! Re-enable Biometrics if needed.");
+    }
+
+    async function exportVault() {
+      const authMeta = await idbGet("meta", "auth");
+      const encryptedDocs = await idbGetAll("docs");
+      const backup = { app: "FamilyDocVault", version: 1, exportedAt: new Date().toISOString(), auth: authMeta, docs: encryptedDocs };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `family-doc-vault-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Encrypted backup downloaded!");
+    }
+
+    document.getElementById("importVaultInput").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      try {
+        const backup = JSON.parse(await file.text());
+        if (backup.app !== "FamilyDocVault" || !backup.auth || !Array.isArray(backup.docs)) throw new Error("Invalid backup file");
+        if (!confirm(`Import ${backup.docs.length} document(s)? This replaces your current vault.`)) return;
+        await idbClear("docs");
+        await idbDelete("meta", "biometric");
+        await idbPut("meta", backup.auth);
+        for (const row of backup.docs) await idbPut("docs", row);
+        activeCryptoKey = null;
+        activeRawPass = null;
+        documents = [];
+        document.getElementById("appShell").classList.add("hidden");
+        document.getElementById("lockScreen").classList.remove("hidden");
+        updateBiometricUI();
+        showToast("Imported! Unlock with backup password.");
+      } catch (err) {
+        showToast("Import failed: " + err.message);
+      }
+    });
+
+    async function resetEntireVault() {
+      if (!confirm("WARNING: Permanently delete all documents & keys from this device?")) return;
+      await idbClear("docs");
+      await idbClear("meta");
+      location.reload();
+    }
+
+    /* =========================================================================
+       10. PWA & UTILS
+       ========================================================================= */
+    let deferredPrompt = null;
+    function registerPWA() {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+      }
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById("installBtn").classList.remove("hidden");
+      });
+      document.getElementById("installBtn").addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        document.getElementById("installBtn").classList.add("hidden");
+      });
+    }
+
+    function copyText(val, label = "Value") {
+      navigator.clipboard.writeText(val).then(() => showToast(`Copied ${label}!`)).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = val; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); document.body.removeChild(ta);
+        showToast(`Copied ${label}!`);
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove("show"), 2500);
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function escapeAttr(s) { return String(s || "").replace(/"/g, "&quot;"); }
+    function escapeJs(s) { return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, " "); }
+
+    initApp();
+  </script>
+</body>
+</html>
