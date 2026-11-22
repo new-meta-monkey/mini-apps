@@ -17,6 +17,11 @@
   <meta name="twitter:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, an offline shop manager, and a chit fund manager." />
   <meta name="theme-color" content="#FFF9F0" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Mini Apps" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -862,6 +867,13 @@ window.addEventListener('keydown', function (ev) {
 
 render();
 route();
+
+// Register the dashboard service worker so Mini Apps installs as a PWA.
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
 </script>
 </body>
 </html>
