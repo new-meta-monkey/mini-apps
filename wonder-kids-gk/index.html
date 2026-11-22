@@ -631,6 +631,14 @@
       /* ---------- Trophy button (home, next to gear) ---------- */
       .trophy-btn { right: 72px; }
 
+      /* ---------- Install button (top bar, next to gear) ---------- */
+      .install-btn {
+        width: auto; min-width: 0; padding: 0 16px; border-radius: 999px;
+        right: 132px;
+        font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 0.95rem;
+      }
+      .install-btn:active { transform: scale(0.96); }
+
       /* ---------- App update banner + settings status ---------- */
       .update-banner {
         align-self: center; border: 3px solid #D99A06; background: var(--yellow);
@@ -709,6 +717,7 @@
 
     <button id="gearBtn" class="gear-btn" type="button" aria-label="Open settings">⚙️</button>
     <button id="trophyBtn" class="gear-btn trophy-btn hidden" type="button" aria-label="Open leaderboard">🏆</button>
+    <button id="installBtn" class="gear-btn install-btn hidden" type="button" aria-label="Install app">Install</button>
 
     <main class="screens">
       <!-- ============ PLAYER NAME (first launch) ============ -->
@@ -11032,6 +11041,32 @@
           }
           requestAnimationFrame(tiltLoop);
         })();
+      })();
+    </script>
+    <script>
+      (function () {
+        "use strict";
+        var deferredInstallPrompt = null;
+        var installBtn = document.getElementById("installBtn");
+        if (!installBtn) return;
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          installBtn.classList.remove("hidden");
+        });
+        installBtn.addEventListener("click", function () {
+          if (!deferredInstallPrompt) return;
+          var promptEvent = deferredInstallPrompt;
+          promptEvent.prompt();
+          promptEvent.userChoice.then(function () {
+            deferredInstallPrompt = null;
+            installBtn.classList.add("hidden");
+          });
+        });
+        window.addEventListener("appinstalled", function () {
+          deferredInstallPrompt = null;
+          installBtn.classList.add("hidden");
+        });
       })();
     </script>
   </body>

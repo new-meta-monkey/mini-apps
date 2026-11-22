@@ -2454,7 +2454,12 @@
         e.preventDefault();
         deferredPrompt = e;
         document.getElementById("installBtn").classList.remove("hidden");
+        if (new URLSearchParams(location.search).has("install")) showToast("Tap Install up top to add DocVault to your home screen.");
       });
+      // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
+      if (new URLSearchParams(location.search).has("install") && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+        showToast("On iPhone: tap Share, then Add to Home Screen.");
+      }
       document.getElementById("installBtn").addEventListener("click", async () => {
         if (!deferredPrompt) return;
         deferredPrompt.prompt();

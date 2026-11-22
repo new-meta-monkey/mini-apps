@@ -345,6 +345,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 
 <script>
 'use strict';
+
+/* PWA install prompt, captured for the dashboard Install button. */
+let deferredPrompt = null;
 /* =====================================================
    ShopPulse v1 — Offline Shop Manager
    Single-file app · Local database (localStorage)
@@ -1065,7 +1068,7 @@ function render(){
     bb.innerHTML='<span style="transform:rotate(180deg);display:inline-flex">'+I.arrow+'</span>';
     bb.title=canBack?'Back to '+VIEW_META[S.backStack[S.backStack.length-1].view][0]:'Back';
   }
-  $('#tbActions').innerHTML=`<button class="theme-btn" title="Switch theme" onclick="toggleTheme()">${db.settings.theme==='dark'?I.sun:I.moon}</button>`+topActions();
+  $('#tbActions').innerHTML=(deferredPrompt?`<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>`:'')+`<button class="theme-btn" title="Switch theme" onclick="toggleTheme()">${db.settings.theme==='dark'?I.sun:I.moon}</button>`+topActions();
   $('#sbShopName').textContent=db.settings.shopName||'ShopPulse';
   const sf=$('#sbFoot');if(sf)sf.innerHTML='100% offline · Using as <b>'+esc(S.user?S.user.name:'Owner')+'</b>'+(userRolesOn()?' · <a href="#" onclick="showUserPicker();return false" style="text-decoration:underline">Switch</a>':'');
   if(!canAccess(S.view))S.view='dashboard';
@@ -4096,6 +4099,27 @@ function bootApp(){
   render();
   if(db.settings.pinOn&&/^\d{4}$/.test(db.settings.pin||''))showLock();
   if(!S.user&&userRolesOn())showUserPicker();
+}
+/* ---------- PWA install: dashboard Install button opens with ?install=1 ---------- */
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const tb = document.getElementById('tbActions');
+  if (tb && !document.getElementById('spInstallBtn')) {
+    tb.insertAdjacentHTML('afterbegin', '<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>');
+  }
+  if (new URLSearchParams(location.search).has('install')) toast('Tap Install up top to add ShopPulse to your home screen.');
+});
+async function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  render();
+}
+// Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
+if (new URLSearchParams(location.search).has('install') && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+  toast('On iPhone: tap Share, then Add to Home Screen.');
 }
 (function boot(){
   if(!loadMaster()){

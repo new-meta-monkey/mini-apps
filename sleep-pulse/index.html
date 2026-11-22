@@ -271,6 +271,7 @@
       e.preventDefault();
       deferredInstallPrompt = e;
       document.getElementById('install-btn').classList.remove('hidden');
+      if (new URLSearchParams(location.search).has('install')) showToast('Tap Install App up top to add SleepPulse to your home screen.');
     });
 
     window.addEventListener('appinstalled', () => {
@@ -279,6 +280,11 @@
       document.getElementById('pwa-badge').classList.remove('hidden');
       showToast('SleepPulse installed on your device!');
     });
+
+    // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
+    if (new URLSearchParams(location.search).has('install') && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+      showToast('On iPhone: tap Share, then Add to Home Screen.');
+    }
 
     async function installPWA() {
       if (!deferredInstallPrompt) return;

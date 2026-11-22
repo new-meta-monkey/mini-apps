@@ -631,10 +631,10 @@ function renderAppSheet(id) {
     + '<ul>' + feats + '</ul>'
     + '<div class="sheet-actions">'
     + '<a class="open" style="background:' + a.accent + '" href="' + a.folder + '">Open ' + esc(a.name) + '</a>'
-    + '<a class="ghost-btn" href="' + a.zip + '" download>Download app</a>'
+    + '<a class="ghost-btn" href="' + a.folder + '?install=1">Install ' + esc(a.name) + '</a>'
     + '<button type="button" class="ghost-btn fav-btn" id="sheetFavBtn" aria-label="' + (fav ? 'Remove from favourites' : 'Add to favourites') + '">' + (fav ? '★' : '☆') + '</button>'
     + '</div>'
-    + '<span class="install-note">Installable app &middot; works offline.</span>';
+    + '<span class="install-note">Installable app &middot; works offline. <a href="' + a.zip + '" download>Download source (.zip)</a></span>';
   document.getElementById('sheetFavBtn').addEventListener('click', function () {
     toggleFav(a.id);
   });

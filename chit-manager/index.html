@@ -2774,7 +2774,13 @@
         const btn = document.getElementById("pwaInstallBtn");
         btn.classList.remove("hidden");
         btn.classList.add("inline-flex");
+        if (new URLSearchParams(location.search).has("install")) showToast("Tap Install up top to add ChitManager to your home screen.");
       });
+
+      // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
+      if (new URLSearchParams(location.search).has("install") && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+        showToast("On iPhone: tap Share, then Add to Home Screen.");
+      }
     }
 
     async function installPWA() {
