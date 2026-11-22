@@ -92,7 +92,7 @@
     .cycle-tab-sub { display: block; font-size: 13px; color: #5A6B8A; margin-top: 2px; }
     .cycle-tab.active { background: #7B61FF; border-color: #7B61FF; color: #fff; }
     .cycle-tab.active .cycle-tab-sub { color: rgba(255, 255, 255, 0.85); }
-    .cycle-tab.future { opacity: 0.45; }
+    .cycle-tab.future { opacity: 0.45; cursor: not-allowed; }
     .chit-card { cursor: pointer; }
     .chit-card:active { background: #F6EFE3; }
   </style>
@@ -1860,7 +1860,7 @@
         const future = isCycleFuture(group, i) && i !== currentCycleNum;
         const hasWin = group.cycles[i] && group.cycles[i].winnerId;
         const active = i === state.activeCycle;
-        tabsHtml += `<button type="button" ${future ? "disabled" : ""} onclick="changeActiveCycle(${i})" aria-label="${cycleMonthLabel(group, i)}, cycle ${i} of ${group.months}" class="cycle-tab${active ? " active" : ""}${future ? " future" : ""}"><span class="cycle-tab-month">${cycleMonthLabel(group, i)}</span><span class="cycle-tab-sub">Cycle ${i} / ${group.months}${hasWin ? " ✓" : ""}${future ? " • Soon" : ""}</span></button>`;
+        tabsHtml += `<button type="button" ${future ? "aria-disabled=\"true\"" : ""} onclick="changeActiveCycle(${i})" aria-label="${cycleMonthLabel(group, i)}, cycle ${i} of ${group.months}" class="cycle-tab${active ? " active" : ""}${future ? " future" : ""}"><span class="cycle-tab-month">${cycleMonthLabel(group, i)}</span><span class="cycle-tab-sub">Cycle ${i} / ${group.months}${hasWin ? " ✓" : ""}${future ? " • Soon" : ""}</span></button>`;
       }
       tabsEl.innerHTML = tabsHtml;
 
