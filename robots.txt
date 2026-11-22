@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://myapps.kovai.fyi/sitemap.xml
