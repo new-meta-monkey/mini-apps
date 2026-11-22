@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Apps | Small Offline Apps — Wonder Kids GK, SleepPulse, ShopPulse</title>
-  <meta name="description" content="Mini Apps is a collection of small, free, offline-first apps: Wonder Kids GK quiz for kids, SleepPulse one-click sleep tracker, and ShopPulse offline shop manager. Open or install each app on your phone." />
+  <title>Mini Apps | Small Offline Apps — Wonder Kids GK, SleepPulse, ShopPulse, ChitManager</title>
+  <meta name="description" content="Mini Apps is a collection of small, free, offline-first apps: Wonder Kids GK quiz for kids, SleepPulse one-click sleep tracker, ShopPulse offline shop manager, and ChitManager chit fund manager. Open or install each app on your phone." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://myapps.kovai.fyi/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Mini Apps | Small Offline Apps" />
-  <meta property="og:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, and an offline shop manager. Open or install each one on your phone." />
+  <meta property="og:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, an offline shop manager, and a chit fund manager. Open or install each one on your phone." />
   <meta property="og:url" content="https://myapps.kovai.fyi/" />
   <meta property="og:image" content="https://myapps.kovai.fyi/icon.svg" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Mini Apps | Small Offline Apps" />
-  <meta name="twitter:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, and an offline shop manager." />
+  <meta name="twitter:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, an offline shop manager, and a chit fund manager." />
   <meta name="theme-color" content="#FFF9F0" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <script type="application/ld+json">
@@ -23,13 +23,14 @@
     "@type": "WebSite",
     "name": "Mini Apps",
     "url": "https://myapps.kovai.fyi/",
-    "description": "Small, free, offline-first apps: Wonder Kids GK quiz for kids, SleepPulse sleep tracker, and ShopPulse shop manager.",
+    "description": "Small, free, offline-first apps: Wonder Kids GK quiz for kids, SleepPulse sleep tracker, ShopPulse shop manager, and ChitManager chit fund manager.",
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": [
         { "@type": "MobileApplication", "name": "Wonder Kids GK", "applicationCategory": "EducationalApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/wonder-kids-gk/" },
         { "@type": "MobileApplication", "name": "SleepPulse", "applicationCategory": "HealthApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/sleep-pulse/" },
-        { "@type": "MobileApplication", "name": "ShopPulse", "applicationCategory": "BusinessApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/shop-pulse/" }
+        { "@type": "MobileApplication", "name": "ShopPulse", "applicationCategory": "BusinessApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/shop-pulse/" },
+        { "@type": "MobileApplication", "name": "ChitManager", "applicationCategory": "FinanceApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/chit-manager/" }
       ]
     }
   }
@@ -382,6 +383,7 @@
       <p><strong>Wonder Kids GK</strong> — Kids &amp; Learning. Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard. <a href="./wonder-kids-gk/">Open Wonder Kids GK</a></p>
       <p><strong>SleepPulse</strong> — Health. One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device. <a href="./sleep-pulse/">Open SleepPulse</a></p>
       <p><strong>ShopPulse</strong> — Money. Offline shop manager — POS billing, stock, sales, expenses and reports. Multi-shop, works without internet. <a href="./shop-pulse/">Open ShopPulse</a></p>
+      <p><strong>ChitManager</strong> — Money. Run chit groups end to end — members, monthly draws, payments and ledger. <a href="./chit-manager/">Open ChitManager</a></p>
     </div>
   </noscript>
 
@@ -435,6 +437,18 @@ var APPS = [
     features: ['POS billing with invoices and returns', 'Stock, customers and suppliers', 'Expenses, payroll and profit reports'],
     folder: './shop-pulse/',
     zip: './downloads/shop-pulse.zip'
+  },
+  {
+    id: 'chit-manager',
+    name: 'ChitManager',
+    cat: 'money',
+    accent: '#7B61FF',
+    icon: './chit-manager/icon.svg',
+    tagline: 'Run chit groups end to end — members, monthly draws, payments and ledger.',
+    desc: 'ChitManager runs a chit fund end to end: create a chit group, track members and monthly payments, conduct the monthly draw, and keep the full cycle ledger. Share payment reminders on WhatsApp. All data stays on your device.',
+    features: ['Chit groups, members & monthly payments', 'Monthly draw with full cycle ledger', 'WhatsApp payment reminders'],
+    folder: './chit-manager/',
+    zip: './downloads/chit-manager.zip'
   }
 ];
 
@@ -657,7 +671,8 @@ function route() {
 var BACKUP_SPEC = {
   'sleep-pulse': ['sleeppulse_logs_v1', 'sleeppulse_active_sleep_v1', 'sleeppulse_theme_v1'],
   'shop-pulse': null, /* every key starting with mobidukaan_pro_ plus md_device_id */
-  'wonder-kids-gk': ['wgkKidId', 'wgkKidName', 'wgkCardAnim']
+  'wonder-kids-gk': ['wgkKidId', 'wgkKidName', 'wgkCardAnim'],
+  'chit-manager': ['kovai_chit_manager_v4']
 };
 
 function collectAppData(appId) {
