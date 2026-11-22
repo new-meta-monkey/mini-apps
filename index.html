@@ -667,7 +667,7 @@ function showLastBackup() {
   if (!el) return;
   var v = null;
   try { v = localStorage.getItem(LAST_BACKUP_KEY); } catch (e) {}
-  el.textContent = v ? 'Last backup: ' + v.slice(0, 10) : 'Not backed up yet';
+  el.textContent = v ? 'Last backup: ' + v.slice(0, 10) : 'Last backup: never';
 }
 
 function backupAll() {
