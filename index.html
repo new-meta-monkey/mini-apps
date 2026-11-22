@@ -20,7 +20,7 @@
       align-items: center;
       padding: 40px 20px 32px;
     }
-    header { text-align: center; max-width: 560px; }
+    header { text-align: center; max-width: 620px; width: 100%; }
     h1 {
       font-family: 'Fredoka', 'Nunito', sans-serif;
       font-size: 44px;
@@ -28,6 +28,88 @@
       letter-spacing: -0.5px;
     }
     header p { margin-top: 8px; font-size: 17px; color: #5A6B8A; line-height: 1.5; }
+    .search {
+      margin-top: 22px;
+      width: 100%;
+      max-width: 480px;
+      padding: 13px 18px;
+      font-family: 'Nunito', system-ui, sans-serif;
+      font-size: 16px;
+      color: #1B2A4A;
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 16px;
+      outline: none;
+      box-shadow: 0 4px 16px rgba(27, 42, 74, 0.06);
+    }
+    .search:focus { border-color: #7B61FF; box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.15); }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 18px;
+    }
+    .chip {
+      font-family: 'Nunito', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #5A6B8A;
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 999px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .chip.active { background: #1B2A4A; color: #fff; border-color: #1B2A4A; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .tool-btn {
+      font-family: 'Nunito', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: #1B2A4A;
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    .tool-btn:hover { border-color: #7B61FF; }
+    .last-backup { font-size: 13px; color: #8A97B0; }
+    .undo-bar {
+      display: none;
+      margin-top: 16px;
+      background: #E6F7F4;
+      border: 1px solid #2EC4B6;
+      color: #1B2A4A;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .undo-bar.show { display: flex; }
+    .undo-bar button {
+      font-family: 'Nunito', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      background: #2EC4B6;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
@@ -35,7 +117,7 @@
       justify-content: center;
       width: 100%;
       max-width: 760px;
-      margin-top: 36px;
+      margin-top: 28px;
     }
     .card {
       background: #fff;
@@ -46,6 +128,8 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      cursor: pointer;
+      position: relative;
     }
     .card img {
       width: 72px; height: 72px;
@@ -53,7 +137,33 @@
       object-fit: cover;
       box-shadow: 0 4px 14px rgba(27, 42, 74, 0.12);
     }
-    .card h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 22px; font-weight: 600; }
+    .star {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 26px;
+      line-height: 1;
+      color: #D8D2C4;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .star.fav { color: #FFC93C; }
+    .card h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 22px; font-weight: 600; padding-right: 36px; }
+    .cat {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: #5A6B8A;
+      background: #FFF9F0;
+      border: 1px solid #F0E6D8;
+      border-radius: 999px;
+      padding: 4px 10px;
+      align-self: flex-start;
+    }
     .card p { font-size: 15px; line-height: 1.55; color: #5A6B8A; flex-grow: 1; }
     .open {
       display: inline-block;
@@ -65,10 +175,64 @@
       color: #fff;
       text-decoration: none;
     }
-    .open.gk { background: #FF6B6B; }
-    .open.sleep { background: #4F46E5; }
-    .open.shop { background: #2EC4B6; }
     .install-note { font-size: 13px; color: #8A97B0; }
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #5A6B8A;
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .detail {
+      display: none;
+      width: 100%;
+      max-width: 620px;
+      margin-top: 28px;
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 6px 24px rgba(27, 42, 74, 0.07);
+    }
+    .detail.show { display: block; }
+    .back {
+      font-family: 'Nunito', system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #7B61FF;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 0 16px;
+    }
+    .detail img {
+      width: 96px; height: 96px;
+      border-radius: 22px;
+      object-fit: cover;
+      box-shadow: 0 4px 14px rgba(27, 42, 74, 0.12);
+    }
+    .detail h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 30px; font-weight: 700; margin-top: 14px; }
+    .detail .tagline { font-size: 17px; color: #5A6B8A; line-height: 1.55; margin-top: 8px; }
+    .detail p.desc { font-size: 15px; color: #1B2A4A; line-height: 1.6; margin-top: 12px; }
+    .detail ul { margin: 14px 0 4px 20px; font-size: 15px; line-height: 1.7; color: #5A6B8A; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .detail-actions .open { flex: 1 1 160px; }
+    .ghost-btn {
+      flex: 1 1 160px;
+      text-align: center;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 15px;
+      color: #1B2A4A;
+      background: #FFF9F0;
+      border: 1px solid #F0E6D8;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: 'Nunito', system-ui, sans-serif;
+    }
+    .detail .install-note { margin-top: 14px; display: block; }
     footer { margin-top: 40px; font-size: 13px; color: #8A97B0; text-align: center; line-height: 1.6; }
   </style>
 </head>
@@ -76,37 +240,389 @@
   <header>
     <h1>Mini Apps</h1>
     <p>Small apps, one tap each. Open one below, or install it on your phone like a real app.</p>
+    <input id="search" class="search" type="search" placeholder="Search apps..." aria-label="Search apps" />
+    <div id="chips" class="chips"></div>
+    <div class="toolbar">
+      <button class="tool-btn" id="backupBtn" type="button">Backup all apps</button>
+      <button class="tool-btn" id="restoreBtn" type="button">Restore</button>
+      <span id="lastBackup" class="last-backup"></span>
+    </div>
+    <div id="undoBar" class="undo-bar">
+      <span>Restore done. Your previous data is kept as a safety copy.</span>
+      <button id="undoRestoreBtn" type="button">Undo restore</button>
+    </div>
+    <input id="restoreFile" type="file" accept="application/json,.json" hidden />
   </header>
 
-  <main class="grid">
-    <section class="card">
-      <img src="./wonder-kids-gk/icon-192.png" alt="Wonder Kids GK icon" />
-      <h2>Wonder Kids GK</h2>
-      <p>Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard.</p>
-      <a class="open gk" href="./wonder-kids-gk/">Open Wonder Kids GK</a>
-      <span class="install-note">Installable app &middot; works offline</span>
-    </section>
+  <main id="grid" class="grid"></main>
 
-    <section class="card">
-      <img src="./sleep-pulse/icon.svg" alt="SleepPulse icon" />
-      <h2>SleepPulse</h2>
-      <p>One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device.</p>
-      <a class="open sleep" href="./sleep-pulse/">Open SleepPulse</a>
-      <span class="install-note">Installable app &middot; works offline</span>
-    </section>
-
-    <section class="card">
-      <img src="./shop-pulse/icon.svg" alt="ShopPulse icon" />
-      <h2>ShopPulse</h2>
-      <p>Offline shop manager — POS billing, stock, sales, expenses and reports. Multi-shop, works without internet.</p>
-      <a class="open shop" href="./shop-pulse/">Open ShopPulse</a>
-      <span class="install-note">Installable app &middot; works offline</span>
-    </section>
-  </main>
+  <section id="detail" class="detail" aria-live="polite"></section>
 
   <footer>
     Each app installs separately &mdash; open it, then use your browser&rsquo;s Install option.<br />
     More mini apps coming soon.
   </footer>
+
+<script>
+var APPS = [
+  {
+    id: 'wonder-kids-gk',
+    name: 'Wonder Kids GK',
+    cat: 'kids',
+    accent: '#FF6B6B',
+    icon: './wonder-kids-gk/icon-192.png',
+    tagline: 'Learn with flip cards, then take the Challenge quiz. 11 topics for kids ages 7 to 15, with photos, scores and a leaderboard.',
+    desc: 'A general knowledge quiz app for kids. Flip through photo cards to learn, then take the Challenge quiz in each topic. Scores save to a leaderboard, and everything works offline once installed.',
+    features: ['11 topics: animals, space, world, science, food, India and Tamil Nadu', '330 learn cards and 330 quiz questions', 'Streak boost: 3 correct in a row doubles points', 'Leaderboard with player names'],
+    folder: './wonder-kids-gk/',
+    zip: './downloads/wonder-kids-gk.zip'
+  },
+  {
+    id: 'sleep-pulse',
+    name: 'SleepPulse',
+    cat: 'health',
+    accent: '#7B61FF',
+    icon: './sleep-pulse/icon.svg',
+    tagline: 'One-click sleep tracker. Log bedtime and wake-up, see your week at a glance, all stored privately on your device.',
+    desc: 'Tap once when you sleep and once when you wake. SleepPulse works out your hours, your weekly balance against the 8-hour goal, and shows a simple sleep coach note. No account, no cloud, everything stays on your phone.',
+    features: ['One-tap sleep and wake logging', '7-day average duration, bedtime and wake time', 'Weekly balance against the 56-hour goal', 'History table, quality rating and CSV export'],
+    folder: './sleep-pulse/',
+    zip: './downloads/sleep-pulse.zip'
+  },
+  {
+    id: 'shop-pulse',
+    name: 'ShopPulse',
+    cat: 'money',
+    accent: '#2EC4B6',
+    icon: './shop-pulse/icon.svg',
+    tagline: 'Offline shop manager — POS billing, stock, sales, expenses and reports. Multi-shop, works without internet.',
+    desc: 'A full shop manager that runs entirely offline. Billing with invoices, stock, purchases, customers, expenses, staff and reports across multiple shops, with its own backup and restore built in.',
+    features: ['POS billing with invoices and returns', 'Stock, purchases, customers and suppliers', 'Expenses, payroll and profit reports', 'Multi-shop, with per-shop backup and restore'],
+    folder: './shop-pulse/',
+    zip: './downloads/shop-pulse.zip'
+  }
+];
+
+var CATS = [
+  { id: 'all', label: 'All' },
+  { id: 'fav', label: 'Favourites' },
+  { id: 'kids', label: 'Kids & Learning' },
+  { id: 'health', label: 'Health' },
+  { id: 'money', label: 'Money' },
+  { id: 'focus', label: 'Focus & Everyday' },
+  { id: 'fun', label: 'Fun' }
+];
+
+var FAV_KEY = 'mini-apps-favs-v1';
+var LAST_BACKUP_KEY = 'mini-apps-last-backup';
+var SAFETY_KEY = 'mini-apps-pre-restore';
+
+var state = { q: '', cat: 'all' };
+
+function getFavs() {
+  try {
+    var v = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+
+function isFav(id) { return getFavs().indexOf(id) !== -1; }
+
+function toggleFav(id) {
+  var favs = getFavs();
+  var i = favs.indexOf(id);
+  if (i === -1) { favs.push(id); } else { favs.splice(i, 1); }
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {}
+  render();
+  if (location.hash.indexOf('#/app/') === 0) { renderDetail(id); }
+}
+
+function catLabel(id) {
+  for (var i = 0; i < CATS.length; i++) { if (CATS[i].id === id) return CATS[i].label; }
+  return id;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderChips() {
+  var box = document.getElementById('chips');
+  var html = '';
+  CATS.forEach(function (c) {
+    html += '<button type="button" class="chip' + (state.cat === c.id ? ' active' : '') + '" data-cat="' + c.id + '">' + esc(c.label) + '</button>';
+  });
+  box.innerHTML = html;
+  var btns = box.querySelectorAll('.chip');
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.cat = b.getAttribute('data-cat');
+      render();
+    });
+  });
+}
+
+function filteredApps() {
+  var q = state.q.trim().toLowerCase();
+  var favs = getFavs();
+  return APPS.filter(function (a) {
+    if (state.cat === 'fav' && favs.indexOf(a.id) === -1) return false;
+    if (state.cat !== 'all' && state.cat !== 'fav' && a.cat !== state.cat) return false;
+    if (q) {
+      var hay = (a.name + ' ' + a.tagline + ' ' + a.desc + ' ' + catLabel(a.cat)).toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function render() {
+  renderChips();
+  var grid = document.getElementById('grid');
+  var detail = document.getElementById('detail');
+  var list = filteredApps();
+  if (location.hash.indexOf('#/app/') === 0) {
+    grid.style.display = 'none';
+    detail.classList.add('show');
+  } else {
+    grid.style.display = '';
+    detail.classList.remove('show');
+  }
+  if (!list.length) {
+    var msg = state.cat === 'fav'
+      ? 'No favourites yet. Tap the star on any app to pin it here.'
+      : 'No apps match your search. Try another word.';
+    grid.innerHTML = '<div class="empty">' + msg + '</div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function (a) {
+    html += '<section class="card" data-app="' + a.id + '">'
+      + '<button type="button" class="star' + (isFav(a.id) ? ' fav' : '') + '" data-star="' + a.id + '" aria-label="Favourite ' + esc(a.name) + '">' + (isFav(a.id) ? '★' : '☆') + '</button>'
+      + '<img src="' + a.icon + '" alt="' + esc(a.name) + ' icon" />'
+      + '<h2>' + esc(a.name) + '</h2>'
+      + '<span class="cat">' + esc(catLabel(a.cat)) + '</span>'
+      + '<p>' + esc(a.tagline) + '</p>'
+      + '<a class="open" style="background:' + a.accent + '" href="' + a.folder + '">Open ' + esc(a.name) + '</a>'
+      + '<span class="install-note">Installable app &middot; works offline</span>'
+      + '</section>';
+  });
+  grid.innerHTML = html;
+  grid.querySelectorAll('.card').forEach(function (card) {
+    card.addEventListener('click', function (ev) {
+      if (ev.target.closest('.star') || ev.target.closest('.open')) return;
+      location.hash = '#/app/' + card.getAttribute('data-app');
+    });
+  });
+  grid.querySelectorAll('[data-star]').forEach(function (btn) {
+    btn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      toggleFav(btn.getAttribute('data-star'));
+    });
+  });
+}
+
+function renderDetail(id) {
+  var a = null;
+  APPS.forEach(function (x) { if (x.id === id) a = x; });
+  var detail = document.getElementById('detail');
+  if (!a) {
+    detail.classList.remove('show');
+    document.getElementById('grid').style.display = '';
+    return;
+  }
+  var feats = a.features.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('');
+  detail.innerHTML = '<button type="button" class="back" id="backBtn">&larr; All apps</button>'
+    + '<img src="' + a.icon + '" alt="' + esc(a.name) + ' icon" />'
+    + '<h2>' + esc(a.name) + '</h2>'
+    + '<span class="cat">' + esc(catLabel(a.cat)) + '</span>'
+    + '<p class="tagline">' + esc(a.tagline) + '</p>'
+    + '<p class="desc">' + esc(a.desc) + '</p>'
+    + '<ul>' + feats + '</ul>'
+    + '<div class="detail-actions">'
+    + '<a class="open" style="background:' + a.accent + '" href="' + a.folder + '">Open ' + esc(a.name) + '</a>'
+    + '<a class="ghost-btn" href="' + a.zip + '" download>Download app</a>'
+    + '<button type="button" class="ghost-btn" id="detailFavBtn">' + (isFav(a.id) ? '★ Favourited' : '☆ Add to favourites') + '</button>'
+    + '</div>'
+    + '<span class="install-note">Installable app &middot; works offline. Download app saves a copy of this app (with its own icon) that you can keep or install on its own.</span>';
+  document.getElementById('backBtn').addEventListener('click', function () {
+    location.hash = '#/';
+  });
+  document.getElementById('detailFavBtn').addEventListener('click', function () {
+    toggleFav(a.id);
+  });
+  detail.classList.add('show');
+  document.getElementById('grid').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function route() {
+  if (location.hash.indexOf('#/app/') === 0) {
+    renderDetail(location.hash.slice(6));
+  } else {
+    render();
+  }
+}
+
+/* ---------- Backup: one file for all apps ---------- */
+
+var BACKUP_SPEC = {
+  'sleep-pulse': ['sleeppulse_logs_v1', 'sleeppulse_active_sleep_v1', 'sleeppulse_theme_v1'],
+  'shop-pulse': null, /* every key starting with mobidukaan_pro_ plus md_device_id */
+  'wonder-kids-gk': ['wgkKidId', 'wgkKidName', 'wgkCardAnim']
+};
+
+function collectAppData(appId) {
+  var data = {};
+  if (appId === 'shop-pulse') {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && (k.indexOf('mobidukaan_pro_') === 0 || k === 'md_device_id')) {
+        data[k] = localStorage.getItem(k);
+      }
+    }
+    return data;
+  }
+  var keys = BACKUP_SPEC[appId] || [];
+  keys.forEach(function (k) {
+    var v = localStorage.getItem(k);
+    if (v !== null) data[k] = v;
+  });
+  return data;
+}
+
+function collectAllKeys() {
+  var keys = [];
+  APPS.forEach(function (a) {
+    if (a.id === 'shop-pulse') {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && (k.indexOf('mobidukaan_pro_') === 0 || k === 'md_device_id')) keys.push(k);
+      }
+    } else {
+      (BACKUP_SPEC[a.id] || []).forEach(function (k) { keys.push(k); });
+    }
+  });
+  return keys;
+}
+
+function downloadFile(name, text) {
+  var blob = new Blob([text], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+
+function todayStr() {
+  var d = new Date();
+  function p(n) { return (n < 10 ? '0' : '') + n; }
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+
+function showLastBackup() {
+  var el = document.getElementById('lastBackup');
+  var v = null;
+  try { v = localStorage.getItem(LAST_BACKUP_KEY); } catch (e) {}
+  el.textContent = v ? 'Last backup: ' + v.slice(0, 10) : 'Not backed up yet';
+}
+
+function backupAll() {
+  var apps = {};
+  APPS.forEach(function (a) { apps[a.id] = collectAppData(a.id); });
+  var payload = {
+    format: 'mini-apps-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    apps: apps
+  };
+  downloadFile('mini-apps-backup-' + todayStr() + '.json', JSON.stringify(payload));
+  try { localStorage.setItem(LAST_BACKUP_KEY, payload.exportedAt); } catch (e) {}
+  showLastBackup();
+}
+
+function saveSafetyCopy() {
+  var data = {};
+  collectAllKeys().forEach(function (k) {
+    var v = localStorage.getItem(k);
+    if (v !== null) data[k] = v;
+  });
+  try {
+    localStorage.setItem(SAFETY_KEY, JSON.stringify({ savedAt: new Date().toISOString(), data: data }));
+  } catch (e) {}
+}
+
+function restoreKeys(data) {
+  Object.keys(data).forEach(function (k) {
+    try { localStorage.setItem(k, data[k]); } catch (e) {}
+  });
+}
+
+function restoreFile(file) {
+  var reader = new FileReader();
+  reader.onload = function () {
+    var parsed = null;
+    try { parsed = JSON.parse(reader.result); } catch (e) {}
+    if (!parsed || parsed.format !== 'mini-apps-backup' || parsed.version !== 1) {
+      alert('This file is not a Mini Apps backup.');
+      return;
+    }
+    var isSingle = parsed.app && parsed.data;
+    var target = isSingle ? 'the ' + parsed.app + ' app' : 'all apps';
+    if (!confirm('Restore this backup into ' + target + '? This replaces the current data there. A safety copy of your current data will be kept.')) return;
+    saveSafetyCopy();
+    if (isSingle) {
+      if (!BACKUP_SPEC.hasOwnProperty(parsed.app) && parsed.app !== 'shop-pulse') {
+        alert('This backup is for an unknown app: ' + parsed.app);
+        return;
+      }
+      restoreKeys(parsed.data);
+    } else if (parsed.apps) {
+      Object.keys(parsed.apps).forEach(function (appId) {
+        restoreKeys(parsed.apps[appId] || {});
+      });
+    }
+    document.getElementById('undoBar').classList.add('show');
+  };
+  reader.readAsText(file);
+}
+
+function undoRestore() {
+  var raw = null;
+  try { raw = localStorage.getItem(SAFETY_KEY); } catch (e) {}
+  if (!raw) { alert('No safety copy found.'); return; }
+  var snap = null;
+  try { snap = JSON.parse(raw); } catch (e) {}
+  if (!snap || !snap.data) { alert('No safety copy found.'); return; }
+  collectAllKeys().forEach(function (k) {
+    try { localStorage.removeItem(k); } catch (e) {}
+  });
+  restoreKeys(snap.data);
+  try { localStorage.removeItem(SAFETY_KEY); } catch (e) {}
+  document.getElementById('undoBar').classList.remove('show');
+  render();
+}
+
+document.getElementById('search').addEventListener('input', function (ev) {
+  state.q = ev.target.value;
+  render();
+});
+document.getElementById('backupBtn').addEventListener('click', backupAll);
+document.getElementById('restoreBtn').addEventListener('click', function () {
+  document.getElementById('restoreFile').click();
+});
+document.getElementById('restoreFile').addEventListener('change', function (ev) {
+  if (ev.target.files && ev.target.files[0]) restoreFile(ev.target.files[0]);
+  ev.target.value = '';
+});
+document.getElementById('undoRestoreBtn').addEventListener('click', undoRestore);
+window.addEventListener('hashchange', route);
+
+showLastBackup();
+route();
+</script>
 </body>
 </html>
