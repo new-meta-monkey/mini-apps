@@ -81,6 +81,20 @@
       animation: spinWheel 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
     h1, h2, h3 { font-family: 'Fredoka', 'Nunito', sans-serif; }
+    /* 40+ friendly: roomy type, big touch targets, clear month tabs */
+    body { font-size: 16px; }
+    .big-btn { min-height: 52px !important; font-size: 16px !important; }
+    .back-btn { min-height: 48px; font-size: 16px; font-weight: 700; padding: 10px 16px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; }
+    .freq-btn { min-height: 52px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
+    .freq-btn.selected { background: #7B61FF; border-color: #7B61FF; color: #fff; }
+    .cycle-tab { min-height: 54px; min-width: 104px; padding: 8px 12px; border-radius: 14px; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; font-size: 15px; text-align: center; flex-shrink: 0; line-height: 1.25; }
+    .cycle-tab-month { display: block; font-weight: 800; }
+    .cycle-tab-sub { display: block; font-size: 13px; color: #5A6B8A; margin-top: 2px; }
+    .cycle-tab.active { background: #7B61FF; border-color: #7B61FF; color: #fff; }
+    .cycle-tab.active .cycle-tab-sub { color: rgba(255, 255, 255, 0.85); }
+    .cycle-tab.future { opacity: 0.45; }
+    .chit-card { cursor: pointer; }
+    .chit-card:active { background: #F6EFE3; }
   </style>
 </head>
 <body class="pb-24 md:pb-10 min-h-screen flex flex-col">
@@ -134,22 +148,6 @@
       </div>
     </div>
 
-    <!-- Active Group Bar (Hidden when no groups exist) -->
-    <div id="groupControlBar" class="bg-slate-50/90 border-t border-slate-200/80 hidden">
-      <div class="max-w-5xl mx-auto px-3.5 sm:px-5 py-2 flex items-center gap-2">
-        <div class="relative flex-1 min-w-0">
-          <select id="groupSelector" onchange="switchGroup(this.value)" aria-label="Select Chit Group" class="w-full appearance-none bg-white border border-slate-200 text-slate-800 text-xs sm:text-sm font-semibold rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 truncate"></select>
-          <svg class="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <button onclick="openModal('newGroupModal')" class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition shrink-0">
-          <span>+</span>
-          <span data-i18n="newGroup">New Chit</span>
-        </button>
-        <button onclick="openEditGroupModal()" title="Group Settings" aria-label="Group Settings" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 shrink-0 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </button>
-      </div>
-    </div>
 
     <!-- Desktop Navigation Tabs (Hidden when blank) -->
     <nav id="desktopNav" class="hidden md:block bg-white border-t border-slate-100">
@@ -185,10 +183,10 @@
 
       <!-- Primary & Secondary Onboarding CTAs -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
-        <button onclick="openModal('newGroupModal')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition">
+        <button onclick="openModal('newGroupModal')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
           + <span data-i18n="createFirstChit">Create Your First Chit</span>
         </button>
-        <button onclick="loadDemoData(true)" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 text-sm font-semibold hover:bg-slate-200/70 transition">
+        <button onclick="loadDemoData(true)" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
           <span data-i18n="tryMockData">Load Sample Mock Data</span>
         </button>
       </div>
@@ -219,8 +217,31 @@
     </div>
   </section>
 
+  <!-- ==================== MY CHITS (LIST-FIRST HOME) ==================== -->
+  <section id="groupsListView" class="hidden max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 sm:py-6 flex-1 space-y-4">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900">My Chits</h2>
+      <p id="groupsListCount" class="text-base text-slate-500 mt-1"></p>
+    </div>
+    <button onclick="openModal('newGroupModal')" class="big-btn w-full px-6 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+      + <span data-i18n="newGroup">New Chit</span>
+    </button>
+    <div id="groupsList" class="space-y-4"></div>
+    <p class="text-center text-sm text-slate-500 pt-1">Tap a chit to open it. Your data stays on this device.</p>
+  </section>
+
   <!-- ==================== MAIN WORKSPACE (ACTIVE CHIT) ==================== -->
   <main id="mainWorkspace" class="hidden max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 sm:py-6 flex-1 space-y-4 sm:space-y-5">
+
+    <!-- Back to list + chit title -->
+    <div class="flex items-center gap-3">
+      <button onclick="showGroupsList()" class="back-btn shrink-0">&larr; All Chits</button>
+      <div class="min-w-0 flex-1">
+        <h2 id="detailGroupName" class="text-xl font-bold text-slate-900 truncate"></h2>
+        <p id="detailGroupMeta" class="text-sm text-slate-500 truncate"></p>
+      </div>
+      <button onclick="openEditGroupModal()" class="back-btn shrink-0" title="Edit this chit">Edit</button>
+    </div>
 
     <!-- Step-by-Step Workflow Progress Strip -->
     <div class="card px-3.5 py-2.5 flex items-center justify-between gap-2 overflow-x-auto text-xs">
@@ -251,7 +272,7 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-[11px] sm:text-xs font-medium text-slate-500 leading-snug" data-i18n="totalPot">Total Chit Value</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="totalPot">Total Chit Value</p>
             <p id="dash-totalPot" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
           <span id="dash-chitTypeBadge" class="inline-block self-start mt-2.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-full">Auction</span>
@@ -259,29 +280,29 @@
 
         <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-[11px] sm:text-xs font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
             <div class="flex items-center justify-between gap-1 mt-1">
               <p id="dash-cycle" class="num text-lg sm:text-2xl font-bold text-slate-900">1 / 10</p>
-              <button onclick="advanceNextCycle()" title="Next Cycle" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 transition">→</button>
+              <button onclick="advanceNextCycle()" title="Next Cycle" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-bold flex items-center justify-center shrink-0 transition">&rarr;</button>
             </div>
           </div>
-          <p id="dash-baseInstallment" class="text-[11px] sm:text-xs text-slate-500 mt-2.5 truncate">Base: ₹0 / tkt</p>
+          <p id="dash-baseInstallment" class="text-sm text-slate-500 mt-2.5 truncate">Base: ₹0 / tkt</p>
         </div>
 
         <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-[11px] sm:text-xs font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
             <p id="dash-collected" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-collectedCount" class="text-[11px] sm:text-xs text-slate-500 mt-2.5 truncate">0 / 0 Paid</p>
+          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-2.5 truncate">0 / 0 Paid</p>
         </div>
 
         <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-[11px] sm:text-xs font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
             <p id="dash-netPayable" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-dividendNote" class="text-[11px] sm:text-xs text-slate-500 mt-2.5 truncate">Dividend: ₹0</p>
+          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-2.5 truncate">Dividend: ₹0</p>
         </div>
       </div>
 
@@ -294,11 +315,10 @@
                 <h2 class="font-semibold text-slate-900 text-base leading-snug" data-i18n="cycleOverview">Active Cycle Overview</h2>
                 <p class="text-xs text-slate-500 mt-0.5" data-i18n="cycleOverviewSub">Monthly collection status and winner disbursement</p>
               </div>
-              <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                <label for="cycleSelector" class="text-xs font-medium text-slate-500" data-i18n="selectMonth">Cycle:</label>
-                <select id="cycleSelector" onchange="changeActiveCycle(this.value)" class="border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"></select>
-              </div>
             </div>
+
+            <!-- Month tabs: one tab per collection month, future months disabled -->
+            <div id="cycleTabs" class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 pt-1" role="tablist" aria-label="Collection months"></div>
 
             <!-- Progress Bar -->
             <div class="pt-1">
@@ -320,7 +340,7 @@
                 </div>
                 <p id="dash-winnerText" class="text-sm font-medium text-slate-800 break-words">Pending draw / auction for this cycle</p>
               </div>
-              <button onclick="switchTab('draw')" class="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-100 transition text-center shrink-0" data-i18n="goToDraw">
+              <button onclick="switchTab('draw')" class="w-full sm:w-auto px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-800 text-sm font-semibold hover:bg-slate-100 transition text-center shrink-0" data-i18n="goToDraw">
                 Conduct Draw / Auction →
               </button>
             </div>
@@ -328,10 +348,10 @@
 
           <!-- WhatsApp Actions -->
           <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button onclick="shareGroupReminderWhatsApp()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold hover:bg-indigo-700 transition">
+            <button onclick="shareGroupReminderWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
               <span data-i18n="shareGroupReminder">Share Payment Reminder</span>
             </button>
-            <button onclick="shareLatestResultWhatsApp()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 text-xs sm:text-sm font-semibold hover:bg-slate-200/70 transition">
+            <button onclick="shareLatestResultWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
               <span data-i18n="shareResultBtn">Share Chit Result</span>
             </button>
           </div>
@@ -342,11 +362,11 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between gap-2">
               <h3 class="font-semibold text-slate-900 text-sm" data-i18n="pendingDues">Pending Payments</h3>
-              <button onclick="switchTab('members')" class="text-xs text-indigo-600 font-semibold hover:underline shrink-0" data-i18n="viewAll">View All</button>
+              <button onclick="switchTab('members')" class="text-sm text-indigo-600 font-semibold hover:underline shrink-0" data-i18n="viewAll">View All</button>
             </div>
             <div id="dash-pendingList" class="space-y-2 max-h-64 overflow-y-auto pr-0.5"></div>
           </div>
-          <button onclick="openAddMemberModal()" class="w-full py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:border-slate-400 transition" data-i18n="addMemberBtn">
+          <button onclick="openAddMemberModal()" class="big-btn w-full py-3 rounded-xl border border-dashed border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-400 transition" data-i18n="addMemberBtn">
             + Add Member
           </button>
         </div>
@@ -367,7 +387,7 @@
         <!-- Guard when 0 members -->
         <div id="draw-noMembersAlert" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2.5">
           <p class="text-xs sm:text-sm font-medium text-slate-700" data-i18n="needMembersFirst">Add members to this chit group before conducting a draw or auction.</p>
-          <button onclick="openAddMemberModal()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition" data-i18n="addMemberBtn">
+          <button onclick="openAddMemberModal()" class="big-btn px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="addMemberBtn">
             + Add Member
           </button>
         </div>
@@ -380,7 +400,7 @@
               <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
               <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="aucStep1">Select Winning Bidder</h3>
             </div>
-            <select id="auc-winner" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
+            <select id="auc-winner" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
           </div>
 
           <!-- Step A2 -->
@@ -392,11 +412,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="bidDiscountAmt">Bid Discount Amount (₹)</label>
-                <input type="number" id="auc-discount" oninput="previewAuction()" placeholder="e.g. 15000" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+                <input type="number" id="auc-discount" oninput="previewAuction()" placeholder="e.g. 15000" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="foremanComm">Foreman Commission (₹)</label>
-                <input type="number" id="auc-commission" oninput="previewAuction()" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+                <input type="number" id="auc-commission" oninput="previewAuction()" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
               </div>
             </div>
             <p id="auc-warning" class="hidden text-xs text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2"></p>
@@ -428,7 +448,7 @@
             </div>
           </div>
 
-          <button onclick="saveCycleResult('auction')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition" data-i18n="confirmAuction">
+          <button onclick="saveCycleResult('auction')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="confirmAuction">
             Confirm Auction &amp; Update Dues
           </button>
         </div>
@@ -456,10 +476,10 @@
               <p id="lottery-winnerName" class="text-lg font-bold text-slate-900 mt-0.5 break-words"></p>
             </div>
             <div class="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-2.5">
-              <button onclick="spinLotteryDraw()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition">
+              <button onclick="spinLotteryDraw()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
                 <span data-i18n="spinDrawBtn">Spin &amp; Pick Random Winner</span>
               </button>
-              <button id="lottery-saveBtn" onclick="saveCycleResult('lottery')" class="hidden w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">
+              <button id="lottery-saveBtn" onclick="saveCycleResult('lottery')" class="big-btn hidden w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition">
                 <span data-i18n="confirmWinnerBtn">Save Winner</span>
               </button>
             </div>
@@ -476,9 +496,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="scheduledMember">Scheduled Recipient</label>
-                <select id="fixed-winner" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
+                <select id="fixed-winner" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
               </div>
-              <button onclick="saveCycleResult('fixed')" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition" data-i18n="confirmTurnBtn">
+              <button onclick="saveCycleResult('fixed')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="confirmTurnBtn">
                 Confirm Cycle Recipient
               </button>
             </div>
@@ -503,10 +523,10 @@
           <p class="text-xs text-slate-500 mt-0.5" id="members-cycleInfo">Cycle 1 • Tap status badge to update payment state</p>
         </div>
         <div class="grid grid-cols-2 sm:flex items-center gap-2">
-          <button onclick="markAllPaid()" class="px-3 py-2 rounded-xl bg-white text-slate-700 border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition text-center" data-i18n="markAllPaid">
+          <button onclick="markAllPaid()" class="px-4 py-3 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition text-center" data-i18n="markAllPaid">
             ✓ Mark All Paid
           </button>
-          <button onclick="openAddMemberModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition text-center" data-i18n="addMemberBtn">
+          <button onclick="openAddMemberModal()" class="big-btn px-4 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition text-center" data-i18n="addMemberBtn">
             + Add Member
           </button>
         </div>
@@ -514,13 +534,13 @@
 
       <!-- Search + Filter Pills -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div class="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-          <button onclick="filterMembers('all')" id="filter-all" class="filter-pill px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0">All</button>
-          <button onclick="filterMembers('paid')" id="filter-paid" class="filter-pill px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Paid</button>
-          <button onclick="filterMembers('pending')" id="filter-pending" class="filter-pill px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Pending</button>
-          <button onclick="filterMembers('overdue')" id="filter-overdue" class="filter-pill px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Overdue</button>
+        <div class="flex gap-2 overflow-x-auto pb-1 text-sm">
+          <button onclick="filterMembers('all')" id="filter-all" class="filter-pill px-4 py-2.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0">All</button>
+          <button onclick="filterMembers('paid')" id="filter-paid" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Paid</button>
+          <button onclick="filterMembers('pending')" id="filter-pending" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Pending</button>
+          <button onclick="filterMembers('overdue')" id="filter-overdue" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Overdue</button>
         </div>
-        <input type="text" id="memberSearchInput" oninput="renderAll()" placeholder="Search member..." class="w-full sm:w-56 border border-slate-200 bg-white rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        <input type="text" id="memberSearchInput" oninput="renderAll()" placeholder="Search member..." class="w-full sm:w-56 border border-slate-200 bg-white rounded-xl px-3 py-3 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
       </div>
 
       <!-- Member Cards List -->
@@ -562,19 +582,19 @@
 
   <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
   <nav id="mobileNav" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-30 flex justify-around py-2 px-1">
-    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mob-nav-btn flex flex-col items-center text-[11px] tab-active px-2 py-0.5">
+    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5">
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span data-i18n="navHome">Home</span>
     </button>
-    <button onclick="switchTab('draw')" data-tab="draw" class="mob-nav-btn flex flex-col items-center text-[11px] text-slate-500 px-2 py-0.5">
+    <button onclick="switchTab('draw')" data-tab="draw" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <span data-i18n="navDraw">Draw/Bid</span>
     </button>
-    <button onclick="switchTab('members')" data-tab="members" class="mob-nav-btn flex flex-col items-center text-[11px] text-slate-500 px-2 py-0.5">
+    <button onclick="switchTab('members')" data-tab="members" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       <span data-i18n="navMembers">Members</span>
     </button>
-    <button onclick="switchTab('history')" data-tab="history" class="mob-nav-btn flex flex-col items-center text-[11px] text-slate-500 px-2 py-0.5">
+    <button onclick="switchTab('history')" data-tab="history" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
       <span data-i18n="navLedger">Ledger</span>
     </button>
@@ -592,12 +612,12 @@
       <input type="hidden" id="editGroupId" />
       <div class="space-y-3 text-sm">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="groupNameLabel">Chit Group Name</label>
-          <input type="text" id="grp-name" placeholder="e.g. Friends ₹1L Monthly Chit" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="groupNameLabel">Chit Group Name</label>
+          <input type="text" id="grp-name" placeholder="e.g. Friends ₹1L Monthly Chit" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="chitTypeLabel">Chit Method</label>
-          <select id="grp-type" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="chitTypeLabel">Chit Method</label>
+          <select id="grp-type" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none">
             <option value="auction">Auction Chit (ஏலச் சீட்டு / नीलामी चिट)</option>
             <option value="lottery">Lottery / Draw Chit (குலுக்கல் சீட்டு / लॉटरी चिट)</option>
             <option value="fixed">Fixed / Pre-determined Turn Chit</option>
@@ -605,34 +625,52 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="potValueLabel">Total Chit Value (₹)</label>
-            <input type="number" id="grp-pot" placeholder="100000" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="potValueLabel">Total Chit Value (₹)</label>
+            <input type="number" id="grp-pot" oninput="updateFreqHint()" placeholder="100000" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="tenureLabel">Total Months / Cycles</label>
-            <input type="number" id="grp-months" placeholder="10" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="commPctLabel">Foreman Fee (%)</label>
-            <input type="number" id="grp-comm" value="5" step="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="dueDayLabel">Monthly Due Day</label>
-            <input type="number" id="grp-dueDay" value="5" min="1" max="31" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="tenureLabel">Total Months / Cycles</label>
+            <input type="number" id="grp-months" oninput="updateFreqHint()" placeholder="10" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
           </div>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="upiLabel">Organizer UPI ID / Payment Note (for WhatsApp)</label>
-          <input type="text" id="grp-upi" placeholder="e.g. organizer@okicici or 11111 11111" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Collect every</label>
+          <input type="hidden" id="grp-freq" value="1" />
+          <div id="freqPicker" class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setFrequency(1)" data-freq="1" class="freq-btn selected">Every month</button>
+            <button type="button" onclick="setFrequency(2)" data-freq="2" class="freq-btn">Every 2 months</button>
+            <button type="button" onclick="setFrequency(3)" data-freq="3" class="freq-btn">Every 3 months</button>
+            <button type="button" onclick="setFrequency(4)" data-freq="4" class="freq-btn">Every 4 months</button>
+            <button type="button" onclick="setFrequency(5)" data-freq="5" class="freq-btn">Every 5 months</button>
+            <button type="button" onclick="setFrequency(6)" data-freq="6" class="freq-btn">Every 6 months</button>
+          </div>
+          <p id="freqHint" class="text-sm text-slate-500 mt-1.5"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="grp-startMonth">First collection month</label>
+          <input type="month" id="grp-startMonth" onchange="updateFreqHint()" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <p class="text-sm text-slate-500 mt-1.5">The first month's collection. Later months follow from this.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="commPctLabel">Foreman Fee (%)</label>
+            <input type="number" id="grp-comm" value="5" step="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="dueDayLabel">Monthly Due Day</label>
+            <input type="number" id="grp-dueDay" value="5" min="1" max="31" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="upiLabel">Organizer UPI ID / Payment Note (for WhatsApp)</label>
+          <input type="text" id="grp-upi" placeholder="e.g. organizer@okicici or 11111 11111" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
         </div>
       </div>
       <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2 pt-2">
         <button id="deleteGroupBtn" onclick="deleteCurrentGroup()" class="hidden w-full sm:w-auto py-2 text-xs text-rose-600 font-semibold hover:underline text-center" data-i18n="deleteGroup">Delete Group</button>
         <div class="flex flex-col-reverse sm:flex-row gap-2 sm:ml-auto w-full sm:w-auto">
-          <button onclick="closeModal('newGroupModal')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button onclick="saveGroup()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700" data-i18n="saveBtn">Save Group</button>
+          <button onclick="closeModal('newGroupModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onclick="saveGroup()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700" data-i18n="saveBtn">Save Group</button>
         </div>
       </div>
     </div>
@@ -648,21 +686,21 @@
       <input type="hidden" id="editMemberId" />
       <div class="space-y-3 text-sm">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="memberName">Member Name</label>
-          <input type="text" id="mem-name" placeholder="e.g. Karthik R" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="memberName">Member Name</label>
+          <input type="text" id="mem-name" placeholder="e.g. Karthik R" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="memberPhone">WhatsApp Number (with Country Code)</label>
-          <input type="tel" id="mem-phone" placeholder="e.g. 91 11111 11111" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="memberPhone">WhatsApp Number (with Country Code)</label>
+          <input type="tel" id="mem-phone" placeholder="e.g. 91 11111 11111" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1" data-i18n="ticketShare">Ticket Share (1 = Full, 0.5 = Half, 2 = Double)</label>
-          <input type="number" id="mem-tickets" value="1" step="0.5" min="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="ticketShare">Ticket Share (1 = Full, 0.5 = Half, 2 = Double)</label>
+          <input type="number" id="mem-tickets" value="1" step="0.5" min="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
         </div>
       </div>
       <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
-        <button onclick="closeModal('addMemberModal')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-        <button onclick="saveMember()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700" data-i18n="saveMemberBtn">Save Member</button>
+        <button onclick="closeModal('addMemberModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+        <button onclick="saveMember()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700" data-i18n="saveMemberBtn">Save Member</button>
       </div>
     </div>
   </div>
@@ -678,11 +716,11 @@
         All your chit groups, member statuses, and auction records are saved privately in your browser. Export a JSON backup regularly or load sample mock data to test features.
       </p>
       <div class="space-y-2.5">
-        <button onclick="exportBackupJSON()" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+        <button onclick="exportBackupJSON()" class="big-btn w-full py-3 px-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
           <span>⬇</span>
           <span data-i18n="exportJsonBtn">Download Backup (.JSON)</span>
         </button>
-        <label class="w-full py-2.5 px-4 rounded-xl border border-dashed border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold hover:border-indigo-400 hover:bg-slate-50 transition flex items-center justify-center gap-2 cursor-pointer">
+        <label class="big-btn w-full py-3 px-4 rounded-xl border border-dashed border-slate-300 text-slate-700 font-semibold hover:border-indigo-400 hover:bg-slate-50 transition flex items-center justify-center gap-2 cursor-pointer">
           <span>⬆</span>
           <span data-i18n="importJsonBtn">Restore from Backup (.JSON)</span>
           <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
@@ -743,13 +781,13 @@
       </div>
 
       <div class="pt-2 flex justify-end">
-        <button onclick="closeModal('guideModal')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition" data-i18n="gotItBtn">Got It</button>
+        <button onclick="closeModal('guideModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="gotItBtn">Got It</button>
       </div>
     </div>
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+  <div id="toast" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
 
   <script>
     // ==================== MULTILINGUAL DICTIONARY (EN / TA / ML / TE / KN / HI) ====================
@@ -764,7 +802,7 @@
         createFirstChit: "Create Your First Chit",
         tryMockData: "Load Sample Mock Data",
         step1Short: "Create Chit Group",
-        step1ShortDesc: "Set pot value, months & method",
+        step1ShortDesc: "Set value, months, how often & first month",
         step2Short: "Add Members",
         step2ShortDesc: "Add participants & ticket shares",
         step3Short: "Run Draw & Share",
@@ -856,7 +894,7 @@
         guideTitle: "How to Use ChitManager",
         guideSub: "Step-by-step documentation for group organizers",
         gStep1Title: "1. Create a Chit Group",
-        gStep1Body: "Tap '+ New Chit' to set your total chit value (e.g. ₹1,00,000), total months/cycles (e.g. 10), organizer commission %, monthly due date, and your UPI ID for WhatsApp reminders.",
+        gStep1Body: "Tap '+ New Chit' to set your total chit value (e.g. ₹1,00,000), total months/cycles (e.g. 10), how often you collect (every month, or every 2 to 6 months), the first collection month, organizer commission %, monthly due date, and your UPI ID for WhatsApp reminders.",
         gStep2Title: "2. Add Members & Ticket Shares",
         gStep2Body: "Go to the Members tab and add participants with their WhatsApp numbers. Set Ticket Share to 1 for a full ticket, 0.5 for a half ticket, or 2 for a double ticket.",
         gStep3Title: "3. Conduct Monthly Draw / Auction (3 Modes)",
@@ -1542,7 +1580,7 @@
       const gid = "grp_" + Date.now();
       return {
         lang: state.lang || "en",
-        activeGroupId: gid,
+        activeGroupId: null,
         activeCycle: 1,
         memberFilter: "all",
         groups: [
@@ -1552,6 +1590,8 @@
             type: "auction",
             potValue: 100000,
             months: 10,
+            frequencyMonths: 1,
+            startMonth: currentMonthKey(),
             commissionPct: 5,
             dueDay: 5,
             upi: "chitadmin@okicici",
@@ -1593,6 +1633,9 @@
           const parsed = JSON.parse(raw);
           if (parsed && Array.isArray(parsed.groups)) {
             state = parsed;
+            state.groups.forEach(ensureGroupDefaults);
+            // New home is the chits list: always start there.
+            state.activeGroupId = null;
             return;
           }
         }
@@ -1613,6 +1656,7 @@
 
     function getActiveGroup() {
       if (!state.groups || state.groups.length === 0) return null;
+      if (!state.activeGroupId) return null;
       return state.groups.find(g => g.id === state.activeGroupId) || state.groups[0];
     }
 
@@ -1670,6 +1714,83 @@
       return Math.round(group.potValue / shares);
     }
 
+    // ==================== COLLECTION MONTHS (frequency + start month) ====================
+    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    function parseMonthKey(key) {
+      const parts = String(key || "").split("-");
+      const y = Number(parts[0]);
+      const m = Number(parts[1]);
+      if (!y || !m || m < 1 || m > 12) return null;
+      return { y, m };
+    }
+    function monthKey(y, m) {
+      return y + "-" + String(m).padStart(2, "0");
+    }
+    function currentMonthKey() {
+      const d = new Date();
+      return monthKey(d.getFullYear(), d.getMonth() + 1);
+    }
+    function addMonthsKey(key, n) {
+      const p = parseMonthKey(key);
+      if (!p) return currentMonthKey();
+      const total = (p.y * 12 + (p.m - 1)) + n;
+      const y = Math.floor(total / 12);
+      const m = total - y * 12 + 1;
+      return monthKey(y, m);
+    }
+    function monthLabel(key) {
+      const p = parseMonthKey(key);
+      if (!p) return String(key || "");
+      return MONTH_NAMES[p.m - 1] + " " + p.y;
+    }
+    function getFrequency(group) {
+      const f = Number(group.frequencyMonths || 1);
+      return Math.min(6, Math.max(1, f || 1));
+    }
+    function getStartMonth(group) {
+      return parseMonthKey(group.startMonth) ? group.startMonth : currentMonthKey();
+    }
+    function cycleMonthKey(group, cycleNum) {
+      return addMonthsKey(getStartMonth(group), (Number(cycleNum) - 1) * getFrequency(group));
+    }
+    function cycleMonthLabel(group, cycleNum) {
+      return monthLabel(cycleMonthKey(group, cycleNum));
+    }
+    function isCycleFuture(group, cycleNum) {
+      return cycleMonthKey(group, cycleNum) > currentMonthKey();
+    }
+    function getCurrentCycleNumber(group) {
+      const nowKey = currentMonthKey();
+      for (let i = 1; i <= group.months; i++) {
+        if (cycleMonthKey(group, i) >= nowKey) return i;
+      }
+      return Math.max(1, group.months);
+    }
+    function freqLabel(group) {
+      const f = getFrequency(group);
+      return f === 1 ? "Every month" : "Every " + f + " months";
+    }
+    function ensureGroupDefaults(group) {
+      if (!group) return group;
+      group.frequencyMonths = getFrequency(group);
+      if (!parseMonthKey(group.startMonth)) {
+        // Legacy chit (saved before frequency existed): keep the cycle with
+        // recorded activity in the current month, so nothing already done moves.
+        let lastTouched = 1;
+        Object.keys(group.cycles || {}).forEach(k => {
+          const c = group.cycles[k];
+          if (c && (c.winnerId || (c.payments && Object.keys(c.payments).length))) {
+            lastTouched = Math.max(lastTouched, Number(k) || 1);
+          }
+        });
+        group.startMonth = addMonthsKey(currentMonthKey(), -(lastTouched - 1) * group.frequencyMonths);
+      }
+      return group;
+    }
+    function cycleOrEmpty(group, cycleNum) {
+      return group.cycles[cycleNum] || { winnerId: null, discount: 0, commission: 0, dividendPerTicket: 0, prizePaid: 0, prizeDisbursed: false, payments: {} };
+    }
+
     function updateWorkflowBadges(group, cycle) {
       const hasMembers = group.members.length > 0;
       const hasWinner = Boolean(cycle.winnerId);
@@ -1695,42 +1816,60 @@
       const group = getActiveGroup();
 
       const emptyView = document.getElementById("emptyStateView");
+      const listView = document.getElementById("groupsListView");
       const workspace = document.getElementById("mainWorkspace");
-      const groupBar = document.getElementById("groupControlBar");
       const desktopNav = document.getElementById("desktopNav");
       const mobileNav = document.getElementById("mobileNav");
 
-      if (!group) {
+      if (!state.groups || state.groups.length === 0) {
         emptyView.classList.remove("hidden");
+        listView.classList.add("hidden");
         workspace.classList.add("hidden");
-        groupBar.classList.add("hidden");
         desktopNav.classList.add("hidden");
         desktopNav.classList.remove("md:block");
         mobileNav.classList.add("hidden");
         return;
       }
 
+      if (!group) {
+        // List-first home: all chits as big cards, tap one to open it.
+        emptyView.classList.add("hidden");
+        workspace.classList.add("hidden");
+        desktopNav.classList.add("hidden");
+        desktopNav.classList.remove("md:block");
+        mobileNav.classList.add("hidden");
+        listView.classList.remove("hidden");
+        renderGroupsList();
+        return;
+      }
+
       emptyView.classList.add("hidden");
+      listView.classList.add("hidden");
       workspace.classList.remove("hidden");
-      groupBar.classList.remove("hidden");
       desktopNav.classList.add("md:block");
       mobileNav.classList.remove("hidden");
 
-      // Group Selector
-      const grpSel = document.getElementById("groupSelector");
-      grpSel.innerHTML = state.groups.map(g =>
-        `<option value="${escapeHTML(g.id)}" ${g.id === group.id ? "selected" : ""}>${escapeHTML(g.name)}</option>`
-      ).join("");
+      ensureGroupDefaults(group);
 
-      // Cycle Selector
+      // Month tabs: one tab per collection month, future months disabled.
       if (state.activeCycle > group.months) state.activeCycle = 1;
-      const cycSel = document.getElementById("cycleSelector");
-      let cycOpts = "";
+      const currentCycleNum = getCurrentCycleNumber(group);
+      const tabsEl = document.getElementById("cycleTabs");
+      let tabsHtml = "";
       for (let i = 1; i <= group.months; i++) {
-        const hasWin = group.cycles[i] && group.cycles[i].winnerId ? " ✓" : "";
-        cycOpts += `<option value="${i}" ${i === state.activeCycle ? "selected" : ""}>${i} / ${group.months}${hasWin}</option>`;
+        const future = isCycleFuture(group, i) && i !== currentCycleNum;
+        const hasWin = group.cycles[i] && group.cycles[i].winnerId;
+        const active = i === state.activeCycle;
+        tabsHtml += `<button type="button" ${future ? "disabled" : ""} onclick="changeActiveCycle(${i})" aria-label="${cycleMonthLabel(group, i)}, cycle ${i} of ${group.months}" class="cycle-tab${active ? " active" : ""}${future ? " future" : ""}"><span class="cycle-tab-month">${cycleMonthLabel(group, i)}</span><span class="cycle-tab-sub">Cycle ${i} / ${group.months}${hasWin ? " ✓" : ""}${future ? " • Soon" : ""}</span></button>`;
       }
-      cycSel.innerHTML = cycOpts;
+      tabsEl.innerHTML = tabsHtml;
+
+      // Detail header: back to list + chit name.
+      document.getElementById("detailGroupName").textContent = group.name;
+      document.getElementById("detailGroupMeta").textContent =
+        t("type_" + group.type) + " • " + freqLabel(group) + " • " + group.members.length +
+        (group.members.length === 1 ? " member" : " members") + " • " +
+        cycleMonthLabel(group, 1) + " – " + cycleMonthLabel(group, group.months);
 
       const cycle = getCycleData(group, state.activeCycle);
       updateWorkflowBadges(group, cycle);
@@ -1742,8 +1881,8 @@
       // Dashboard KPI Cards
       document.getElementById("dash-totalPot").textContent = formatINR(group.potValue);
       document.getElementById("dash-chitTypeBadge").textContent = t("type_" + group.type);
-      document.getElementById("dash-cycle").textContent = `${state.activeCycle} / ${group.months}`;
-      document.getElementById("dash-baseInstallment").textContent = `Base: ${formatINR(baseInstallment)} / tkt`;
+      document.getElementById("dash-cycle").textContent = cycleMonthLabel(group, state.activeCycle);
+      document.getElementById("dash-baseInstallment").textContent = `Cycle ${state.activeCycle} of ${group.months} • Base: ${formatINR(baseInstallment)} / tkt`;
       document.getElementById("dash-netPayable").textContent = formatINR(netPayablePerTkt);
       document.getElementById("dash-dividendNote").textContent = `Dividend: ${formatINR(dividendPerTkt)} / tkt`;
 
@@ -1784,7 +1923,7 @@
           payoutBtn.className = "px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-white text-slate-700 border-slate-300 hover:bg-slate-100 transition";
         }
       } else {
-        winnerTextEl.textContent = "Pending draw / auction for Cycle " + state.activeCycle;
+        winnerTextEl.textContent = "Pending draw / auction for " + cycleMonthLabel(group, state.activeCycle) + " (Cycle " + state.activeCycle + ")";
         payoutBtn.classList.add("hidden");
       }
 
@@ -1794,7 +1933,7 @@
       if (group.members.length === 0) {
         pendingListEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-50 text-slate-500 text-xs text-center">No members added yet.</div>`;
       } else if (pendingMembers.length === 0) {
-        pendingListEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium text-center">✓ All members paid for Cycle ${state.activeCycle}</div>`;
+        pendingListEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium text-center">✓ All members paid for ${cycleMonthLabel(group, state.activeCycle)} (Cycle ${state.activeCycle})</div>`;
       } else {
         pendingListEl.innerHTML = pendingMembers.map(m => {
           const st = cycle.payments[m.id] || "pending";
@@ -1808,7 +1947,7 @@
                 <p class="text-xs font-semibold text-slate-900 truncate">${escapeHTML(m.name)}</p>
                 <div class="flex items-center gap-1.5 mt-1">${badge}<span class="num text-[11px] font-medium text-slate-600">${formatINR(amt)}</span></div>
               </div>
-              <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-[11px] font-semibold hover:bg-slate-100 shrink-0 transition">
+              <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 shrink-0 transition">
                 ${escapeHTML(t("remindBtn"))}
               </button>
             </div>`;
@@ -1873,9 +2012,10 @@
         for (let i = 1; i <= group.months; i++) {
           const c = group.cycles[i];
           const w = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
+          const isFutureCycle = isCycleFuture(group, i) && i !== getCurrentCycleNumber(group);
           schedHtml += `
-            <div onclick="changeActiveCycle(${i})" class="cursor-pointer p-2.5 rounded-xl border ${i === state.activeCycle ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-white hover:bg-slate-100"} flex items-center justify-between gap-2 text-xs">
-              <span class="font-semibold text-slate-600 shrink-0">Cycle ${i}</span>
+            <div onclick="changeActiveCycle(${i}, true)" class="cursor-pointer p-3 rounded-xl border ${i === state.activeCycle ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-white hover:bg-slate-100"} flex items-center justify-between gap-2 text-sm min-h-[52px]">
+              <span class="font-semibold text-slate-600 shrink-0">${cycleMonthLabel(group, i)} • Cycle ${i}${isFutureCycle ? " (Soon)" : ""}</span>
               <span class="font-semibold truncate ${w ? "text-slate-900" : "text-slate-400"}">${w ? escapeHTML(w.name) : "Unassigned"}</span>
             </div>`;
         }
@@ -1984,13 +2124,13 @@
 
     function renderMembersTab(group, cycle, netPayablePerTkt) {
       document.getElementById("members-cycleInfo").textContent =
-        `Cycle ${state.activeCycle} / ${group.months} • Net Payable: ${formatINR(netPayablePerTkt)} / tkt`;
+        `${cycleMonthLabel(group, state.activeCycle)} • Cycle ${state.activeCycle} / ${group.months} • Net Payable: ${formatINR(netPayablePerTkt)} / tkt`;
 
       ["all", "paid", "pending", "overdue"].forEach(f => {
         const btn = document.getElementById("filter-" + f);
         btn.className = f === state.memberFilter
-          ? "filter-pill px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0"
-          : "filter-pill px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0";
+          ? "filter-pill px-4 py-2.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0"
+          : "filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0";
       });
 
       const wonCycleMap = {};
@@ -2041,17 +2181,17 @@
             </div>
 
             <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
-              <button onclick="cycleMemberStatus('${escapeHTML(m.id)}')" class="px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition ${statusConfig.cls}">
+              <button onclick="cycleMemberStatus('${escapeHTML(m.id)}')" class="px-4 py-3 rounded-lg border text-sm font-semibold transition ${statusConfig.cls}">
                 ${escapeHTML(statusConfig.label)}
               </button>
               <div class="flex items-center gap-1.5">
-                <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-2.5 py-1.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 text-xs font-medium transition">
+                <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-2.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 text-sm font-medium transition">
                   ${escapeHTML(t("remindBtn"))}
                 </button>
-                <button onclick="openEditMemberModal('${escapeHTML(m.id)}')" title="Edit Member" aria-label="Edit Member" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
+                <button onclick="openEditMemberModal('${escapeHTML(m.id)}')" title="Edit Member" aria-label="Edit Member" class="p-2.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                 </button>
-                <button onclick="removeMember('${escapeHTML(m.id)}')" title="Remove Member" aria-label="Remove Member" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                <button onclick="removeMember('${escapeHTML(m.id)}')" title="Remove Member" aria-label="Remove Member" class="p-2.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -2073,7 +2213,7 @@
           : "<span class='text-slate-300'>—</span>";
         rows += `
           <tr class="hover:bg-slate-50/80">
-            <td class="py-3 px-3 num font-semibold text-slate-700">#${i}</td>
+            <td class="py-3 px-3 num font-semibold text-slate-700">#${i}<br><span class="text-xs font-medium text-slate-500">${cycleMonthLabel(group, i)}</span></td>
             <td class="py-3 px-3 font-semibold ${winner ? "text-slate-900" : "text-slate-400"}">${winner ? escapeHTML(winner.name) : "—"}</td>
             <td class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.discount) : "—"}</td>
             <td class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.dividendPerTicket) : "—"}</td>
@@ -2278,27 +2418,101 @@
       document.querySelectorAll(".mob-nav-btn").forEach(btn => {
         const active = btn.getAttribute("data-tab") === tabName;
         btn.className = active
-          ? "mob-nav-btn flex flex-col items-center text-[11px] tab-active px-2 py-0.5"
-          : "mob-nav-btn flex flex-col items-center text-[11px] text-slate-500 px-2 py-0.5";
+          ? "mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5"
+          : "mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5";
       });
     }
 
     function switchGroup(groupId) {
-      state.activeGroupId = groupId;
-      state.activeCycle = 1;
-      saveState();
-      renderAll();
+      openGroup(groupId);
     }
 
-    function changeActiveCycle(cycleNum) {
-      state.activeCycle = Number(cycleNum);
+    function openGroup(groupId) {
+      const group = state.groups.find(g => g.id === groupId);
+      if (!group) return;
+      ensureGroupDefaults(group);
+      state.activeGroupId = groupId;
+      state.activeCycle = getCurrentCycleNumber(group);
+      saveState();
+      switchTab("dashboard");
+      renderAll();
+      window.scrollTo(0, 0);
+    }
+
+    function showGroupsList() {
+      state.activeGroupId = null;
+      saveState();
+      renderAll();
+      window.scrollTo(0, 0);
+    }
+
+    function renderGroupsList() {
+      const listEl = document.getElementById("groupsList");
+      document.getElementById("groupsListCount").textContent =
+        state.groups.length + (state.groups.length === 1 ? " chit" : " chits") + " • Tap one to open it";
+      listEl.innerHTML = state.groups.map(g => {
+        ensureGroupDefaults(g);
+        const cur = getCurrentCycleNumber(g);
+        const cyc = cycleOrEmpty(g, cur);
+        const base = getBaseInstallment(g);
+        const net = Math.max(0, base - Number(cyc.dividendPerTicket || 0));
+        let paid = 0;
+        let collected = 0;
+        g.members.forEach(m => {
+          if ((cyc.payments || {})[m.id] === "paid") {
+            paid++;
+            collected += Math.round(net * Number(m.tickets || 1));
+          }
+        });
+        const winner = cyc.winnerId ? g.members.find(m => m.id === cyc.winnerId) : null;
+        return `
+          <div onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-lg font-bold text-slate-900 leading-snug">${escapeHTML(g.name)}</h3>
+                <p class="text-sm text-slate-500 mt-1">${escapeHTML(t("type_" + g.type))} • ${freqLabel(g)} • ${g.members.length} ${g.members.length === 1 ? "member" : "members"}</p>
+              </div>
+              <span class="text-2xl text-slate-300 shrink-0 leading-none mt-1">&rsaquo;</span>
+            </div>
+            <div class="flex items-end justify-between gap-3 pt-1">
+              <div>
+                <p class="text-sm text-slate-500">Chit value</p>
+                <p class="num text-xl font-bold text-slate-900 mt-0.5">${formatINR(g.potValue)}</p>
+                <p class="text-sm text-slate-500 mt-1">${formatINR(base)} per collection</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-semibold text-slate-700">${cycleMonthLabel(g, cur)} • Cycle ${cur} / ${g.months}</p>
+                <p class="num text-base font-bold text-slate-900 mt-0.5">${formatINR(collected)} collected</p>
+                <p class="text-sm text-slate-500 mt-0.5">${paid} / ${g.members.length} paid</p>
+              </div>
+            </div>
+            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-2 border-t border-slate-100">🏆 ${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
+            <p class="text-sm text-slate-400">${cycleMonthLabel(g, 1)} – ${cycleMonthLabel(g, g.months)}</p>
+          </div>`;
+      }).join("");
+    }
+
+    function changeActiveCycle(cycleNum, allowFuture = false) {
+      const group = getActiveGroup();
+      const n = Number(cycleNum);
+      if (group && !allowFuture && isCycleFuture(group, n) && n !== getCurrentCycleNumber(group)) {
+        showToast(cycleMonthLabel(group, n) + " hasn't arrived yet");
+        return;
+      }
+      state.activeCycle = n;
       saveState();
       renderAll();
     }
 
     function advanceNextCycle() {
       const group = getActiveGroup();
-      state.activeCycle = state.activeCycle < group.months ? state.activeCycle + 1 : 1;
+      if (!group) return;
+      const next = state.activeCycle < group.months ? state.activeCycle + 1 : 1;
+      if (isCycleFuture(group, next) && next !== getCurrentCycleNumber(group)) {
+        showToast("Next collection is " + cycleMonthLabel(group, next));
+        return;
+      }
+      state.activeCycle = next;
       saveState();
       renderAll();
     }
@@ -2314,6 +2528,9 @@
         document.getElementById("grp-comm").value = "5";
         document.getElementById("grp-dueDay").value = "5";
         document.getElementById("grp-upi").value = "";
+        setFrequency(1);
+        document.getElementById("grp-startMonth").value = currentMonthKey();
+        updateFreqHint();
         document.getElementById("deleteGroupBtn").classList.add("hidden");
       }
       const m = document.getElementById(id);
@@ -2334,6 +2551,9 @@
       document.getElementById("grp-comm").value = g.commissionPct;
       document.getElementById("grp-dueDay").value = g.dueDay;
       document.getElementById("grp-upi").value = g.upi || "";
+      setFrequency(getFrequency(g));
+      document.getElementById("grp-startMonth").value = getStartMonth(g);
+      updateFreqHint();
       document.getElementById("deleteGroupBtn").classList.remove("hidden");
     }
 
@@ -2341,6 +2561,30 @@
       const m = document.getElementById(id);
       m.classList.add("hidden");
       m.classList.remove("flex");
+    }
+
+    function setFrequency(n) {
+      const freq = Math.min(6, Math.max(1, Number(n) || 1));
+      document.getElementById("grp-freq").value = String(freq);
+      document.querySelectorAll("#freqPicker .freq-btn").forEach(btn => {
+        btn.classList.toggle("selected", Number(btn.getAttribute("data-freq")) === freq);
+      });
+      updateFreqHint();
+    }
+
+    function updateFreqHint() {
+      const hintEl = document.getElementById("freqHint");
+      if (!hintEl) return;
+      const months = Math.max(2, Number(document.getElementById("grp-months").value) || 10);
+      const freq = Math.min(6, Math.max(1, Number(document.getElementById("grp-freq").value) || 1));
+      const pot = Number(document.getElementById("grp-pot").value) || 0;
+      const start = parseMonthKey(document.getElementById("grp-startMonth").value)
+        ? document.getElementById("grp-startMonth").value
+        : currentMonthKey();
+      const end = addMonthsKey(start, (months - 1) * freq);
+      const perCollection = pot > 0 ? Math.round(pot / months) : 0;
+      hintEl.textContent = months + " collections • " + monthLabel(start) + " to " + monthLabel(end) +
+        (perCollection > 0 ? " • " + formatINR(perCollection) + " each time" : "");
     }
 
     function saveGroup() {
@@ -2352,12 +2596,14 @@
       const commissionPct = Math.max(0, Number(document.getElementById("grp-comm").value) || 0);
       const dueDay = Math.min(31, Math.max(1, Number(document.getElementById("grp-dueDay").value) || 5));
       const upi = document.getElementById("grp-upi").value.trim();
+      const freq = Math.min(6, Math.max(1, Number(document.getElementById("grp-freq").value) || 1));
+      const startMonth = parseMonthKey(document.getElementById("grp-startMonth").value) ? document.getElementById("grp-startMonth").value : currentMonthKey();
 
       if (!name) return showToast("Please enter a group name");
 
       if (editId) {
         const g = state.groups.find(x => x.id === editId);
-        if (g) Object.assign(g, { name, type, potValue, months, commissionPct, dueDay, upi });
+        if (g) Object.assign(g, { name, type, potValue, months, commissionPct, dueDay, upi, frequencyMonths: freq, startMonth });
       } else {
         const newId = "grp_" + Date.now();
         state.groups.push({
@@ -2366,6 +2612,8 @@
           type,
           potValue,
           months,
+          frequencyMonths: freq,
+          startMonth,
           commissionPct,
           dueDay,
           upi,
@@ -2385,7 +2633,7 @@
     function deleteCurrentGroup() {
       if (!confirm("Delete this chit group and its records?")) return;
       state.groups = state.groups.filter(g => g.id !== state.activeGroupId);
-      state.activeGroupId = state.groups.length > 0 ? state.groups[0].id : null;
+      state.activeGroupId = null;
       state.activeCycle = 1;
       closeModal("newGroupModal");
       saveState();
@@ -2415,6 +2663,8 @@
             throw new Error("Invalid backup format");
           }
           state = data;
+          state.groups.forEach(ensureGroupDefaults);
+          state.activeGroupId = null;
           saveState();
           renderAll();
           closeModal("backupModal");
