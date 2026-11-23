@@ -11,8 +11,12 @@
   <meta property="og:title" content="Mini Apps | Small Offline Apps" />
   <meta property="og:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, an offline shop manager, a chit fund manager, and an encrypted family document wallet. Open or install each one on your phone." />
   <meta property="og:url" content="https://myapps.kovai.fyi/" />
-  <meta property="og:image" content="https://myapps.kovai.fyi/icon.svg" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="https://myapps.kovai.fyi/icon-512.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="Mini Apps" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://myapps.kovai.fyi/icon-512.png" />
   <meta name="twitter:title" content="Mini Apps | Small Offline Apps" />
   <meta name="twitter:description" content="Small, free, offline-first apps: a kids GK quiz, a one-click sleep tracker, an offline shop manager, a chit fund manager, and an encrypted family document wallet." />
   <meta name="theme-color" content="#FFF9F0" />
@@ -67,8 +71,8 @@
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       font-size: 24px;
       line-height: 1;
       color: #1B2A4A;
@@ -78,6 +82,25 @@
       cursor: pointer;
       box-shadow: 0 4px 16px rgba(27, 42, 74, 0.06);
     }
+    .github-link {
+      position: absolute;
+      right: 56px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #1B2A4A;
+      background: #fff;
+      border: 1px solid #F0E6D8;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(27, 42, 74, 0.06);
+    }
+    .github-link svg { width: 24px; height: 24px; fill: currentColor; }
+    .gear:hover, .github-link:hover { border-color: #5B3EDB; color: #5B3EDB; }
+    .gear:focus-visible, .github-link:focus-visible { outline: 3px solid #5B3EDB; outline-offset: 2px; }
     header p { margin-top: 8px; font-size: 17px; color: #5A6B8A; line-height: 1.5; }
     .search {
       margin-top: 22px;
@@ -311,6 +334,7 @@
     .sheet-body .install-note { margin-top: 14px; display: block; }
     .sheet-body .last-backup { margin-top: 12px; display: block; font-size: 13px; color: #8A97B0; }
     footer { margin-top: 40px; font-size: 13px; color: #8A97B0; text-align: center; line-height: 1.6; }
+    footer a { color: #44506B; }
     @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
       .overlay { align-items: center; }
       .sheet {
@@ -326,7 +350,10 @@
     @media (max-width: 1023px) {
       body { padding: 24px 16px 24px; }
       h1 { font-size: 32px; }
-      .gear { width: 40px; height: 40px; font-size: 22px; }
+      .gear { width: 48px; height: 48px; font-size: 24px; }
+      .title-row { display: flex; align-items: center; gap: 8px; }
+      .title-row h1 { flex: 1 1 auto; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .gear, .github-link { position: static; transform: none; flex: 0 0 auto; }
       .grid {
         display: flex;
         flex-direction: column;
@@ -371,6 +398,7 @@
     <div class="title-row">
       <h1>Mini Apps</h1>
       <button id="gearBtn" class="gear" type="button" aria-label="Settings">&#9881;</button>
+      <a class="github-link" href="https://github.com/new-meta-monkey/mini-apps" target="_blank" rel="noopener" aria-label="View source on GitHub"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
     </div>
     <p>Small apps, one tap each. Open one below, or install it on your phone like a real app.</p>
     <input id="search" class="search" type="search" placeholder="Search apps..." aria-label="Search apps" />
@@ -404,7 +432,8 @@
 
   <footer>
     Each app installs separately &mdash; open it, then use your browser&rsquo;s Install option.<br />
-    More mini apps coming soon.
+    More mini apps coming soon.<br />
+    <a href="./analytics.html">Analytics</a>
   </footer>
 
 <script>

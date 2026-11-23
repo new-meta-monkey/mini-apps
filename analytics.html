@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics | Mini Apps</title>
+  <meta name="description" content="How many people use Mini Apps, and which apps they open. Private by design: no cookies, no personal data." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="canonical" href="https://myapps.kovai.fyi/analytics.html" />
+  <meta name="theme-color" content="#FFF9F0" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', system-ui, sans-serif; background: #FFF9F0; color: #1B2A4A; min-height: 100vh; padding: 24px 20px 48px; }
+    main { max-width: 640px; margin: 0 auto; }
+    a { color: #5B3EDB; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #5B3EDB; outline-offset: 2px; }
+    .back { display: inline-block; font-size: 16px; font-weight: 700; min-height: 48px; line-height: 48px; text-decoration: none; }
+    h1 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 32px; font-weight: 700; margin: 12px 0 8px; }
+    .lede { font-size: 17px; line-height: 1.55; color: #44506B; }
+    .card { background: #fff; border: 1px solid #F0E6D8; border-radius: 16px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 16px rgba(27,42,74,.06); }
+    .card h2 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 20px; margin-bottom: 8px; }
+    .card p, .card li { font-size: 16px; line-height: 1.55; color: #44506B; }
+    .card ul { margin: 8px 0 0 20px; }
+    .card li { margin-bottom: 6px; }
+    .status { display: inline-block; font-size: 15px; font-weight: 800; padding: 8px 14px; border-radius: 999px; margin-bottom: 12px; }
+    .status.waiting { background: #FEF3C7; color: #92400E; }
+    .status.live { background: #D1FAE5; color: #065F46; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 20px; margin-top: 16px; border-radius: 12px; background: #5B3EDB; color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; }
+    .note { margin-top: 20px; font-size: 15px; line-height: 1.55; color: #44506B; text-align: center; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="./">&larr; All apps</a>
+    <h1>Analytics</h1>
+    <p class="lede">How many people use Mini Apps, and which apps they open. Private by design: no cookies, no personal data.</p>
+
+    <section class="card" aria-labelledby="statusTitle">
+      <span id="trackStatus" class="status waiting">Tracking is not installed yet</span>
+      <h2 id="statusTitle">Where the numbers come from</h2>
+      <p id="trackText">The Cloudflare beacon still needs to be added to the site. Once it is in, visits start counting automatically, on the dashboard and in every app.</p>
+    </section>
+
+    <section class="card" aria-labelledby="seeTitle">
+      <h2 id="seeTitle">What you will see once tracking is live</h2>
+      <ul>
+        <li>Visitors and page views, per day and per week</li>
+        <li>Most opened app</li>
+        <li>Where visitors come from</li>
+      </ul>
+      <a class="btn" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">Open Cloudflare Analytics</a>
+      <p style="margin-top:12px;">The full numbers live in your Cloudflare dashboard, under Web Analytics.</p>
+    </section>
+
+    <p class="note">Mini Apps &middot; <a href="./">Back to the dashboard</a></p>
+  </main>
+  <script>
+    // If the Cloudflare beacon script is on this page, tracking is live.
+    if (document.querySelector('script[src*="cloudflareinsights"]')) {
+      var s = document.getElementById('trackStatus');
+      s.textContent = 'Tracking is live';
+      s.className = 'status live';
+      document.getElementById('trackText').textContent = 'The Cloudflare beacon is on the site. Visits are being counted now, on the dashboard and in every app.';
+    }
+  </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
-const CACHE_NAME = 'mini-apps-pwa-v2';
+const CACHE_NAME = 'mini-apps-pwa-v3';
 const ASSETS = [
   './',
   './index.html',
+  './analytics.html',
   './manifest.json',
   './icon.svg',
   './icon-192.png',

@@ -2,8 +2,9 @@
 <html lang="en" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#7B61FF" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5B3EDB" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0F1B33" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="ChitManager" />
@@ -31,9 +32,9 @@
       theme: {
         extend: {
           colors: {
-            slate: { 50: '#FFF9F0', 100: '#F6EFE3', 200: '#EDE4D6', 300: '#D8CDB8', 400: '#8A97B0', 500: '#5A6B8A', 600: '#5A6B8A', 700: '#3D4A63', 800: '#1B2A4A', 900: '#1B2A4A' },
-            indigo: { 50: '#F0EDFF', 100: '#E4DEFF', 200: '#CFC4FF', 400: '#9B7FFF', 500: '#7B61FF', 600: '#7B61FF', 700: '#6A4FE0' },
-            cream: '#FFF9F0', navy: '#1B2A4A', grape: '#7B61FF', coral: '#FF6B6B', sunny: '#FFC93C', teal: '#2EC4B6'
+            slate: { 50: '#FFF9F0', 100: '#F6EFE3', 200: '#EDE4D6', 300: '#D8CDB8', 400: '#64748B', 500: '#5A6B8A', 600: '#5A6B8A', 700: '#3D4A63', 800: '#1B2A4A', 900: '#1B2A4A' },
+            indigo: { 50: '#F0EDFF', 100: '#E4DEFF', 200: '#CFC4FF', 400: '#6A4FE0', 500: '#5B3EDB', 600: '#5B3EDB', 700: '#4F2ED0' },
+            cream: '#FFF9F0', navy: '#1B2A4A', grape: '#5B3EDB', coral: '#FF6B6B', sunny: '#FFC93C', teal: '#2EC4B6'
           },
           fontFamily: {
             fredoka: ['Fredoka', 'sans-serif'],
@@ -65,11 +66,11 @@
       font-variant-numeric: tabular-nums;
     }
     .tab-active {
-      color: #7B61FF;
+      color: #5B3EDB;
       font-weight: 600;
     }
     .tab-active svg {
-      stroke: #7B61FF;
+      stroke: #5B3EDB;
     }
     @keyframes installSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .install-sheet-anim { animation: installSheetUp 0.28s cubic-bezier(0.2, 0.9, 0.25, 1); }
@@ -85,27 +86,201 @@
     h1, h2, h3 { font-family: 'Fredoka', 'Nunito', sans-serif; }
     /* 40+ friendly: roomy type, big touch targets, clear month tabs */
     body { font-size: 16px; }
-    .big-btn { min-height: 52px !important; font-size: 16px !important; }
+    .big-btn { min-height: 56px !important; font-size: 16px !important; }
     .back-btn { min-height: 48px; font-size: 16px; font-weight: 700; padding: 10px 16px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; }
-    .freq-btn { min-height: 52px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
-    .freq-btn.selected { background: #7B61FF; border-color: #7B61FF; color: #fff; }
-    .cycle-tab { min-height: 54px; min-width: 104px; padding: 8px 12px; border-radius: 14px; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; font-size: 15px; text-align: center; flex-shrink: 0; line-height: 1.25; }
+    .freq-btn { min-height: 56px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
+    .freq-btn.selected { background: #5B3EDB; border-color: #5B3EDB; color: #fff; }
+    .cycle-tab { min-height: 56px; min-width: 104px; padding: 8px 12px; border-radius: 14px; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; font-size: 15px; text-align: center; flex-shrink: 0; line-height: 1.25; }
     .cycle-tab-month { display: block; font-weight: 800; }
-    .cycle-tab-sub { display: block; font-size: 13px; color: #5A6B8A; margin-top: 2px; }
-    .cycle-tab.active { background: #7B61FF; border-color: #7B61FF; color: #fff; }
+    .cycle-tab-sub { display: block; font-size: 14px; color: #44506B; margin-top: 2px; }
+    .cycle-tab.active { background: #5B3EDB; border-color: #5B3EDB; color: #fff; }
     .cycle-tab.active .cycle-tab-sub { color: rgba(255, 255, 255, 0.85); }
-    .cycle-tab.future { opacity: 0.45; cursor: not-allowed; }
+    .cycle-tab.future { opacity: 0.65; cursor: not-allowed; }
     .chit-card { cursor: pointer; }
     .chit-card:active { background: #F6EFE3; }
+
+    /* ===== Native app redesign, 2026-11-23 (phone + tablet, <=1024px) =====
+       Desktop (>1024px) keeps the current layout. Logic untouched.
+       AA contrast: primary #7B61FF (4.20:1) -> #5B3EDB (6.65:1 white text,
+       6.65:1 on white); muted text darkened to #44506B (8.06:1). */
+    :focus-visible { outline: 3px solid #5B3EDB; outline-offset: 2px; border-radius: 8px; }
+    button { touch-action: manipulation; }
+    .text-slate-500 { color: #44506B !important; }
+    .text-slate-400 { color: #64748B !important; }
+    @keyframes sheetUp { from { transform: translateY(40px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+    @media (max-width: 1024px) {
+      html { -webkit-text-size-adjust: 100%; }
+      body { font-size: 17px; line-height: 1.55; padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }
+      /* Mature-reader type floor: nothing below 14px on phone/tablet */
+      .text-xs { font-size: 16px !important; line-height: 1.5; }
+      .text-sm { font-size: 16px !important; line-height: 1.5; }
+      .text-\[10px\] { font-size: 14px !important; }
+      .text-\[11px\] { font-size: 15px !important; }
+      .text-\[13px\] { font-size: 15px !important; }
+      /* Header: 48px targets, safe-area top */
+      header { padding-top: env(safe-area-inset-top); }
+      header a.w-9 { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+      header button, header select { min-height: 48px; }
+      header .p-2 { min-width: 48px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
+      header h1 { font-size: 18px !important; }
+      /* Desktop tabs off on phone/tablet; bottom nav on */
+      #mobileNav { display: flex !important; min-height: 68px; padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important; box-shadow: 0 -2px 12px rgba(27,42,74,.08); }
+      #mobileNav.hidden { display: none !important; }
+      .mob-nav-btn { min-height: 60px !important; min-width: 64px; font-size: 14px !important; font-weight: 700 !important; padding: 8px 6px !important; color: #44506B !important; }
+      .mob-nav-btn svg { width: 26px !important; height: 26px !important; }
+      .mob-nav-btn.tab-active { color: #5B3EDB !important; }
+      /* Big touch targets everywhere */
+      .big-btn { min-height: 56px !important; font-size: 17px !important; }
+      .back-btn { min-height: 56px; font-size: 17px; }
+      .freq-btn { min-height: 56px; font-size: 16px; }
+      .filter-pill { min-height: 48px !important; font-size: 16px !important; padding: 12px 18px !important; }
+      input, select, textarea { font-size: 17px !important; min-height: 56px; }
+      label { font-size: 16px !important; }
+      /* Cards + KPI: roomier, bigger amounts */
+      .card { border-radius: 20px; }
+      #view-dashboard .grid { gap: 14px; }
+      #dash-totalPot, #dash-collected, #dash-netPayable { font-size: 26px !important; }
+      #dash-cycle { font-size: 18px !important; }
+      /* Workflow strip: readable, tappable */
+      #mainWorkspace .card .w-5 { width: 28px !important; height: 28px !important; font-size: 14px !important; }
+      /* Month tabs: 64px tall, 16px text */
+      .cycle-tab { min-height: 64px; min-width: 118px; font-size: 16px; padding: 10px 14px; }
+      .cycle-tab-month { font-size: 16px; }
+      .cycle-tab-sub { font-size: 15px !important; }
+      /* Chit cards + member cards */
+      .chit-card { padding: 20px !important; }
+      .chit-card h3 { font-size: 20px !important; }
+      #membersList .card { padding: 18px !important; }
+      #membersList h4 { font-size: 17px !important; }
+      #membersList .num { font-size: 19px !important; }
+      #membersList button { min-height: 48px; min-width: 48px; }
+      /* Ledger: table becomes labelled cards */
+      #view-history .overflow-x-auto { overflow: visible; margin: 0; padding: 0; }
+      #view-history table, #view-history tbody, #view-history tr, #view-history td { display: block; width: 100%; }
+      #view-history thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      #view-history tbody tr { border: 1px solid #F0E6D8; border-radius: 16px; padding: 8px 16px; margin-bottom: 12px; background: #fff; }
+      #view-history td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0 !important; border: 0; font-size: 16px !important; text-align: left !important; white-space: normal; }
+      #view-history td::before { content: attr(data-label); font-weight: 700; color: #44506B; font-size: 14px; flex-shrink: 0; }
+      #view-history td[data-label] .text-xs { font-size: 14px !important; }
+      #view-history button { min-height: 48px; }
+      /* Modals become bottom sheets */
+      #newGroupModal, #addMemberModal, #backupModal, #guideModal { align-items: flex-end !important; padding: 0 !important; }
+      #newGroupModal > div, #addMemberModal > div, #backupModal > div, #guideModal > div { width: 100% !important; max-width: 640px !important; margin: 0 auto !important; border-radius: 28px 28px 0 0 !important; max-height: 92dvh !important; padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important; animation: sheetUp .28s cubic-bezier(.2,0,0,1); }
+      #newGroupModal > div::before, #addMemberModal > div::before, #backupModal > div::before, #guideModal > div::before { content: ""; display: block; width: 44px; height: 5px; border-radius: 99px; background: #D8CDB8; margin: 0 auto 12px; }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+      /* Tablet: centred app column, 2-col members already via md:grid-cols-2 */
+      #mainWorkspace, #groupsListView, #emptyStateView { max-width: 880px; }
+      header .max-w-5xl { max-width: 880px; }
+      #membersList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    /* ===== Google web guidance pass, 2026-11-23 (M3 + web.dev + WCAG 2.2 AA) =====
+       Colour roles for the native layer. House palette stays cream/navy/grape. */
+    :root {
+      --chit-primary: #5B3EDB; --chit-primary-dark: #4F2ED0;
+      --chit-navy: #1B2A4A; --chit-muted: #44506B; --chit-icon: #64748B;
+      --chit-cream: #FFF9F0; --chit-line: #F0E6D8;
+    }
+    .skip-link { position: absolute; left: 16px; top: -72px; z-index: 60; background: var(--chit-navy); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 16px; transition: top .2s cubic-bezier(.2,0,0,1); }
+    .skip-link:focus { top: calc(8px + env(safe-area-inset-top)); color: #fff; }
+    ::placeholder { color: var(--chit-icon) !important; opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+    @media (max-width: 1024px) {
+      #mainWorkspace .card button { min-height: 48px; }
+      #newGroupModal button, #addMemberModal button, #backupModal button, #guideModal button { min-height: 48px; }
+      .chit-card { display: block; width: 100%; text-align: left; }
+    }
+    @media (max-width: 380px) {
+      header select { max-width: 96px; }
+    }
+
+    /* ===== M3 adherence pass, 2026-11-23 =====
+       Navigation by M3 window size classes: bottom bar <600px, nav rail
+       600-839px, full nav 840px+. Dark mode swaps token values only. */
+    @media (max-width: 839px) {
+      #desktopNav { display: none !important; }
+    }
+    @media (min-width: 840px) {
+      #mobileNav { display: none !important; }
+      body { padding-bottom: 40px !important; }
+    }
+    @media (min-width: 600px) and (max-width: 839px) {
+      /* Nav rail (M3 medium): left rail, content offset by its width. */
+      body { padding-left: 96px !important; padding-bottom: 32px !important; }
+      #mobileNav {
+        top: 0 !important; bottom: 0 !important; left: 0 !important; right: auto !important;
+        width: 96px !important; min-height: 0 !important;
+        flex-direction: column !important; justify-content: flex-start !important;
+        align-items: stretch !important; gap: 8px;
+        padding: calc(16px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom)) !important;
+        border-top: 0 !important; border-right: 1px solid var(--chit-line);
+        box-shadow: 2px 0 12px rgba(27,42,74,.08);
+      }
+      #mobileNav .mob-nav-btn { width: 100% !important; min-height: 64px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { color-scheme: dark; }
+      html, body { background: #0F1B33 !important; color: #F5F1E8 !important; }
+      .card { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      .text-slate-900 { color: #F5F1E8 !important; }
+      .text-slate-800 { color: #EDE9DF !important; }
+      .text-slate-700 { color: #D8DDE8 !important; }
+      .text-slate-600 { color: #C3CADB !important; }
+      .text-slate-500 { color: #AEB8CC !important; }
+      .text-slate-400 { color: #93A0B8 !important; }
+      .text-slate-300 { color: #93A0B8 !important; }
+      .text-indigo-600, .text-indigo-700 { color: #B7A6FF !important; }
+      .bg-white { background-color: #1B2A4A !important; }
+      .bg-slate-50 { background-color: #22304F !important; }
+      .bg-slate-100 { background-color: #263453 !important; }
+      .bg-slate-200 { background-color: #2C3A55 !important; }
+      .bg-indigo-50 { background-color: #2A2350 !important; }
+      .bg-indigo-100 { background-color: #332A63 !important; }
+      .border-slate-100, .border-slate-200 { border-color: #2C3A55 !important; }
+      .border-slate-300 { border-color: #3D4A63 !important; }
+      .border-indigo-100, .border-indigo-200 { border-color: #3D3480 !important; }
+      .bg-emerald-50 { background-color: #0B2E25 !important; }
+      .text-emerald-700 { color: #6EE7B7 !important; }
+      .border-emerald-200 { border-color: #14532D !important; }
+      .bg-rose-50 { background-color: #3A1220 !important; }
+      .text-rose-700 { color: #FDA4AF !important; }
+      .border-rose-200 { border-color: #7F1D2D !important; }
+      input, select, textarea { background-color: #1B2A4A !important; color: #F5F1E8 !important; border-color: #3D4A63 !important; }
+      ::placeholder { color: #93A0B8 !important; }
+      .tab-active { color: #B7A6FF !important; }
+      .tab-active svg { stroke: #B7A6FF !important; }
+      .cycle-tab, .freq-btn { background: #1B2A4A !important; border-color: #2C3A55 !important; color: #F5F1E8 !important; }
+      .cycle-tab-sub { color: #AEB8CC !important; }
+      .cycle-tab.active, .freq-btn.selected { background: #5B3EDB !important; border-color: #5B3EDB !important; color: #fff !important; }
+      .cycle-tab.active .cycle-tab-sub { color: rgba(255,255,255,.92) !important; }
+      .chit-card:active { background: #263453 !important; }
+      header { background: rgba(27,42,74,.95) !important; border-color: #2C3A55 !important; }
+      #mobileNav { background: rgba(27,42,74,.95) !important; border-color: #2C3A55 !important; }
+      #desktopNav { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      .skip-link { background: #F5F1E8 !important; color: #1B2A4A !important; }
+      ::-webkit-scrollbar-thumb { background: #3D4A63 !important; }
+      :focus-visible { outline-color: #9B7FFF !important; }
+      /* Install sheet (arbitrary values + inline colours). */
+      .bg-\[\#FFF9F0\] { background-color: #1B2A4A !important; }
+      .bg-\[\#F0E6D8\] { background-color: #2C3A55 !important; }
+      .bg-\[\#D8CDB8\] { background-color: #3D4A63 !important; }
+      .text-\[\#1B2A4A\] { color: #F5F1E8 !important; }
+      #installSheetBackdrop p[style] { color: #D8DDE8 !important; }
+      #installSheetBackdrop button[style] { color: #D8DDE8 !important; }
+    }
   </style>
 </head>
 <body class="pb-24 md:pb-10 min-h-screen flex flex-col">
+  <a href="#mainWorkspace" class="skip-link" onclick="skipToContent(event)">Skip to main content</a>
 
   <!-- ==================== TOP APP HEADER ==================== -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 w-full">
-    <div class="max-w-5xl mx-auto px-3.5 sm:px-5 py-2.5 flex items-center justify-between gap-2">
+    <div class="max-w-5xl mx-auto px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
       <!-- Brand Identity -->
-      <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex items-center gap-3 min-w-0">
         <a href="https://myapps.kovai.fyi/" title="Back to myapps.kovai.fyi" class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs hover:bg-indigo-700 transition">
           ₹
         </a>
@@ -122,7 +297,7 @@
       <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <label for="langSelector" class="sr-only">Language</label>
         <div class="relative">
-          <select id="langSelector" onchange="setLang(this.value)" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium rounded-lg pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
+          <select id="langSelector" onchange="setLang(this.value)" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium rounded-lg pl-3 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
             <option value="en">English</option>
             <option value="ta">தமிழ்</option>
             <option value="ml">മലയാളം</option>
@@ -133,7 +308,7 @@
           <svg class="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </div>
 
-        <button id="pwaInstallBtn" onclick="showInstallSheet()" class="hidden items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
+        <button id="pwaInstallBtn" onclick="showInstallSheet()" class="hidden items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="install">Install</span>
         </button>
@@ -195,7 +370,7 @@
 
       <!-- Quick 3-Step Overview + Guide Link -->
       <div class="pt-5 border-t border-slate-100 space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
             <span class="text-[11px] font-bold text-indigo-600">STEP 1</span>
             <p class="text-xs font-semibold text-slate-900 mt-0.5" data-i18n="step1Short">Create Chit Group</p>
@@ -213,14 +388,14 @@
           </div>
         </div>
         <button onclick="openModal('guideModal')" class="text-xs font-semibold text-indigo-600 hover:underline">
-          📖 <span data-i18n="openFullGuide">Read Complete Step-by-Step User Guide →</span>
+          <svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="openFullGuide">Read Complete Step-by-Step User Guide →</span>
         </button>
       </div>
     </div>
   </section>
 
   <!-- ==================== MY CHITS (LIST-FIRST HOME) ==================== -->
-  <section id="groupsListView" class="hidden max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 sm:py-6 flex-1 space-y-4">
+  <section id="groupsListView" class="hidden max-w-5xl w-full mx-auto px-4 sm:px-5 py-4 sm:py-6 flex-1 space-y-4">
     <div>
       <h2 class="text-2xl font-bold text-slate-900">My Chits</h2>
       <p id="groupsListCount" class="text-base text-slate-500 mt-1"></p>
@@ -233,7 +408,7 @@
   </section>
 
   <!-- ==================== MAIN WORKSPACE (ACTIVE CHIT) ==================== -->
-  <main id="mainWorkspace" class="hidden max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 sm:py-6 flex-1 space-y-4 sm:space-y-5">
+  <main id="mainWorkspace" class="hidden max-w-5xl w-full mx-auto px-4 sm:px-5 py-4 sm:py-6 flex-1 space-y-4 sm:space-y-5">
 
     <!-- Back to list + chit title -->
     <div class="flex items-center gap-3">
@@ -246,7 +421,7 @@
     </div>
 
     <!-- Step-by-Step Workflow Progress Strip -->
-    <div class="card px-3.5 py-2.5 flex items-center justify-between gap-2 overflow-x-auto text-xs">
+    <div class="card px-4 py-3 flex items-center justify-between gap-2 overflow-x-auto text-xs">
       <button onclick="switchTab('members')" class="flex items-center gap-1.5 shrink-0 text-slate-600 hover:text-indigo-600 transition">
         <span id="stepBadge1" class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">1</span>
         <span class="font-medium" data-i18n="wfMembers">Members</span>
@@ -272,15 +447,15 @@
     <section id="view-dashboard" class="tab-view space-y-4 sm:space-y-5">
       <!-- KPI Grid -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="totalPot">Total Chit Value</p>
             <p id="dash-totalPot" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <span id="dash-chitTypeBadge" class="inline-block self-start mt-2.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-full">Auction</span>
+          <span id="dash-chitTypeBadge" class="inline-block self-start mt-3 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-full">Auction</span>
         </div>
 
-        <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
             <div class="flex items-center justify-between gap-1 mt-1">
@@ -288,23 +463,23 @@
               <button onclick="advanceNextCycle()" title="Next Cycle" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-bold flex items-center justify-center shrink-0 transition">&rarr;</button>
             </div>
           </div>
-          <p id="dash-baseInstallment" class="text-sm text-slate-500 mt-2.5 truncate">Base: ₹0 / tkt</p>
+          <p id="dash-baseInstallment" class="text-sm text-slate-500 mt-3 truncate">Base: ₹0 / tkt</p>
         </div>
 
-        <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
             <p id="dash-collected" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-2.5 truncate">0 / 0 Paid</p>
+          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-3 truncate">0 / 0 Paid</p>
         </div>
 
-        <div class="card p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
             <p id="dash-netPayable" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-2.5 truncate">Dividend: ₹0</p>
+          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-3 truncate">Dividend: ₹0</p>
         </div>
       </div>
 
@@ -312,7 +487,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="card p-4 sm:p-5 lg:col-span-2 flex flex-col justify-between space-y-4">
           <div class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div class="min-w-0">
                 <h2 class="font-semibold text-slate-900 text-base leading-snug" data-i18n="cycleOverview">Active Cycle Overview</h2>
                 <p class="text-xs text-slate-500 mt-0.5" data-i18n="cycleOverviewSub">Monthly collection status and winner disbursement</p>
@@ -334,11 +509,11 @@
             </div>
 
             <!-- Winner Box -->
-            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="p-4 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div class="space-y-1.5 min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500" data-i18n="cycleWinnerLabel">Cycle Winner</span>
-                  <button id="dash-payoutToggle" onclick="togglePrizeDisbursed()" class="hidden px-2 py-0.5 rounded-md text-[11px] font-semibold border transition"></button>
+                  <button id="dash-payoutToggle" onclick="togglePrizeDisbursed()" class="hidden px-3 py-3 rounded-md text-sm font-semibold border transition"></button>
                 </div>
                 <p id="dash-winnerText" class="text-sm font-medium text-slate-800 break-words">Pending draw / auction for this cycle</p>
               </div>
@@ -349,11 +524,11 @@
           </div>
 
           <!-- WhatsApp Actions -->
-          <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button onclick="shareGroupReminderWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+          <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button onclick="shareGroupReminderWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
               <span data-i18n="shareGroupReminder">Share Payment Reminder</span>
             </button>
-            <button onclick="shareLatestResultWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
+            <button onclick="shareLatestResultWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
               <span data-i18n="shareResultBtn">Share Chit Result</span>
             </button>
           </div>
@@ -364,7 +539,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between gap-2">
               <h3 class="font-semibold text-slate-900 text-sm" data-i18n="pendingDues">Pending Payments</h3>
-              <button onclick="switchTab('members')" class="text-sm text-indigo-600 font-semibold hover:underline shrink-0" data-i18n="viewAll">View All</button>
+              <button onclick="switchTab('members')" class="text-base text-indigo-600 font-semibold hover:underline shrink-0 px-3 py-3 rounded-lg" data-i18n="viewAll">View All</button>
             </div>
             <div id="dash-pendingList" class="space-y-2 max-h-64 overflow-y-auto pr-0.5"></div>
           </div>
@@ -383,11 +558,11 @@
             <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="drawHeading">Conduct Monthly Chit</h2>
             <p class="text-xs text-slate-500 mt-0.5" data-i18n="drawSubheading">Follow the steps below to complete this cycle</p>
           </div>
-          <span id="draw-methodPill" class="self-start px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Auction Chit</span>
+          <span id="draw-methodPill" class="self-start px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Auction Chit</span>
         </div>
 
         <!-- Guard when 0 members -->
-        <div id="draw-noMembersAlert" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2.5">
+        <div id="draw-noMembersAlert" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
           <p class="text-xs sm:text-sm font-medium text-slate-700" data-i18n="needMembersFirst">Add members to this chit group before conducting a draw or auction.</p>
           <button onclick="openAddMemberModal()" class="big-btn px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="addMemberBtn">
             + Add Member
@@ -477,7 +652,7 @@
               <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider" data-i18n="drawnWinner">Drawn Winner</p>
               <p id="lottery-winnerName" class="text-lg font-bold text-slate-900 mt-0.5 break-words"></p>
             </div>
-            <div class="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-2.5">
+            <div class="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-3">
               <button onclick="spinLotteryDraw()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
                 <span data-i18n="spinDrawBtn">Spin &amp; Pick Random Winner</span>
               </button>
@@ -506,7 +681,7 @@
             </div>
           </div>
 
-          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
             <div class="flex items-center gap-2">
               <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
               <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="turnScheduleTitle">Cycle-by-Cycle Turn Plan (Tap cycle to edit)</h3>
@@ -535,12 +710,12 @@
       </div>
 
       <!-- Search + Filter Pills -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex gap-2 overflow-x-auto pb-1 text-sm">
-          <button onclick="filterMembers('all')" id="filter-all" class="filter-pill px-4 py-2.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0">All</button>
-          <button onclick="filterMembers('paid')" id="filter-paid" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Paid</button>
-          <button onclick="filterMembers('pending')" id="filter-pending" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Pending</button>
-          <button onclick="filterMembers('overdue')" id="filter-overdue" class="filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Overdue</button>
+          <button onclick="filterMembers('all')" id="filter-all" class="filter-pill px-4 py-3 rounded-lg bg-slate-900 text-white font-semibold shrink-0">All</button>
+          <button onclick="filterMembers('paid')" id="filter-paid" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Paid</button>
+          <button onclick="filterMembers('pending')" id="filter-pending" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Pending</button>
+          <button onclick="filterMembers('overdue')" id="filter-overdue" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Overdue</button>
         </div>
         <input type="text" id="memberSearchInput" oninput="renderAll()" placeholder="Search member..." class="w-full sm:w-56 border border-slate-200 bg-white rounded-xl px-3 py-3 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
       </div>
@@ -557,21 +732,21 @@
             <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="ledgerHeading">Chit Cycle Ledger &amp; Results</h2>
             <p class="text-xs text-slate-500 mt-0.5" data-i18n="ledgerSub">Complete history of winners, bid discounts, dividends, and payouts</p>
           </div>
-          <button onclick="exportCSV()" class="w-full sm:w-auto px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition text-center">
-            ⬇ <span data-i18n="exportCsv">Export CSV</span>
+          <button onclick="exportCSV()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition text-center">
+            <svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><span data-i18n="exportCsv">Export CSV</span>
           </button>
         </div>
-        <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-          <table class="w-full text-left border-collapse text-xs sm:text-sm whitespace-nowrap">
+        <div class="overflow-visible -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table class="ledger-table w-full text-left border-collapse text-base">
             <thead>
               <tr class="border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider">
-                <th class="py-2.5 px-3" data-i18n="thCycle">Cycle</th>
-                <th class="py-2.5 px-3" data-i18n="thWinner">Winner</th>
-                <th class="py-2.5 px-3" data-i18n="thDiscount">Discount</th>
-                <th class="py-2.5 px-3" data-i18n="thDividend">Dividend/Tkt</th>
-                <th class="py-2.5 px-3" data-i18n="thPrize">Prize Paid</th>
-                <th class="py-2.5 px-3" data-i18n="thPayoutStatus">Payout</th>
-                <th class="py-2.5 px-3 text-right" data-i18n="thAction">Share</th>
+                <th class="py-3 px-3" data-i18n="thCycle">Cycle</th>
+                <th class="py-3 px-3" data-i18n="thWinner">Winner</th>
+                <th class="py-3 px-3" data-i18n="thDiscount">Discount</th>
+                <th class="py-3 px-3" data-i18n="thDividend">Dividend/Tkt</th>
+                <th class="py-3 px-3" data-i18n="thPrize">Prize Paid</th>
+                <th class="py-3 px-3" data-i18n="thPayoutStatus">Payout</th>
+                <th class="py-3 px-3 text-right" data-i18n="thAction">Share</th>
               </tr>
             </thead>
             <tbody id="ledgerTableBody" class="divide-y divide-slate-100"></tbody>
@@ -583,7 +758,7 @@
   </main>
 
   <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
-  <nav id="mobileNav" class="hidden md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-30 flex justify-around py-2 px-1">
+  <nav id="mobileNav" class="hidden lg:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-30 flex justify-around py-2 px-1">
     <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5">
       <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span data-i18n="navHome">Home</span>
@@ -609,7 +784,7 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 id="groupModalTitle" class="font-bold text-slate-900 text-base" data-i18n="createChitTitle">Create New Chit Group</h3>
-        <button onclick="closeModal('newGroupModal')" class="text-slate-400 hover:text-slate-700 text-lg p-1">✕</button>
+        <button onclick="closeModal('newGroupModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <input type="hidden" id="editGroupId" />
       <div class="space-y-3 text-sm">
@@ -669,7 +844,7 @@
         </div>
       </div>
       <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2 pt-2">
-        <button id="deleteGroupBtn" onclick="deleteCurrentGroup()" class="hidden w-full sm:w-auto py-2 text-xs text-rose-600 font-semibold hover:underline text-center" data-i18n="deleteGroup">Delete Group</button>
+        <button id="deleteGroupBtn" onclick="deleteCurrentGroup()" class="hidden w-full sm:w-auto py-2 text-xs text-rose-700 font-semibold hover:underline text-center" data-i18n="deleteGroup">Delete Group</button>
         <div class="flex flex-col-reverse sm:flex-row gap-2 sm:ml-auto w-full sm:w-auto">
           <button onclick="closeModal('newGroupModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
           <button onclick="saveGroup()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700" data-i18n="saveBtn">Save Group</button>
@@ -683,7 +858,7 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 id="memberModalTitle" class="font-bold text-slate-900 text-base" data-i18n="addMemberTitle">Add Member</h3>
-        <button onclick="closeModal('addMemberModal')" class="text-slate-400 hover:text-slate-700 text-lg p-1">✕</button>
+        <button onclick="closeModal('addMemberModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <input type="hidden" id="editMemberId" />
       <div class="space-y-3 text-sm">
@@ -712,14 +887,14 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 text-base" data-i18n="backupTitle">Local Data, Backup &amp; Sample</h3>
-        <button onclick="closeModal('backupModal')" class="text-slate-400 hover:text-slate-700 text-lg p-1">✕</button>
+        <button onclick="closeModal('backupModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <p class="text-xs text-slate-600 leading-relaxed" data-i18n="backupDesc">
         All your chit groups, member statuses, and auction records are saved privately in your browser. Export a JSON backup regularly or load sample mock data to test features.
       </p>
-      <div class="space-y-2.5">
+      <div class="space-y-3">
         <button onclick="exportBackupJSON()" class="big-btn w-full py-3 px-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
-          <span>⬇</span>
+          <span><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
           <span data-i18n="exportJsonBtn">Download Backup (.JSON)</span>
         </button>
         <label class="big-btn w-full py-3 px-4 rounded-xl border border-dashed border-slate-300 text-slate-700 font-semibold hover:border-indigo-400 hover:bg-slate-50 transition flex items-center justify-center gap-2 cursor-pointer">
@@ -729,14 +904,14 @@
         </label>
         <div class="pt-3 border-t border-slate-100">
           <button onclick="checkForUpdates()" id="update-btn" class="big-btn w-full py-3 px-4 rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition flex items-center justify-center gap-2">
-            <span>↻</span>
+            <span><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
             <span>Check for updates</span>
           </button>
           <p class="text-[11px] text-slate-500 text-center mt-2">Gets the latest version when one is available. Your chits and data are untouched.</p>
         </div>
         <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
           <button onclick="loadDemoData(false)" class="text-xs text-indigo-600 font-semibold hover:underline" data-i18n="loadSample">Load Sample Mock Data</button>
-          <button onclick="clearAllData()" class="text-xs text-rose-600 font-semibold hover:underline" data-i18n="clearAllBtn">Reset to Blank App</button>
+          <button onclick="clearAllData()" class="text-xs text-rose-700 font-semibold hover:underline" data-i18n="clearAllBtn">Reset to Blank App</button>
         </div>
       </div>
     </div>
@@ -750,24 +925,24 @@
           <h3 class="font-bold text-slate-900 text-base sm:text-lg" data-i18n="guideTitle">How to Use ChitManager</h3>
           <p class="text-xs text-slate-500" data-i18n="guideSub">Step-by-step documentation for group organizers</p>
         </div>
-        <button onclick="closeModal('guideModal')" class="text-slate-400 hover:text-slate-700 text-lg p-1">✕</button>
+        <button onclick="closeModal('guideModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
 
       <div class="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
         <!-- Step 1 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
           <p class="font-bold text-slate-900" data-i18n="gStep1Title">1. Create a Chit Group</p>
           <p class="text-xs text-slate-600" data-i18n="gStep1Body">Tap "+ New Chit" to set your total chit value (e.g. ₹1,00,000), total months/cycles (e.g. 10), organizer commission %, monthly due date, and your UPI ID for WhatsApp reminders.</p>
         </div>
 
         <!-- Step 2 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
           <p class="font-bold text-slate-900" data-i18n="gStep2Title">2. Add Members &amp; Ticket Shares</p>
           <p class="text-xs text-slate-600" data-i18n="gStep2Body">Go to the Members tab and add participants with their WhatsApp numbers. Set Ticket Share to 1 for a full ticket, 0.5 for a half ticket, or 2 for a double ticket.</p>
         </div>
 
         <!-- Step 3 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
           <p class="font-bold text-slate-900" data-i18n="gStep3Title">3. Conduct Monthly Draw / Auction (3 Modes)</p>
           <ul class="list-disc pl-4 space-y-1 text-xs text-slate-600">
             <li data-i18n="gModeAuction"><strong>Auction Chit:</strong> Select the winning bidder and enter the bid discount. The app automatically deducts your commission, splits the remaining discount as dividend per ticket, and updates everyone's net payable due.</li>
@@ -777,13 +952,13 @@
         </div>
 
         <!-- Step 4 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
           <p class="font-bold text-slate-900" data-i18n="gStep4Title">4. Track Collections &amp; Share on WhatsApp</p>
           <p class="text-xs text-slate-600" data-i18n="gStep4Body">Tap any member's status badge to cycle between Pending, Paid, and Overdue. Use "Remind" to send an individual WhatsApp payment link, or broadcast the monthly result and pending list to your group.</p>
         </div>
 
         <!-- Step 5 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
           <p class="font-bold text-slate-900" data-i18n="gStep5Title">5. Offline PWA &amp; Backup</p>
           <p class="text-xs text-slate-600" data-i18n="gStep5Body">All data stays 100% locally on your device. Tap the database icon in the top bar anytime to download a .JSON backup file or restore it on another device.</p>
         </div>
@@ -1872,7 +2047,7 @@
         workspace.classList.add("hidden");
         desktopNav.classList.add("hidden");
         desktopNav.classList.remove("md:block");
-        mobileNav.classList.add("hidden");
+        mobileNav.classList.remove("hidden");
         listView.classList.remove("hidden");
         renderGroupsList();
         return;
@@ -1952,10 +2127,10 @@
         payoutBtn.classList.remove("hidden");
         if (cycle.prizeDisbursed) {
           payoutBtn.textContent = "✓ " + t("payoutPaid");
-          payoutBtn.className = "px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200 transition";
+          payoutBtn.className = "px-3 py-3 rounded-md text-sm font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200 transition";
         } else {
           payoutBtn.textContent = t("payoutPending");
-          payoutBtn.className = "px-2 py-0.5 rounded-md text-[11px] font-semibold border bg-white text-slate-700 border-slate-300 hover:bg-slate-100 transition";
+          payoutBtn.className = "px-3 py-3 rounded-md text-sm font-semibold border bg-white text-slate-700 border-slate-300 hover:bg-slate-100 transition";
         }
       } else {
         winnerTextEl.textContent = "Pending draw / auction for " + cycleMonthLabel(group, state.activeCycle) + " (Cycle " + state.activeCycle + ")";
@@ -1977,12 +2152,12 @@
             ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">${escapeHTML(t("statusOverdue"))}</span>`
             : `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/80">${escapeHTML(t("statusPending"))}</span>`;
           return `
-            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/70">
               <div class="min-w-0">
                 <p class="text-xs font-semibold text-slate-900 truncate">${escapeHTML(m.name)}</p>
                 <div class="flex items-center gap-1.5 mt-1">${badge}<span class="num text-[11px] font-medium text-slate-600">${formatINR(amt)}</span></div>
               </div>
-              <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 shrink-0 transition">
+              <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 shrink-0 transition">
                 ${escapeHTML(t("remindBtn"))}
               </button>
             </div>`;
@@ -2049,10 +2224,10 @@
           const w = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
           const isFutureCycle = isCycleFuture(group, i) && i !== getCurrentCycleNumber(group);
           schedHtml += `
-            <div onclick="changeActiveCycle(${i}, true)" class="cursor-pointer p-3 rounded-xl border ${i === state.activeCycle ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-white hover:bg-slate-100"} flex items-center justify-between gap-2 text-sm min-h-[52px]">
+            <button type="button" onclick="changeActiveCycle(${i}, true)" class="w-full text-left cursor-pointer p-3 rounded-xl border ${i === state.activeCycle ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-white hover:bg-slate-100"} flex items-center justify-between gap-2 text-sm min-h-[56px]">
               <span class="font-semibold text-slate-600 shrink-0">${cycleMonthLabel(group, i)} • Cycle ${i}${isFutureCycle ? " (Soon)" : ""}</span>
               <span class="font-semibold truncate ${w ? "text-slate-900" : "text-slate-400"}">${w ? escapeHTML(w.name) : "Unassigned"}</span>
-            </div>`;
+            </button>`;
         }
         document.getElementById("fixed-scheduleList").innerHTML = schedHtml;
       }
@@ -2164,8 +2339,8 @@
       ["all", "paid", "pending", "overdue"].forEach(f => {
         const btn = document.getElementById("filter-" + f);
         btn.className = f === state.memberFilter
-          ? "filter-pill px-4 py-2.5 rounded-lg bg-slate-900 text-white font-semibold shrink-0"
-          : "filter-pill px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0";
+          ? "filter-pill px-4 py-3 rounded-lg bg-slate-900 text-white font-semibold shrink-0"
+          : "filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0";
       });
 
       const wonCycleMap = {};
@@ -2200,7 +2375,7 @@
         }[st];
 
         return `
-          <div class="card p-3.5 sm:p-4 flex flex-col justify-between gap-3">
+          <div class="card p-4 sm:p-4 flex flex-col justify-between gap-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
@@ -2215,18 +2390,18 @@
               </div>
             </div>
 
-            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
-              <button onclick="cycleMemberStatus('${escapeHTML(m.id)}')" class="px-4 py-3 rounded-lg border text-sm font-semibold transition ${statusConfig.cls}">
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <button onclick="cycleMemberStatus('${escapeHTML(m.id)}')" class="px-4 py-3 rounded-lg border text-base font-semibold transition ${statusConfig.cls}">
                 ${escapeHTML(statusConfig.label)}
               </button>
               <div class="flex items-center gap-1.5">
-                <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-2.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 text-sm font-medium transition">
+                <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-3 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 text-sm font-medium transition">
                   ${escapeHTML(t("remindBtn"))}
                 </button>
-                <button onclick="openEditMemberModal('${escapeHTML(m.id)}')" title="Edit Member" aria-label="Edit Member" class="p-2.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
+                <button onclick="openEditMemberModal('${escapeHTML(m.id)}')" title="Edit Member" aria-label="Edit Member" class="p-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                 </button>
-                <button onclick="removeMember('${escapeHTML(m.id)}')" title="Remove Member" aria-label="Remove Member" class="p-2.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                <button onclick="removeMember('${escapeHTML(m.id)}')" title="Remove Member" aria-label="Remove Member" class="p-3 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -2243,19 +2418,19 @@
         const winner = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
         const payoutBadge = winner
           ? (c.prizeDisbursed
-              ? `<button onclick="togglePrizeDisbursed(${i})" class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Paid</button>`
-              : `<button onclick="togglePrizeDisbursed(${i})" class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">Due</button>`)
+              ? `<button onclick="togglePrizeDisbursed(${i})" class="px-3 py-3 rounded-md text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Paid</button>`
+              : `<button onclick="togglePrizeDisbursed(${i})" class="px-3 py-3 rounded-md text-sm font-semibold bg-slate-100 text-slate-700 border border-slate-200">Due</button>`)
           : "<span class='text-slate-300'>—</span>";
         rows += `
           <tr class="hover:bg-slate-50/80">
-            <td class="py-3 px-3 num font-semibold text-slate-700">#${i}<br><span class="text-xs font-medium text-slate-500">${cycleMonthLabel(group, i)}</span></td>
-            <td class="py-3 px-3 font-semibold ${winner ? "text-slate-900" : "text-slate-400"}">${winner ? escapeHTML(winner.name) : "—"}</td>
-            <td class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.discount) : "—"}</td>
-            <td class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.dividendPerTicket) : "—"}</td>
-            <td class="py-3 px-3 num text-slate-900 font-bold">${winner ? formatINR(c.prizePaid) : "—"}</td>
-            <td class="py-3 px-3">${payoutBadge}</td>
-            <td class="py-3 px-3 text-right">
-              ${winner ? `<button onclick="shareCycleResultByNum(${i})" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold hover:bg-slate-200 transition">Share</button>` : ""}
+            <td data-label="${t("thCycle")}" class="py-3 px-3 num font-semibold text-slate-700">#${i}<br><span class="text-xs font-medium text-slate-500">${cycleMonthLabel(group, i)}</span></td>
+            <td data-label="${t("thWinner")}" class="py-3 px-3 font-semibold ${winner ? "text-slate-900" : "text-slate-400"}">${winner ? escapeHTML(winner.name) : "—"}</td>
+            <td data-label="${t("thDiscount")}" class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.discount) : "—"}</td>
+            <td data-label="${t("thDividend")}" class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.dividendPerTicket) : "—"}</td>
+            <td data-label="${t("thPrize")}" class="py-3 px-3 num text-slate-900 font-bold">${winner ? formatINR(c.prizePaid) : "—"}</td>
+            <td data-label="${t("thPayoutStatus")}" class="py-3 px-3">${payoutBadge}</td>
+            <td data-label="${t("thAction")}" class="py-3 px-3 text-right">
+              ${winner ? `<button onclick="shareCycleResultByNum(${i})" class="px-4 py-3 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-sm font-semibold hover:bg-slate-200 transition">Share</button>` : ""}
             </td>
           </tr>`;
       }
@@ -2458,6 +2633,15 @@
       });
     }
 
+    function skipToContent(e) {
+      e.preventDefault();
+      const views = ["mainWorkspace", "groupsListView", "emptyStateView"];
+      for (const id of views) {
+        const el = document.getElementById(id);
+        if (el && !el.classList.contains("hidden")) { el.setAttribute("tabindex", "-1"); el.focus(); return; }
+      }
+    }
+
     function switchGroup(groupId) {
       openGroup(groupId);
     }
@@ -2501,7 +2685,7 @@
         });
         const winner = cyc.winnerId ? g.members.find(m => m.id === cyc.winnerId) : null;
         return `
-          <div onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-3">
+          <button type="button" onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-3">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <h3 class="text-lg font-bold text-slate-900 leading-snug">${escapeHTML(g.name)}</h3>
@@ -2521,9 +2705,9 @@
                 <p class="text-sm text-slate-500 mt-0.5">${paid} / ${g.members.length} paid</p>
               </div>
             </div>
-            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-2 border-t border-slate-100">🏆 ${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
+            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-2 border-t border-slate-100"><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
             <p class="text-sm text-slate-400">${cycleMonthLabel(g, 1)} – ${cycleMonthLabel(g, g.months)}</p>
-          </div>`;
+          </button>`;
       }).join("");
     }
 
@@ -2761,7 +2945,7 @@
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#7B61FF";
+      ctx.fillStyle = "#5B3EDB";
       ctx.beginPath();
       ctx.roundRect(0, 0, size, size, size * 0.22);
       ctx.fill();
@@ -2790,7 +2974,7 @@
           scope: window.location.origin + "/",
           display: "standalone",
           background_color: "#FFF9F0",
-          theme_color: "#7B61FF",
+          theme_color: "#5B3EDB",
           icons: [
             { src: icon192, sizes: "192x192", type: "image/png" },
             { src: icon512, sizes: "512x512", type: "image/png" }
@@ -2882,18 +3066,18 @@
         <span class="text-4xl">🪙</span>
         <div>
           <h3 class="font-semibold text-lg" style="color:#1B2A4A">Install ChitManager</h3>
-          <p class="text-sm" style="color:#5A6B8A">Add to your home screen for quick access. Works offline.</p>
+          <p class="text-sm" style="color:#44506B">Add to your home screen for quick access. Works offline.</p>
         </div>
       </div>
       <div id="installSheetMain">
-        <button id="installSheetCta" onclick="installFromSheet()" class="w-full mt-5 py-3.5 rounded-2xl text-white font-bold text-base" style="background:#7B61FF">Install</button>
-        <p id="installSheetHint" class="hidden text-center text-xs mt-3" style="color:#8A97B0">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+        <button id="installSheetCta" onclick="installFromSheet()" class="w-full mt-5 py-4 rounded-2xl text-white font-bold text-base" style="background:#5B3EDB">Install</button>
+        <p id="installSheetHint" class="hidden text-center text-xs mt-3" style="color:#64748B">Your browser hasn't offered install yet — try Chrome or Brave.</p>
       </div>
       <div id="installSheetIOS" class="hidden mt-5">
         <p class="text-sm font-semibold" style="color:#1B2A4A">On iPhone, install it in two taps:</p>
-        <p class="text-sm mt-1" style="color:#5A6B8A">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</p>
+        <p class="text-sm mt-1" style="color:#44506B">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</p>
       </div>
-      <button onclick="hideInstallSheet()" class="w-full mt-3 py-2 text-sm font-semibold" style="color:#5A6B8A">Not now</button>
+      <button onclick="hideInstallSheet()" class="w-full mt-3 py-3 text-base font-semibold" style="color:#44506B">Not now</button>
     </div>
   </div>
 </body>
