@@ -88,6 +88,17 @@
     body { font-size: 16px; }
     .big-btn { min-height: 56px !important; font-size: 16px !important; }
     .back-btn { min-height: 48px; font-size: 16px; font-weight: 700; padding: 10px 16px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; }
+    /* Round 2 (2026-11-23): 48px icon buttons for app-bar use (M3 icon-button size). */
+    .icon-btn { min-width: 48px; min-height: 48px; width: 48px; height: 48px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .mob-nav-btn:disabled, .mob-nav-btn.nav-disabled { opacity: .45; }
+    .menu-item { min-height: 48px; display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 12px; border-radius: 0.75rem; text-align: left; font-size: 16px; font-weight: 600; color: #1B2A4A; background: transparent; border: 0; cursor: pointer; }
+    .menu-item:hover { background: #F0E6D8; }
+    .menu-item svg { width: 22px; height: 22px; flex-shrink: 0; }
+    /* Round 2: schematic titles + step accents. */
+    #view-draw h2, #view-history h2 { letter-spacing: .02em; }
+    #view-draw h3.uppercase { letter-spacing: .08em; }
+    #view-draw .bg-slate-50\/80 { box-shadow: inset 3px 0 0 #5B3EDB; }
     .freq-btn { min-height: 56px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
     .freq-btn.selected { background: #5B3EDB; border-color: #5B3EDB; color: #fff; }
     .cycle-tab { min-height: 56px; min-width: 104px; padding: 8px 12px; border-radius: 14px; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; font-size: 15px; text-align: center; flex-shrink: 0; line-height: 1.25; }
@@ -158,7 +169,7 @@
       #view-history .overflow-x-auto { overflow: visible; margin: 0; padding: 0; }
       #view-history table, #view-history tbody, #view-history tr, #view-history td { display: block; width: 100%; }
       #view-history thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-      #view-history tbody tr { border: 1px solid #F0E6D8; border-radius: 16px; padding: 8px 16px; margin-bottom: 12px; background: #fff; }
+      #view-history tbody tr { border: 1px solid #F0E6D8; border-radius: 16px; padding: 8px 16px; margin-bottom: 12px; background: #fff; box-shadow: 0 1px 4px rgba(27,42,74,.08); }
       #view-history td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0 !important; border: 0; font-size: 16px !important; text-align: left !important; white-space: normal; }
       #view-history td::before { content: attr(data-label); font-weight: 700; color: #44506B; font-size: 14px; flex-shrink: 0; }
       #view-history td[data-label] .text-xs { font-size: 14px !important; }
@@ -270,6 +281,38 @@
       .text-\[\#1B2A4A\] { color: #F5F1E8 !important; }
       #installSheetBackdrop p[style] { color: #D8DDE8 !important; }
       #installSheetBackdrop button[style] { color: #D8DDE8 !important; }
+      /* Round 2 (2026-11-23): opacity + hover variants the first pass missed. */
+      .bg-slate-50\/80 { background-color: #22304F !important; }
+      .hover\:bg-slate-50\/80:hover { background-color: #22304F !important; }
+      .bg-slate-200\/70 { background-color: #2C3A55 !important; }
+      .hover\:bg-slate-200\/70:hover { background-color: #2C3A55 !important; }
+      .bg-indigo-50\/40 { background-color: #2A2350 !important; }
+      .border-slate-200\/80, .border-slate-200\/70, .border-slate-200\/90 { border-color: #2C3A55 !important; }
+      .border-rose-200\/80 { border-color: #7F1D2D !important; }
+      .text-rose-600 { color: #FDA4AF !important; }
+      .hover\:bg-slate-100:hover { background-color: #263453 !important; }
+      .hover\:bg-slate-50:hover { background-color: #22304F !important; }
+      .hover\:bg-slate-200:hover { background-color: #2C3A55 !important; }
+      .hover\:bg-indigo-50:hover { background-color: #2A2350 !important; }
+      .hover\:bg-indigo-100:hover { background-color: #332A63 !important; }
+      .hover\:bg-rose-50:hover { background-color: #3A1220 !important; }
+      .hover\:text-slate-900:hover { color: #F5F1E8 !important; }
+      .hover\:text-indigo-600:hover { color: #B7A6FF !important; }
+      .hover\:text-rose-600:hover { color: #FDA4AF !important; }
+      .hover\:border-slate-400:hover { border-color: #3D4A63 !important; }
+      .hover\:border-indigo-400:hover { border-color: #6A4FE0 !important; }
+      /* Ledger cards + detail header buttons were hard-coded light. */
+      #view-history tbody tr { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      #view-history td::before { color: #AEB8CC !important; }
+      .back-btn { background: #1B2A4A !important; color: #F5F1E8 !important; border-color: #2C3A55 !important; }
+      .icon-btn { background: #1B2A4A !important; color: #F5F1E8 !important; border-color: #2C3A55 !important; }
+      .menu-item { color: #F5F1E8 !important; }
+      .menu-item:hover { background: #263453 !important; }
+      .border-slate-400 { border-color: #3D4A63 !important; }
+      .border-indigo-400 { border-color: #6A4FE0 !important; }
+      .border-indigo-500 { border-color: #5B3EDB !important; }
+      .divide-slate-100 > * + * { border-color: #2C3A55 !important; }
+      #newGroupModal > div::before, #addMemberModal > div::before, #backupModal > div::before, #guideModal > div::before { background: #3D4A63 !important; }
     }
   </style>
 </head>
@@ -293,35 +336,41 @@
         </div>
       </div>
 
-      <!-- Right Controls: Language Dropdown + Guide + Backup -->
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <label for="langSelector" class="sr-only">Language</label>
-        <div class="relative">
-          <select id="langSelector" onchange="setLang(this.value)" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium rounded-lg pl-3 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
-            <option value="en">English</option>
-            <option value="ta">தமிழ்</option>
-            <option value="ml">മലയാളം</option>
-            <option value="te">తెలుగు</option>
-            <option value="kn">ಕನ್ನಡ</option>
-            <option value="hi">हिन्दी</option>
-          </select>
-          <svg class="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-
+      <!-- Right Controls: Install + Settings menu -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 relative">
         <button id="pwaInstallBtn" onclick="showInstallSheet()" class="hidden items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="install">Install</span>
         </button>
 
-        <!-- User Guide Trigger -->
-        <button onclick="openModal('guideModal')" title="How to Use Guide" aria-label="How to Use Guide" class="p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <button id="settingsBtn" onclick="toggleSettingsMenu(event)" aria-haspopup="true" aria-expanded="false" aria-controls="settingsMenu" title="Settings" aria-label="Settings" class="icon-btn">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z"/></svg>
         </button>
+        <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-72 card rounded-2xl shadow-lg p-2 z-40" role="menu" aria-label="Settings">
+          <div class="px-3 pt-2 pb-1">
+            <label for="langSelector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Language</label>
+            <div class="relative mt-1.5">
+              <select id="langSelector" onchange="setLang(this.value); closeSettingsMenu()" class="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 text-base font-medium rounded-xl pl-3 pr-8 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
+                <option value="en">English</option>
+                <option value="ta">தமிழ்</option>
+                <option value="ml">മലയാളം</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="hi">हिन्दी</option>
+              </select>
+              <svg class="w-4 h-4 text-slate-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </div>
+          <button onclick="closeSettingsMenu(); openModal('guideModal')" role="menuitem" class="menu-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            How to Use Guide
+          </button>
+          <button onclick="closeSettingsMenu(); openModal('backupModal')" role="menuitem" class="menu-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+            Backup &amp; Mock Data
+          </button>
+        </div>
 
-        <!-- Backup / Data Trigger -->
-        <button onclick="openModal('backupModal')" title="Backup &amp; Mock Data" aria-label="Backup &amp; Mock Data" class="p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </button>
       </div>
     </div>
 
@@ -412,12 +461,14 @@
 
     <!-- Back to list + chit title -->
     <div class="flex items-center gap-3">
-      <button onclick="showGroupsList()" class="back-btn shrink-0">&larr; All Chits</button>
+      <button onclick="showGroupsList()" class="icon-btn lg:hidden" aria-label="Back to all chits"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="showGroupsList()" class="back-btn shrink-0 hidden lg:inline-flex items-center">&larr; All Chits</button>
       <div class="min-w-0 flex-1">
         <h2 id="detailGroupName" class="text-xl font-bold text-slate-900 truncate"></h2>
         <p id="detailGroupMeta" class="text-sm text-slate-500 truncate"></p>
       </div>
-      <button onclick="openEditGroupModal()" class="back-btn shrink-0" title="Edit this chit">Edit</button>
+      <button onclick="openEditGroupModal()" class="icon-btn lg:hidden" aria-label="Edit this chit"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg></button>
+      <button onclick="openEditGroupModal()" class="back-btn shrink-0 hidden lg:inline-flex items-center" title="Edit this chit">Edit</button>
     </div>
 
     <!-- Step-by-Step Workflow Progress Strip -->
@@ -458,12 +509,12 @@
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
-            <div class="flex items-center justify-between gap-1 mt-1">
-              <p id="dash-cycle" class="num text-lg sm:text-2xl font-bold text-slate-900">1 / 10</p>
-              <button onclick="advanceNextCycle()" title="Next Cycle" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-bold flex items-center justify-center shrink-0 transition">&rarr;</button>
-            </div>
+            <p id="dash-cycle" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 whitespace-nowrap">1 / 10</p>
           </div>
-          <p id="dash-baseInstallment" class="text-sm text-slate-500 mt-3 truncate">Base: ₹0 / tkt</p>
+          <div class="flex items-end justify-between gap-2 mt-3">
+            <p id="dash-baseInstallment" class="text-sm text-slate-500 leading-snug">Base: ₹0 / tkt</p>
+            <button onclick="advanceNextCycle()" title="Next Cycle" aria-label="Next cycle" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-bold flex items-center justify-center shrink-0 transition">&rarr;</button>
+          </div>
         </div>
 
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
@@ -471,7 +522,7 @@
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
             <p id="dash-collected" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-3 truncate">0 / 0 Paid</p>
+          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-3 leading-snug">0 / 0 Paid</p>
         </div>
 
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
@@ -479,7 +530,7 @@
             <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
             <p id="dash-netPayable" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
-          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-3 truncate">Dividend: ₹0</p>
+          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-3 leading-snug">Dividend: ₹0</p>
         </div>
       </div>
 
@@ -2049,6 +2100,7 @@
         desktopNav.classList.remove("md:block");
         mobileNav.classList.remove("hidden");
         listView.classList.remove("hidden");
+        setWorkspaceNavEnabled(false);
         renderGroupsList();
         return;
       }
@@ -2058,6 +2110,7 @@
       workspace.classList.remove("hidden");
       desktopNav.classList.add("md:block");
       mobileNav.classList.remove("hidden");
+      setWorkspaceNavEnabled(true);
 
       ensureGroupDefaults(group);
 
@@ -2615,6 +2668,7 @@
 
     // ==================== GROUP CRUD & NAVIGATION ====================
     function switchTab(tabName) {
+      if (tabName !== "dashboard" && !getActiveGroup()) { showToast("Choose a chit first"); return; }
       document.querySelectorAll(".tab-view").forEach(el => el.classList.add("hidden"));
       document.getElementById("view-" + tabName).classList.remove("hidden");
 
@@ -2631,6 +2685,39 @@
           ? "mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5"
           : "mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5";
       });
+    }
+
+    // Round 2 (2026-11-23): workspace tabs mean nothing until a chit is open.
+    function setWorkspaceNavEnabled(enabled) {
+      document.querySelectorAll("#mobileNav .mob-nav-btn").forEach(btn => {
+        if (btn.getAttribute("data-tab") === "dashboard") return;
+        btn.disabled = !enabled;
+        btn.setAttribute("aria-disabled", String(!enabled));
+        btn.classList.toggle("nav-disabled", !enabled);
+      });
+    }
+    function toggleSettingsMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById("settingsMenu");
+      const btn = document.getElementById("settingsBtn");
+      const open = menu.classList.contains("hidden");
+      menu.classList.toggle("hidden", !open);
+      if (btn) btn.setAttribute("aria-expanded", String(open));
+      if (open && !window.__settingsMenuBound) {
+        window.__settingsMenuBound = true;
+        document.addEventListener("click", (ev) => {
+          const m = document.getElementById("settingsMenu");
+          const b = document.getElementById("settingsBtn");
+          if (m && !m.classList.contains("hidden") && !m.contains(ev.target) && b && !b.contains(ev.target)) closeSettingsMenu();
+        });
+        document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closeSettingsMenu(); });
+      }
+    }
+    function closeSettingsMenu() {
+      const menu = document.getElementById("settingsMenu");
+      const btn = document.getElementById("settingsBtn");
+      if (menu) menu.classList.add("hidden");
+      if (btn) btn.setAttribute("aria-expanded", "false");
     }
 
     function skipToContent(e) {
@@ -2685,28 +2772,28 @@
         });
         const winner = cyc.winnerId ? g.members.find(m => m.id === cyc.winnerId) : null;
         return `
-          <button type="button" onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-3">
+          <button type="button" onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-4">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <h3 class="text-lg font-bold text-slate-900 leading-snug">${escapeHTML(g.name)}</h3>
-                <p class="text-sm text-slate-500 mt-1">${escapeHTML(t("type_" + g.type))} • ${freqLabel(g)} • ${g.members.length} ${g.members.length === 1 ? "member" : "members"}</p>
+                <p class="text-sm text-slate-500 mt-1 leading-relaxed">${escapeHTML(t("type_" + g.type))} • ${freqLabel(g)} • ${g.members.length} ${g.members.length === 1 ? "member" : "members"}</p>
               </div>
               <span class="text-2xl text-slate-300 shrink-0 leading-none mt-1">&rsaquo;</span>
             </div>
             <div class="flex items-end justify-between gap-3 pt-1">
               <div>
-                <p class="text-sm text-slate-500">Chit value</p>
-                <p class="num text-xl font-bold text-slate-900 mt-0.5">${formatINR(g.potValue)}</p>
-                <p class="text-sm text-slate-500 mt-1">${formatINR(base)} per collection</p>
+                <p class="text-sm text-slate-500 leading-relaxed">Chit value</p>
+                <p class="num text-xl font-bold text-slate-900 mt-1">${formatINR(g.potValue)}</p>
+                <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">${formatINR(base)} per collection</p>
               </div>
               <div class="text-right shrink-0">
-                <p class="text-sm font-semibold text-slate-700">${cycleMonthLabel(g, cur)} • Cycle ${cur} / ${g.months}</p>
-                <p class="num text-base font-bold text-slate-900 mt-0.5">${formatINR(collected)} collected</p>
-                <p class="text-sm text-slate-500 mt-0.5">${paid} / ${g.members.length} paid</p>
+                <p class="text-sm font-semibold text-slate-700 leading-relaxed">${cycleMonthLabel(g, cur)} • Cycle ${cur} / ${g.months}</p>
+                <p class="num text-base font-bold text-slate-900 mt-1">${formatINR(collected)} collected</p>
+                <p class="text-sm text-slate-500 mt-1 leading-relaxed">${paid} / ${g.members.length} paid</p>
               </div>
             </div>
-            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-2 border-t border-slate-100"><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
-            <p class="text-sm text-slate-400">${cycleMonthLabel(g, 1)} – ${cycleMonthLabel(g, g.months)}</p>
+            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-3 border-t border-slate-100 leading-relaxed"><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
+            <p class="text-sm text-slate-400 leading-relaxed">${cycleMonthLabel(g, 1)} – ${cycleMonthLabel(g, g.months)}</p>
           </button>`;
       }).join("");
     }
