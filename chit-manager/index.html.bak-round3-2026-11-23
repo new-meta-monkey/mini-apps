@@ -1,0 +1,3171 @@
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5B3EDB" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0F1B33" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ChitManager" />
+  <title>ChitManager — Chit Fund Ledger &amp; Draw Manager</title>
+  <meta name="description" content="Run a chit fund end to end: chit groups, members, monthly payments, the monthly draw and the full cycle ledger. Share payment reminders on WhatsApp. All data stays on your device." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://myapps.kovai.fyi/chit-manager/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ChitManager — Chit Fund Ledger &amp; Draw Manager" />
+  <meta property="og:description" content="Run chit groups end to end — members, monthly draws, payments and ledger. All data stays on your device." />
+  <meta property="og:url" content="https://myapps.kovai.fyi/chit-manager/" />
+  <meta property="og:image" content="https://myapps.kovai.fyi/chit-manager/icon.svg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="ChitManager — Chit Fund Ledger &amp; Draw Manager" />
+  <meta name="twitter:description" content="Run chit groups end to end — members, monthly draws, payments and ledger." />
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "MobileApplication", "name": "ChitManager", "applicationCategory": "FinanceApplication", "operatingSystem": "Android, iOS", "offers": { "@type": "Offer", "price": "0" }, "url": "https://myapps.kovai.fyi/chit-manager/", "description": "Run chit groups end to end — members, monthly draws, payments and ledger. All data stays on your device." }
+  </script>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* House palette (Mini Apps): slate renders warm navy/cream, indigo renders grape. */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: { 50: '#FFF9F0', 100: '#F6EFE3', 200: '#EDE4D6', 300: '#D8CDB8', 400: '#64748B', 500: '#5A6B8A', 600: '#5A6B8A', 700: '#3D4A63', 800: '#1B2A4A', 900: '#1B2A4A' },
+            indigo: { 50: '#F0EDFF', 100: '#E4DEFF', 200: '#CFC4FF', 400: '#6A4FE0', 500: '#5B3EDB', 600: '#5B3EDB', 700: '#4F2ED0' },
+            cream: '#FFF9F0', navy: '#1B2A4A', grape: '#5B3EDB', coral: '#FF6B6B', sunny: '#FFC93C', teal: '#2EC4B6'
+          },
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            nunito: ['Nunito', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Nunito', 'Inter', 'Noto Sans Tamil', 'Noto Sans Malayalam', 'Noto Sans Telugu', 'Noto Sans Kannada', 'Noto Sans Devanagari', sans-serif;
+      background-color: #FFF9F0;
+      color: #1B2A4A;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #F0E6D8;
+      border-radius: 1rem;
+      box-shadow: 0 1px 2px 0 rgba(27, 42, 74, 0.03);
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
+    .tab-active {
+      color: #5B3EDB;
+      font-weight: 600;
+    }
+    .tab-active svg {
+      stroke: #5B3EDB;
+    }
+    @keyframes installSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .install-sheet-anim { animation: installSheetUp 0.28s cubic-bezier(0.2, 0.9, 0.25, 1); }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #D8CDB8; border-radius: 9999px; }
+    @keyframes spinWheel {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(1440deg); }
+    }
+    .spinning {
+      animation: spinWheel 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    h1, h2, h3 { font-family: 'Fredoka', 'Nunito', sans-serif; }
+    /* 40+ friendly: roomy type, big touch targets, clear month tabs */
+    body { font-size: 16px; }
+    .big-btn { min-height: 56px !important; font-size: 16px !important; }
+    .back-btn { min-height: 48px; font-size: 16px; font-weight: 700; padding: 10px 16px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; }
+    /* Round 2 (2026-11-23): 48px icon buttons for app-bar use (M3 icon-button size). */
+    .icon-btn { min-width: 48px; min-height: 48px; width: 48px; height: 48px; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .mob-nav-btn:disabled, .mob-nav-btn.nav-disabled { opacity: .45; }
+    .menu-item { min-height: 48px; display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 12px; border-radius: 0.75rem; text-align: left; font-size: 16px; font-weight: 600; color: #1B2A4A; background: transparent; border: 0; cursor: pointer; }
+    .menu-item:hover { background: #F0E6D8; }
+    .menu-item svg { width: 22px; height: 22px; flex-shrink: 0; }
+    /* Round 2: schematic titles + step accents. */
+    #view-draw h2, #view-history h2 { letter-spacing: .02em; }
+    #view-draw h3.uppercase { letter-spacing: .08em; }
+    #view-draw .bg-slate-50\/80 { box-shadow: inset 3px 0 0 #5B3EDB; }
+    .freq-btn { min-height: 56px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
+    .freq-btn.selected { background: #5B3EDB; border-color: #5B3EDB; color: #fff; }
+    .cycle-tab { min-height: 56px; min-width: 104px; padding: 8px 12px; border-radius: 14px; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; font-size: 15px; text-align: center; flex-shrink: 0; line-height: 1.25; }
+    .cycle-tab-month { display: block; font-weight: 800; }
+    .cycle-tab-sub { display: block; font-size: 14px; color: #44506B; margin-top: 2px; }
+    .cycle-tab.active { background: #5B3EDB; border-color: #5B3EDB; color: #fff; }
+    .cycle-tab.active .cycle-tab-sub { color: rgba(255, 255, 255, 0.85); }
+    .cycle-tab.future { opacity: 0.65; cursor: not-allowed; }
+    .chit-card { cursor: pointer; }
+    .chit-card:active { background: #F6EFE3; }
+
+    /* ===== Native app redesign, 2026-11-23 (phone + tablet, <=1024px) =====
+       Desktop (>1024px) keeps the current layout. Logic untouched.
+       AA contrast: primary #7B61FF (4.20:1) -> #5B3EDB (6.65:1 white text,
+       6.65:1 on white); muted text darkened to #44506B (8.06:1). */
+    :focus-visible { outline: 3px solid #5B3EDB; outline-offset: 2px; border-radius: 8px; }
+    button { touch-action: manipulation; }
+    .text-slate-500 { color: #44506B !important; }
+    .text-slate-400 { color: #64748B !important; }
+    @keyframes sheetUp { from { transform: translateY(40px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+    @media (max-width: 1024px) {
+      html { -webkit-text-size-adjust: 100%; }
+      body { font-size: 17px; line-height: 1.55; padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }
+      /* Mature-reader type floor: nothing below 14px on phone/tablet */
+      .text-xs { font-size: 16px !important; line-height: 1.5; }
+      .text-sm { font-size: 16px !important; line-height: 1.5; }
+      .text-\[10px\] { font-size: 14px !important; }
+      .text-\[11px\] { font-size: 15px !important; }
+      .text-\[13px\] { font-size: 15px !important; }
+      /* Header: 48px targets, safe-area top */
+      header { padding-top: env(safe-area-inset-top); }
+      header a.w-9 { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+      header button, header select { min-height: 48px; }
+      header .p-2 { min-width: 48px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
+      header h1 { font-size: 18px !important; }
+      /* Desktop tabs off on phone/tablet; bottom nav on */
+      #mobileNav { display: flex !important; min-height: 68px; padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important; box-shadow: 0 -2px 12px rgba(27,42,74,.08); }
+      #mobileNav.hidden { display: none !important; }
+      .mob-nav-btn { min-height: 60px !important; min-width: 64px; font-size: 14px !important; font-weight: 700 !important; padding: 8px 6px !important; color: #44506B !important; }
+      .mob-nav-btn svg { width: 26px !important; height: 26px !important; }
+      .mob-nav-btn.tab-active { color: #5B3EDB !important; }
+      /* Big touch targets everywhere */
+      .big-btn { min-height: 56px !important; font-size: 17px !important; }
+      .back-btn { min-height: 56px; font-size: 17px; }
+      .freq-btn { min-height: 56px; font-size: 16px; }
+      .filter-pill { min-height: 48px !important; font-size: 16px !important; padding: 12px 18px !important; }
+      input, select, textarea { font-size: 17px !important; min-height: 56px; }
+      label { font-size: 16px !important; }
+      /* Cards + KPI: roomier, bigger amounts */
+      .card { border-radius: 20px; }
+      #view-dashboard .grid { gap: 14px; }
+      #dash-totalPot, #dash-collected, #dash-netPayable { font-size: 26px !important; }
+      #dash-cycle { font-size: 18px !important; }
+      /* Workflow strip: readable, tappable */
+      #mainWorkspace .card .w-5 { width: 28px !important; height: 28px !important; font-size: 14px !important; }
+      /* Month tabs: 64px tall, 16px text */
+      .cycle-tab { min-height: 64px; min-width: 118px; font-size: 16px; padding: 10px 14px; }
+      .cycle-tab-month { font-size: 16px; }
+      .cycle-tab-sub { font-size: 15px !important; }
+      /* Chit cards + member cards */
+      .chit-card { padding: 20px !important; }
+      .chit-card h3 { font-size: 20px !important; }
+      #membersList .card { padding: 18px !important; }
+      #membersList h4 { font-size: 17px !important; }
+      #membersList .num { font-size: 19px !important; }
+      #membersList button { min-height: 48px; min-width: 48px; }
+      /* Ledger: table becomes labelled cards */
+      #view-history .overflow-x-auto { overflow: visible; margin: 0; padding: 0; }
+      #view-history table, #view-history tbody, #view-history tr, #view-history td { display: block; width: 100%; }
+      #view-history thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      #view-history tbody tr { border: 1px solid #F0E6D8; border-radius: 16px; padding: 8px 16px; margin-bottom: 12px; background: #fff; box-shadow: 0 1px 4px rgba(27,42,74,.08); }
+      #view-history td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0 !important; border: 0; font-size: 16px !important; text-align: left !important; white-space: normal; }
+      #view-history td::before { content: attr(data-label); font-weight: 700; color: #44506B; font-size: 14px; flex-shrink: 0; }
+      #view-history td[data-label] .text-xs { font-size: 14px !important; }
+      #view-history button { min-height: 48px; }
+      /* Modals become bottom sheets */
+      #newGroupModal, #addMemberModal, #backupModal, #guideModal { align-items: flex-end !important; padding: 0 !important; }
+      #newGroupModal > div, #addMemberModal > div, #backupModal > div, #guideModal > div { width: 100% !important; max-width: 640px !important; margin: 0 auto !important; border-radius: 28px 28px 0 0 !important; max-height: 92dvh !important; padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important; animation: sheetUp .28s cubic-bezier(.2,0,0,1); }
+      #newGroupModal > div::before, #addMemberModal > div::before, #backupModal > div::before, #guideModal > div::before { content: ""; display: block; width: 44px; height: 5px; border-radius: 99px; background: #D8CDB8; margin: 0 auto 12px; }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+      /* Tablet: centred app column, 2-col members already via md:grid-cols-2 */
+      #mainWorkspace, #groupsListView, #emptyStateView { max-width: 880px; }
+      header .max-w-5xl { max-width: 880px; }
+      #membersList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    /* ===== Google web guidance pass, 2026-11-23 (M3 + web.dev + WCAG 2.2 AA) =====
+       Colour roles for the native layer. House palette stays cream/navy/grape. */
+    :root {
+      --chit-primary: #5B3EDB; --chit-primary-dark: #4F2ED0;
+      --chit-navy: #1B2A4A; --chit-muted: #44506B; --chit-icon: #64748B;
+      --chit-cream: #FFF9F0; --chit-line: #F0E6D8;
+    }
+    .skip-link { position: absolute; left: 16px; top: -72px; z-index: 60; background: var(--chit-navy); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 16px; transition: top .2s cubic-bezier(.2,0,0,1); }
+    .skip-link:focus { top: calc(8px + env(safe-area-inset-top)); color: #fff; }
+    ::placeholder { color: var(--chit-icon) !important; opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+    @media (max-width: 1024px) {
+      #mainWorkspace .card button { min-height: 48px; }
+      #newGroupModal button, #addMemberModal button, #backupModal button, #guideModal button { min-height: 48px; }
+      .chit-card { display: block; width: 100%; text-align: left; }
+    }
+    @media (max-width: 380px) {
+      header select { max-width: 96px; }
+    }
+
+    /* ===== M3 adherence pass, 2026-11-23 =====
+       Navigation by M3 window size classes: bottom bar <600px, nav rail
+       600-839px, full nav 840px+. Dark mode swaps token values only. */
+    @media (max-width: 839px) {
+      #desktopNav { display: none !important; }
+    }
+    @media (min-width: 840px) {
+      #mobileNav { display: none !important; }
+      body { padding-bottom: 40px !important; }
+    }
+    @media (min-width: 600px) and (max-width: 839px) {
+      /* Nav rail (M3 medium): left rail, content offset by its width. */
+      body { padding-left: 96px !important; padding-bottom: 32px !important; }
+      #mobileNav {
+        top: 0 !important; bottom: 0 !important; left: 0 !important; right: auto !important;
+        width: 96px !important; min-height: 0 !important;
+        flex-direction: column !important; justify-content: flex-start !important;
+        align-items: stretch !important; gap: 8px;
+        padding: calc(16px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom)) !important;
+        border-top: 0 !important; border-right: 1px solid var(--chit-line);
+        box-shadow: 2px 0 12px rgba(27,42,74,.08);
+      }
+      #mobileNav .mob-nav-btn { width: 100% !important; min-height: 64px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { color-scheme: dark; }
+      html, body { background: #0F1B33 !important; color: #F5F1E8 !important; }
+      .card { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      .text-slate-900 { color: #F5F1E8 !important; }
+      .text-slate-800 { color: #EDE9DF !important; }
+      .text-slate-700 { color: #D8DDE8 !important; }
+      .text-slate-600 { color: #C3CADB !important; }
+      .text-slate-500 { color: #AEB8CC !important; }
+      .text-slate-400 { color: #93A0B8 !important; }
+      .text-slate-300 { color: #93A0B8 !important; }
+      .text-indigo-600, .text-indigo-700 { color: #B7A6FF !important; }
+      .bg-white { background-color: #1B2A4A !important; }
+      .bg-slate-50 { background-color: #22304F !important; }
+      .bg-slate-100 { background-color: #263453 !important; }
+      .bg-slate-200 { background-color: #2C3A55 !important; }
+      .bg-indigo-50 { background-color: #2A2350 !important; }
+      .bg-indigo-100 { background-color: #332A63 !important; }
+      .border-slate-100, .border-slate-200 { border-color: #2C3A55 !important; }
+      .border-slate-300 { border-color: #3D4A63 !important; }
+      .border-indigo-100, .border-indigo-200 { border-color: #3D3480 !important; }
+      .bg-emerald-50 { background-color: #0B2E25 !important; }
+      .text-emerald-700 { color: #6EE7B7 !important; }
+      .border-emerald-200 { border-color: #14532D !important; }
+      .bg-rose-50 { background-color: #3A1220 !important; }
+      .text-rose-700 { color: #FDA4AF !important; }
+      .border-rose-200 { border-color: #7F1D2D !important; }
+      input, select, textarea { background-color: #1B2A4A !important; color: #F5F1E8 !important; border-color: #3D4A63 !important; }
+      ::placeholder { color: #93A0B8 !important; }
+      .tab-active { color: #B7A6FF !important; }
+      .tab-active svg { stroke: #B7A6FF !important; }
+      .cycle-tab, .freq-btn { background: #1B2A4A !important; border-color: #2C3A55 !important; color: #F5F1E8 !important; }
+      .cycle-tab-sub { color: #AEB8CC !important; }
+      .cycle-tab.active, .freq-btn.selected { background: #5B3EDB !important; border-color: #5B3EDB !important; color: #fff !important; }
+      .cycle-tab.active .cycle-tab-sub { color: rgba(255,255,255,.92) !important; }
+      .chit-card:active { background: #263453 !important; }
+      header { background: rgba(27,42,74,.95) !important; border-color: #2C3A55 !important; }
+      #mobileNav { background: rgba(27,42,74,.95) !important; border-color: #2C3A55 !important; }
+      #desktopNav { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      .skip-link { background: #F5F1E8 !important; color: #1B2A4A !important; }
+      ::-webkit-scrollbar-thumb { background: #3D4A63 !important; }
+      :focus-visible { outline-color: #9B7FFF !important; }
+      /* Install sheet (arbitrary values + inline colours). */
+      .bg-\[\#FFF9F0\] { background-color: #1B2A4A !important; }
+      .bg-\[\#F0E6D8\] { background-color: #2C3A55 !important; }
+      .bg-\[\#D8CDB8\] { background-color: #3D4A63 !important; }
+      .text-\[\#1B2A4A\] { color: #F5F1E8 !important; }
+      #installSheetBackdrop p[style] { color: #D8DDE8 !important; }
+      #installSheetBackdrop button[style] { color: #D8DDE8 !important; }
+      /* Round 2 (2026-11-23): opacity + hover variants the first pass missed. */
+      .bg-slate-50\/80 { background-color: #22304F !important; }
+      .hover\:bg-slate-50\/80:hover { background-color: #22304F !important; }
+      .bg-slate-200\/70 { background-color: #2C3A55 !important; }
+      .hover\:bg-slate-200\/70:hover { background-color: #2C3A55 !important; }
+      .bg-indigo-50\/40 { background-color: #2A2350 !important; }
+      .border-slate-200\/80, .border-slate-200\/70, .border-slate-200\/90 { border-color: #2C3A55 !important; }
+      .border-rose-200\/80 { border-color: #7F1D2D !important; }
+      .text-rose-600 { color: #FDA4AF !important; }
+      .hover\:bg-slate-100:hover { background-color: #263453 !important; }
+      .hover\:bg-slate-50:hover { background-color: #22304F !important; }
+      .hover\:bg-slate-200:hover { background-color: #2C3A55 !important; }
+      .hover\:bg-indigo-50:hover { background-color: #2A2350 !important; }
+      .hover\:bg-indigo-100:hover { background-color: #332A63 !important; }
+      .hover\:bg-rose-50:hover { background-color: #3A1220 !important; }
+      .hover\:text-slate-900:hover { color: #F5F1E8 !important; }
+      .hover\:text-indigo-600:hover { color: #B7A6FF !important; }
+      .hover\:text-rose-600:hover { color: #FDA4AF !important; }
+      .hover\:border-slate-400:hover { border-color: #3D4A63 !important; }
+      .hover\:border-indigo-400:hover { border-color: #6A4FE0 !important; }
+      /* Ledger cards + detail header buttons were hard-coded light. */
+      #view-history tbody tr { background: #1B2A4A !important; border-color: #2C3A55 !important; }
+      #view-history td::before { color: #AEB8CC !important; }
+      .back-btn { background: #1B2A4A !important; color: #F5F1E8 !important; border-color: #2C3A55 !important; }
+      .icon-btn { background: #1B2A4A !important; color: #F5F1E8 !important; border-color: #2C3A55 !important; }
+      .menu-item { color: #F5F1E8 !important; }
+      .menu-item:hover { background: #263453 !important; }
+      .border-slate-400 { border-color: #3D4A63 !important; }
+      .border-indigo-400 { border-color: #6A4FE0 !important; }
+      .border-indigo-500 { border-color: #5B3EDB !important; }
+      .divide-slate-100 > * + * { border-color: #2C3A55 !important; }
+      #newGroupModal > div::before, #addMemberModal > div::before, #backupModal > div::before, #guideModal > div::before { background: #3D4A63 !important; }
+    }
+  </style>
+</head>
+<body class="pb-24 md:pb-10 min-h-screen flex flex-col">
+  <a href="#mainWorkspace" class="skip-link" onclick="skipToContent(event)">Skip to main content</a>
+
+  <!-- ==================== TOP APP HEADER ==================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 w-full">
+    <div class="max-w-5xl mx-auto px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="https://myapps.kovai.fyi/" title="Back to myapps.kovai.fyi" class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs hover:bg-indigo-700 transition">
+          ₹
+        </a>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-bold text-slate-900 text-sm sm:text-base truncate" data-i18n="appTitle">ChitManager</h1>
+            <span class="hidden sm:inline-block text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200/80 shrink-0">kovai.fyi</span>
+          </div>
+          <p class="text-[11px] text-slate-500 hidden sm:block truncate" data-i18n="appSubtitle">Group Chit Ledger &amp; Draw Manager</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Install + Settings menu -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 relative">
+        <button id="pwaInstallBtn" onclick="showInstallSheet()" class="hidden items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden sm:inline" data-i18n="install">Install</span>
+        </button>
+
+        <button id="settingsBtn" onclick="toggleSettingsMenu(event)" aria-haspopup="true" aria-expanded="false" aria-controls="settingsMenu" title="Settings" aria-label="Settings" class="icon-btn">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z"/></svg>
+        </button>
+        <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-72 card rounded-2xl shadow-lg p-2 z-40" role="menu" aria-label="Settings">
+          <div class="px-3 pt-2 pb-1">
+            <label for="langSelector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Language</label>
+            <div class="relative mt-1.5">
+              <select id="langSelector" onchange="setLang(this.value); closeSettingsMenu()" class="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 text-base font-medium rounded-xl pl-3 pr-8 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
+                <option value="en">English</option>
+                <option value="ta">தமிழ்</option>
+                <option value="ml">മലയാളം</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="hi">हिन्दी</option>
+              </select>
+              <svg class="w-4 h-4 text-slate-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </div>
+          <button onclick="closeSettingsMenu(); openModal('guideModal')" role="menuitem" class="menu-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            How to Use Guide
+          </button>
+          <button onclick="closeSettingsMenu(); openModal('backupModal')" role="menuitem" class="menu-item">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+            Backup &amp; Mock Data
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Desktop Navigation Tabs (Hidden when blank) -->
+    <nav id="desktopNav" class="hidden md:block bg-white border-t border-slate-100">
+      <div class="max-w-5xl mx-auto px-5 flex gap-8 text-sm">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn py-3 border-b-2 border-indigo-600 text-indigo-600 font-semibold">
+          <span data-i18n="tabDashboard">Dashboard</span>
+        </button>
+        <button onclick="switchTab('draw')" data-tab="draw" class="nav-btn py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium">
+          <span data-i18n="tabDraw">Auction / Draw</span>
+        </button>
+        <button onclick="switchTab('members')" data-tab="members" class="nav-btn py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium">
+          <span data-i18n="tabMembers">Members &amp; Status</span>
+        </button>
+        <button onclick="switchTab('history')" data-tab="history" class="nav-btn py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium">
+          <span data-i18n="tabHistory">Ledger &amp; Results</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== BLANK ONBOARDING STATE ==================== -->
+  <section id="emptyStateView" class="hidden max-w-2xl w-full mx-auto px-4 py-10 sm:py-16 flex-1 flex flex-col justify-center">
+    <div class="card p-6 sm:p-8 text-center space-y-6">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-2xl font-bold mx-auto">
+        ₹
+      </div>
+      <div class="space-y-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900" data-i18n="emptyTitle">Welcome to ChitManager</h2>
+        <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed" data-i18n="emptyDesc">
+          Manage Auction, Lottery, or Fixed-Turn group chits offline. Track monthly installments, calculate dividends automatically, and send WhatsApp reminders in one tap.
+        </p>
+      </div>
+
+      <!-- Primary & Secondary Onboarding CTAs -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
+        <button onclick="openModal('newGroupModal')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+          + <span data-i18n="createFirstChit">Create Your First Chit</span>
+        </button>
+        <button onclick="loadDemoData(true)" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
+          <span data-i18n="tryMockData">Load Sample Mock Data</span>
+        </button>
+      </div>
+
+      <!-- Quick 3-Step Overview + Guide Link -->
+      <div class="pt-5 border-t border-slate-100 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+            <span class="text-[11px] font-bold text-indigo-600">STEP 1</span>
+            <p class="text-xs font-semibold text-slate-900 mt-0.5" data-i18n="step1Short">Create Chit Group</p>
+            <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="step1ShortDesc">Set pot value, months &amp; method</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+            <span class="text-[11px] font-bold text-indigo-600">STEP 2</span>
+            <p class="text-xs font-semibold text-slate-900 mt-0.5" data-i18n="step2Short">Add Members</p>
+            <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="step2ShortDesc">Add participants &amp; ticket shares</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+            <span class="text-[11px] font-bold text-indigo-600">STEP 3</span>
+            <p class="text-xs font-semibold text-slate-900 mt-0.5" data-i18n="step3Short">Run Draw &amp; Share</p>
+            <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="step3ShortDesc">Pick winner &amp; notify on WhatsApp</p>
+          </div>
+        </div>
+        <button onclick="openModal('guideModal')" class="text-xs font-semibold text-indigo-600 hover:underline">
+          <svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span data-i18n="openFullGuide">Read Complete Step-by-Step User Guide →</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MY CHITS (LIST-FIRST HOME) ==================== -->
+  <section id="groupsListView" class="hidden max-w-5xl w-full mx-auto px-4 sm:px-5 py-4 sm:py-6 flex-1 space-y-4">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900">My Chits</h2>
+      <p id="groupsListCount" class="text-base text-slate-500 mt-1"></p>
+    </div>
+    <button onclick="openModal('newGroupModal')" class="big-btn w-full px-6 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+      + <span data-i18n="newGroup">New Chit</span>
+    </button>
+    <div id="groupsList" class="space-y-4"></div>
+    <p class="text-center text-sm text-slate-500 pt-1">Tap a chit to open it. Your data stays on this device.</p>
+  </section>
+
+  <!-- ==================== MAIN WORKSPACE (ACTIVE CHIT) ==================== -->
+  <main id="mainWorkspace" class="hidden max-w-5xl w-full mx-auto px-4 sm:px-5 py-4 sm:py-6 flex-1 space-y-4 sm:space-y-5">
+
+    <!-- Back to list + chit title -->
+    <div class="flex items-center gap-3">
+      <button onclick="showGroupsList()" class="icon-btn lg:hidden" aria-label="Back to all chits"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+      <button onclick="showGroupsList()" class="back-btn shrink-0 hidden lg:inline-flex items-center">&larr; All Chits</button>
+      <div class="min-w-0 flex-1">
+        <h2 id="detailGroupName" class="text-xl font-bold text-slate-900 truncate"></h2>
+        <p id="detailGroupMeta" class="text-sm text-slate-500 truncate"></p>
+      </div>
+      <button onclick="openEditGroupModal()" class="icon-btn lg:hidden" aria-label="Edit this chit"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg></button>
+      <button onclick="openEditGroupModal()" class="back-btn shrink-0 hidden lg:inline-flex items-center" title="Edit this chit">Edit</button>
+    </div>
+
+    <!-- Step-by-Step Workflow Progress Strip -->
+    <div class="card px-4 py-3 flex items-center justify-between gap-2 overflow-x-auto text-xs">
+      <button onclick="switchTab('members')" class="flex items-center gap-1.5 shrink-0 text-slate-600 hover:text-indigo-600 transition">
+        <span id="stepBadge1" class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">1</span>
+        <span class="font-medium" data-i18n="wfMembers">Members</span>
+      </button>
+      <span class="text-slate-300">→</span>
+      <button onclick="switchTab('draw')" class="flex items-center gap-1.5 shrink-0 text-slate-600 hover:text-indigo-600 transition">
+        <span id="stepBadge2" class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">2</span>
+        <span class="font-medium" data-i18n="wfDraw">Auction / Draw</span>
+      </button>
+      <span class="text-slate-300">→</span>
+      <button onclick="switchTab('members')" class="flex items-center gap-1.5 shrink-0 text-slate-600 hover:text-indigo-600 transition">
+        <span id="stepBadge3" class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">3</span>
+        <span class="font-medium" data-i18n="wfCollect">Collect Dues</span>
+      </button>
+      <span class="text-slate-300">→</span>
+      <button onclick="switchTab('history')" class="flex items-center gap-1.5 shrink-0 text-slate-600 hover:text-indigo-600 transition">
+        <span id="stepBadge4" class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center">4</span>
+        <span class="font-medium" data-i18n="wfPayout">Disburse &amp; Share</span>
+      </button>
+    </div>
+
+    <!-- ==================== TAB 1: DASHBOARD ==================== -->
+    <section id="view-dashboard" class="tab-view space-y-4 sm:space-y-5">
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
+          <div>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="totalPot">Total Chit Value</p>
+            <p id="dash-totalPot" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
+          </div>
+          <span id="dash-chitTypeBadge" class="inline-block self-start mt-3 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-full">Auction</span>
+        </div>
+
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
+          <div>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
+            <p id="dash-cycle" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 whitespace-nowrap">1 / 10</p>
+          </div>
+          <div class="flex items-end justify-between gap-2 mt-3">
+            <p id="dash-baseInstallment" class="text-sm text-slate-500 leading-snug">Base: ₹0 / tkt</p>
+            <button onclick="advanceNextCycle()" title="Next Cycle" aria-label="Next cycle" class="w-11 h-11 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-bold flex items-center justify-center shrink-0 transition">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
+          <div>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
+            <p id="dash-collected" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
+          </div>
+          <p id="dash-collectedCount" class="text-sm text-slate-500 mt-3 leading-snug">0 / 0 Paid</p>
+        </div>
+
+        <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
+          <div>
+            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
+            <p id="dash-netPayable" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
+          </div>
+          <p id="dash-dividendNote" class="text-sm text-slate-500 mt-3 leading-snug">Dividend: ₹0</p>
+        </div>
+      </div>
+
+      <!-- Overview & Pending Panel -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card p-4 sm:p-5 lg:col-span-2 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="min-w-0">
+                <h2 class="font-semibold text-slate-900 text-base leading-snug" data-i18n="cycleOverview">Active Cycle Overview</h2>
+                <p class="text-xs text-slate-500 mt-0.5" data-i18n="cycleOverviewSub">Monthly collection status and winner disbursement</p>
+              </div>
+            </div>
+
+            <!-- Month tabs: one tab per collection month, future months disabled -->
+            <div id="cycleTabs" class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 pt-1" role="tablist" aria-label="Collection months"></div>
+
+            <!-- Progress Bar -->
+            <div class="pt-1">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="font-medium text-slate-600" data-i18n="collectionProgress">Collection Progress</span>
+                <span id="dash-progressPct" class="num font-semibold text-slate-900">0%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div id="dash-progressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Winner Box -->
+            <div class="p-4 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="space-y-1.5 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500" data-i18n="cycleWinnerLabel">Cycle Winner</span>
+                  <button id="dash-payoutToggle" onclick="togglePrizeDisbursed()" class="hidden px-3 py-3 rounded-md text-sm font-semibold border transition"></button>
+                </div>
+                <p id="dash-winnerText" class="text-sm font-medium text-slate-800 break-words">Pending draw / auction for this cycle</p>
+              </div>
+              <button onclick="switchTab('draw')" class="w-full sm:w-auto px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-800 text-sm font-semibold hover:bg-slate-100 transition text-center shrink-0" data-i18n="goToDraw">
+                Conduct Draw / Auction →
+              </button>
+            </div>
+          </div>
+
+          <!-- WhatsApp Actions -->
+          <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button onclick="shareGroupReminderWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+              <span data-i18n="shareGroupReminder">Share Payment Reminder</span>
+            </button>
+            <button onclick="shareLatestResultWhatsApp()" class="big-btn w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 font-semibold hover:bg-slate-200/70 transition">
+              <span data-i18n="shareResultBtn">Share Chit Result</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div class="card p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-semibold text-slate-900 text-sm" data-i18n="pendingDues">Pending Payments</h3>
+              <button onclick="switchTab('members')" class="text-base text-indigo-600 font-semibold hover:underline shrink-0 px-3 py-3 rounded-lg" data-i18n="viewAll">View All</button>
+            </div>
+            <div id="dash-pendingList" class="space-y-2 max-h-64 overflow-y-auto pr-0.5"></div>
+          </div>
+          <button onclick="openAddMemberModal()" class="big-btn w-full py-3 rounded-xl border border-dashed border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-400 transition" data-i18n="addMemberBtn">
+            + Add Member
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: STEP-BY-STEP AUCTION / DRAW / FIXED TURN ==================== -->
+    <section id="view-draw" class="tab-view hidden space-y-4">
+      <div class="card p-4 sm:p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="drawHeading">Conduct Monthly Chit</h2>
+            <p class="text-xs text-slate-500 mt-0.5" data-i18n="drawSubheading">Follow the steps below to complete this cycle</p>
+          </div>
+          <span id="draw-methodPill" class="self-start px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Auction Chit</span>
+        </div>
+
+        <!-- Guard when 0 members -->
+        <div id="draw-noMembersAlert" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+          <p class="text-xs sm:text-sm font-medium text-slate-700" data-i18n="needMembersFirst">Add members to this chit group before conducting a draw or auction.</p>
+          <button onclick="openAddMemberModal()" class="big-btn px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="addMemberBtn">
+            + Add Member
+          </button>
+        </div>
+
+        <!-- MODE A: STEP-BY-STEP AUCTION CHIT -->
+        <div id="mode-auction" class="space-y-4 hidden">
+          <!-- Step A1 -->
+          <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="aucStep1">Select Winning Bidder</h3>
+            </div>
+            <select id="auc-winner" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
+          </div>
+
+          <!-- Step A2 -->
+          <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="aucStep2">Enter Bid Discount &amp; Commission</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="bidDiscountAmt">Bid Discount Amount (₹)</label>
+                <input type="number" id="auc-discount" oninput="previewAuction()" placeholder="e.g. 15000" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="foremanComm">Foreman Commission (₹)</label>
+                <input type="number" id="auc-commission" oninput="previewAuction()" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+              </div>
+            </div>
+            <p id="auc-warning" class="hidden text-xs text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2"></p>
+          </div>
+
+          <!-- Step A3 -->
+          <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="aucStep3">Review Payout &amp; Dividend</h3>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+              <div class="p-3 rounded-lg bg-white border border-slate-200/80 min-w-0">
+                <p class="text-[11px] text-slate-500 leading-snug" data-i18n="prizePayable">Winner Gets</p>
+                <p id="auc-preview-prize" class="num text-base font-bold text-slate-900 mt-0.5 truncate">₹0</p>
+              </div>
+              <div class="p-3 rounded-lg bg-white border border-slate-200/80 min-w-0">
+                <p class="text-[11px] text-slate-500 leading-snug" data-i18n="totalDividend">Dividend Pool</p>
+                <p id="auc-preview-divPool" class="num text-base font-bold text-slate-900 mt-0.5 truncate">₹0</p>
+              </div>
+              <div class="p-3 rounded-lg bg-white border border-slate-200/80 min-w-0">
+                <p class="text-[11px] text-slate-500 leading-snug" data-i18n="dividendPerMember">Dividend / Tkt</p>
+                <p id="auc-preview-divEach" class="num text-base font-bold text-slate-900 mt-0.5 truncate">₹0</p>
+              </div>
+              <div class="p-3 rounded-lg bg-white border border-indigo-200 min-w-0">
+                <p class="text-[11px] text-slate-500 leading-snug" data-i18n="nextInstallment">Net Due / Tkt</p>
+                <p id="auc-preview-netPay" class="num text-base font-bold text-indigo-600 mt-0.5 truncate">₹0</p>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="saveCycleResult('auction')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="confirmAuction">
+            Confirm Auction &amp; Update Dues
+          </button>
+        </div>
+
+        <!-- MODE B: STEP-BY-STEP LOTTERY / DRAW CHIT -->
+        <div id="mode-lottery" class="space-y-4 hidden">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="lotStep1">Verify Eligible Pool</h3>
+            </div>
+            <p id="lottery-eligibleNames" class="text-xs text-slate-600 leading-relaxed pl-7"></p>
+          </div>
+
+          <div class="p-5 sm:p-6 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center text-center space-y-4">
+            <div class="flex items-center gap-2 self-start">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="lotStep2">Spin &amp; Save Winner</h3>
+            </div>
+            <div id="lotteryWheel" class="w-24 h-24 rounded-full bg-indigo-600 text-white flex items-center justify-center border-4 border-indigo-100 text-3xl font-bold">
+              🎲
+            </div>
+            <div id="lottery-resultBanner" class="hidden w-full max-w-sm px-4 py-3 rounded-xl bg-white border border-slate-200">
+              <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider" data-i18n="drawnWinner">Drawn Winner</p>
+              <p id="lottery-winnerName" class="text-lg font-bold text-slate-900 mt-0.5 break-words"></p>
+            </div>
+            <div class="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-3">
+              <button onclick="spinLotteryDraw()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+                <span data-i18n="spinDrawBtn">Spin &amp; Pick Random Winner</span>
+              </button>
+              <button id="lottery-saveBtn" onclick="saveCycleResult('lottery')" class="big-btn hidden w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition">
+                <span data-i18n="confirmWinnerBtn">Save Winner</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE C: STEP-BY-STEP FIXED TURN CHIT -->
+        <div id="mode-fixed" class="space-y-4 hidden">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="fixStep1">Assign Recipient for Current Cycle</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1" data-i18n="scheduledMember">Scheduled Recipient</label>
+                <select id="fixed-winner" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+              <button onclick="saveCycleResult('fixed')" class="big-btn w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="confirmTurnBtn">
+                Confirm Cycle Recipient
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700" data-i18n="turnScheduleTitle">Cycle-by-Cycle Turn Plan (Tap cycle to edit)</h3>
+            </div>
+            <div id="fixed-scheduleList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: MEMBERS & PAYMENT STATUS ==================== -->
+    <section id="view-members" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="membersHeading">Members &amp; Payment Status</h2>
+          <p class="text-xs text-slate-500 mt-0.5" id="members-cycleInfo">Cycle 1 • Tap status badge to update payment state</p>
+        </div>
+        <div class="grid grid-cols-2 sm:flex items-center gap-2">
+          <button onclick="markAllPaid()" class="px-4 py-3 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition text-center" data-i18n="markAllPaid">
+            ✓ Mark All Paid
+          </button>
+          <button onclick="openAddMemberModal()" class="big-btn px-4 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition text-center" data-i18n="addMemberBtn">
+            + Add Member
+          </button>
+        </div>
+      </div>
+
+      <!-- Search + Filter Pills -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex gap-2 overflow-x-auto pb-1 text-sm">
+          <button onclick="filterMembers('all')" id="filter-all" class="filter-pill px-4 py-3 rounded-lg bg-slate-900 text-white font-semibold shrink-0">All</button>
+          <button onclick="filterMembers('paid')" id="filter-paid" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Paid</button>
+          <button onclick="filterMembers('pending')" id="filter-pending" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Pending</button>
+          <button onclick="filterMembers('overdue')" id="filter-overdue" class="filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0">Overdue</button>
+        </div>
+        <input type="text" id="memberSearchInput" oninput="renderAll()" placeholder="Search member..." class="w-full sm:w-56 border border-slate-200 bg-white rounded-xl px-3 py-3 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+      </div>
+
+      <!-- Member Cards List -->
+      <div id="membersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- ==================== TAB 4: HISTORY & LEDGER ==================== -->
+    <section id="view-history" class="tab-view hidden space-y-4">
+      <div class="card p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="ledgerHeading">Chit Cycle Ledger &amp; Results</h2>
+            <p class="text-xs text-slate-500 mt-0.5" data-i18n="ledgerSub">Complete history of winners, bid discounts, dividends, and payouts</p>
+          </div>
+          <button onclick="exportCSV()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition text-center">
+            <svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><span data-i18n="exportCsv">Export CSV</span>
+          </button>
+        </div>
+        <div class="overflow-visible -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table class="ledger-table w-full text-left border-collapse text-base">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider">
+                <th class="py-3 px-3" data-i18n="thCycle">Cycle</th>
+                <th class="py-3 px-3" data-i18n="thWinner">Winner</th>
+                <th class="py-3 px-3" data-i18n="thDiscount">Discount</th>
+                <th class="py-3 px-3" data-i18n="thDividend">Dividend/Tkt</th>
+                <th class="py-3 px-3" data-i18n="thPrize">Prize Paid</th>
+                <th class="py-3 px-3" data-i18n="thPayoutStatus">Payout</th>
+                <th class="py-3 px-3 text-right" data-i18n="thAction">Share</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION ==================== -->
+  <nav id="mobileNav" class="hidden lg:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-30 flex justify-around py-2 px-1">
+    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span data-i18n="navHome">Home</span>
+    </button>
+    <button onclick="switchTab('draw')" data-tab="draw" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span data-i18n="navDraw">Draw/Bid</span>
+    </button>
+    <button onclick="switchTab('members')" data-tab="members" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <span data-i18n="navMembers">Members</span>
+    </button>
+    <button onclick="switchTab('history')" data-tab="history" class="mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span data-i18n="navLedger">Ledger</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Create / Edit Chit Group Modal -->
+  <div id="newGroupModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="groupModalTitle" class="font-bold text-slate-900 text-base" data-i18n="createChitTitle">Create New Chit Group</h3>
+        <button onclick="closeModal('newGroupModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <input type="hidden" id="editGroupId" />
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="groupNameLabel">Chit Group Name</label>
+          <input type="text" id="grp-name" placeholder="e.g. Friends ₹1L Monthly Chit" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="chitTypeLabel">Chit Method</label>
+          <select id="grp-type" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none">
+            <option value="auction">Auction Chit (ஏலச் சீட்டு / नीलामी चिट)</option>
+            <option value="lottery">Lottery / Draw Chit (குலுக்கல் சீட்டு / लॉटरी चिट)</option>
+            <option value="fixed">Fixed / Pre-determined Turn Chit</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="potValueLabel">Total Chit Value (₹)</label>
+            <input type="number" id="grp-pot" oninput="updateFreqHint()" placeholder="100000" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="tenureLabel">Total Months / Cycles</label>
+            <input type="number" id="grp-months" oninput="updateFreqHint()" placeholder="10" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Collect every</label>
+          <input type="hidden" id="grp-freq" value="1" />
+          <div id="freqPicker" class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setFrequency(1)" data-freq="1" class="freq-btn selected">Every month</button>
+            <button type="button" onclick="setFrequency(2)" data-freq="2" class="freq-btn">Every 2 months</button>
+            <button type="button" onclick="setFrequency(3)" data-freq="3" class="freq-btn">Every 3 months</button>
+            <button type="button" onclick="setFrequency(4)" data-freq="4" class="freq-btn">Every 4 months</button>
+            <button type="button" onclick="setFrequency(5)" data-freq="5" class="freq-btn">Every 5 months</button>
+            <button type="button" onclick="setFrequency(6)" data-freq="6" class="freq-btn">Every 6 months</button>
+          </div>
+          <p id="freqHint" class="text-sm text-slate-500 mt-1.5"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="grp-startMonth">First collection month</label>
+          <input type="month" id="grp-startMonth" onchange="updateFreqHint()" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          <p class="text-sm text-slate-500 mt-1.5">The first month's collection. Later months follow from this.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="commPctLabel">Foreman Fee (%)</label>
+            <input type="number" id="grp-comm" value="5" step="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="dueDayLabel">Monthly Due Day</label>
+            <input type="number" id="grp-dueDay" value="5" min="1" max="31" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="upiLabel">Organizer UPI ID / Payment Note (for WhatsApp)</label>
+          <input type="text" id="grp-upi" placeholder="e.g. organizer@okicici or 11111 11111" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        </div>
+      </div>
+      <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2 pt-2">
+        <button id="deleteGroupBtn" onclick="deleteCurrentGroup()" class="hidden w-full sm:w-auto py-2 text-xs text-rose-700 font-semibold hover:underline text-center" data-i18n="deleteGroup">Delete Group</button>
+        <div class="flex flex-col-reverse sm:flex-row gap-2 sm:ml-auto w-full sm:w-auto">
+          <button onclick="closeModal('newGroupModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button onclick="saveGroup()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700" data-i18n="saveBtn">Save Group</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Add / Edit Member Modal -->
+  <div id="addMemberModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="memberModalTitle" class="font-bold text-slate-900 text-base" data-i18n="addMemberTitle">Add Member</h3>
+        <button onclick="closeModal('addMemberModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <input type="hidden" id="editMemberId" />
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="memberName">Member Name</label>
+          <input type="text" id="mem-name" placeholder="e.g. Karthik R" class="w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="memberPhone">WhatsApp Number (with Country Code)</label>
+          <input type="tel" id="mem-phone" placeholder="e.g. 91 11111 11111" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5" data-i18n="ticketShare">Ticket Share (1 = Full, 0.5 = Half, 2 = Double)</label>
+          <input type="number" id="mem-tickets" value="1" step="0.5" min="0.5" class="num w-full border border-slate-300 rounded-xl px-3 py-3 text-base text-slate-900 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:outline-none" />
+        </div>
+      </div>
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+        <button onclick="closeModal('addMemberModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+        <button onclick="saveMember()" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700" data-i18n="saveMemberBtn">Save Member</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Backup, Restore & Mock Data Modal -->
+  <div id="backupModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base" data-i18n="backupTitle">Local Data, Backup &amp; Sample</h3>
+        <button onclick="closeModal('backupModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <p class="text-xs text-slate-600 leading-relaxed" data-i18n="backupDesc">
+        All your chit groups, member statuses, and auction records are saved privately in your browser. Export a JSON backup regularly or load sample mock data to test features.
+      </p>
+      <div class="space-y-3">
+        <button onclick="exportBackupJSON()" class="big-btn w-full py-3 px-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+          <span><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
+          <span data-i18n="exportJsonBtn">Download Backup (.JSON)</span>
+        </button>
+        <label class="big-btn w-full py-3 px-4 rounded-xl border border-dashed border-slate-300 text-slate-700 font-semibold hover:border-indigo-400 hover:bg-slate-50 transition flex items-center justify-center gap-2 cursor-pointer">
+          <span>⬆</span>
+          <span data-i18n="importJsonBtn">Restore from Backup (.JSON)</span>
+          <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+        </label>
+        <div class="pt-3 border-t border-slate-100">
+          <button onclick="checkForUpdates()" id="update-btn" class="big-btn w-full py-3 px-4 rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition flex items-center justify-center gap-2">
+            <span><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
+            <span>Check for updates</span>
+          </button>
+          <p class="text-[11px] text-slate-500 text-center mt-2">Gets the latest version when one is available. Your chits and data are untouched.</p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          <button onclick="loadDemoData(false)" class="text-xs text-indigo-600 font-semibold hover:underline" data-i18n="loadSample">Load Sample Mock Data</button>
+          <button onclick="clearAllData()" class="text-xs text-rose-700 font-semibold hover:underline" data-i18n="clearAllBtn">Reset to Blank App</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. User Guide / Documentation Modal -->
+  <div id="guideModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-xl border border-slate-200 space-y-4 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 sticky top-0 bg-white z-10">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base sm:text-lg" data-i18n="guideTitle">How to Use ChitManager</h3>
+          <p class="text-xs text-slate-500" data-i18n="guideSub">Step-by-step documentation for group organizers</p>
+        </div>
+        <button onclick="closeModal('guideModal')" class="text-slate-500 hover:text-slate-900 p-2 rounded-lg" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center" aria-label="Close"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <!-- Step 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <p class="font-bold text-slate-900" data-i18n="gStep1Title">1. Create a Chit Group</p>
+          <p class="text-xs text-slate-600" data-i18n="gStep1Body">Tap "+ New Chit" to set your total chit value (e.g. ₹1,00,000), total months/cycles (e.g. 10), organizer commission %, monthly due date, and your UPI ID for WhatsApp reminders.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <p class="font-bold text-slate-900" data-i18n="gStep2Title">2. Add Members &amp; Ticket Shares</p>
+          <p class="text-xs text-slate-600" data-i18n="gStep2Body">Go to the Members tab and add participants with their WhatsApp numbers. Set Ticket Share to 1 for a full ticket, 0.5 for a half ticket, or 2 for a double ticket.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <p class="font-bold text-slate-900" data-i18n="gStep3Title">3. Conduct Monthly Draw / Auction (3 Modes)</p>
+          <ul class="list-disc pl-4 space-y-1 text-xs text-slate-600">
+            <li data-i18n="gModeAuction"><strong>Auction Chit:</strong> Select the winning bidder and enter the bid discount. The app automatically deducts your commission, splits the remaining discount as dividend per ticket, and updates everyone's net payable due.</li>
+            <li data-i18n="gModeLottery"><strong>Lottery / Draw Chit:</strong> Spin the digital draw wheel to randomly pick a winner strictly from members who have not won yet.</li>
+            <li data-i18n="gModeFixed"><strong>Fixed Turn Chit:</strong> Assign or pre-plan which member receives the pot in each month.</li>
+          </ul>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <p class="font-bold text-slate-900" data-i18n="gStep4Title">4. Track Collections &amp; Share on WhatsApp</p>
+          <p class="text-xs text-slate-600" data-i18n="gStep4Body">Tap any member's status badge to cycle between Pending, Paid, and Overdue. Use "Remind" to send an individual WhatsApp payment link, or broadcast the monthly result and pending list to your group.</p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <p class="font-bold text-slate-900" data-i18n="gStep5Title">5. Offline PWA &amp; Backup</p>
+          <p class="text-xs text-slate-600" data-i18n="gStep5Body">All data stays 100% locally on your device. Tap the database icon in the top bar anytime to download a .JSON backup file or restore it on another device.</p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeModal('guideModal')" class="big-btn w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" data-i18n="gotItBtn">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50 max-w-[90vw] text-center"></div>
+
+  <script>
+    // ==================== MULTILINGUAL DICTIONARY (EN / TA / ML / TE / KN / HI) ====================
+    const I18N = {
+      en: {
+        appTitle: "ChitManager",
+        appSubtitle: "Group Chit Ledger & Draw Manager",
+        install: "Install",
+        newGroup: "New Chit",
+        emptyTitle: "Welcome to ChitManager",
+        emptyDesc: "Manage Auction, Lottery, or Fixed-Turn group chits offline. Track monthly installments, calculate dividends automatically, and send WhatsApp reminders in one tap.",
+        createFirstChit: "Create Your First Chit",
+        tryMockData: "Load Sample Mock Data",
+        step1Short: "Create Chit Group",
+        step1ShortDesc: "Set value, months, how often & first month",
+        step2Short: "Add Members",
+        step2ShortDesc: "Add participants & ticket shares",
+        step3Short: "Run Draw & Share",
+        step3ShortDesc: "Pick winner & notify on WhatsApp",
+        openFullGuide: "Read Complete Step-by-Step User Guide →",
+        wfMembers: "Members",
+        wfDraw: "Auction / Draw",
+        wfCollect: "Collect Dues",
+        wfPayout: "Disburse & Share",
+        tabDashboard: "Dashboard",
+        tabDraw: "Auction / Draw",
+        tabMembers: "Members & Status",
+        tabHistory: "Ledger & Results",
+        navHome: "Home",
+        navDraw: "Draw/Bid",
+        navMembers: "Members",
+        navLedger: "Ledger",
+        totalPot: "Total Chit Value",
+        currentMonth: "Current Cycle",
+        collectedThisMonth: "Collected (Cycle)",
+        netPayableNow: "Net Payable / Ticket",
+        cycleOverview: "Active Cycle Overview",
+        cycleOverviewSub: "Monthly collection status and winner disbursement",
+        selectMonth: "Cycle:",
+        collectionProgress: "Collection Progress",
+        cycleWinnerLabel: "Cycle Winner",
+        goToDraw: "Conduct Draw / Auction →",
+        shareGroupReminder: "Share Payment Reminder",
+        shareResultBtn: "Share Chit Result",
+        pendingDues: "Pending Payments",
+        viewAll: "View All",
+        addMemberBtn: "+ Add Member",
+        drawHeading: "Conduct Monthly Chit",
+        drawSubheading: "Follow the steps below to complete this cycle",
+        needMembersFirst: "Add members to this chit group before conducting a draw or auction.",
+        aucStep1: "Select Winning Bidder",
+        aucStep2: "Enter Bid Discount & Commission",
+        aucStep3: "Review Payout & Dividend",
+        lotStep1: "Verify Eligible Pool",
+        lotStep2: "Spin & Save Winner",
+        fixStep1: "Assign Recipient for Current Cycle",
+        bidDiscountAmt: "Bid Discount Amount (₹)",
+        foremanComm: "Foreman Commission (₹)",
+        prizePayable: "Winner Gets",
+        totalDividend: "Dividend Pool",
+        dividendPerMember: "Dividend / Tkt",
+        nextInstallment: "Net Due / Tkt",
+        confirmAuction: "Confirm Auction & Update Dues",
+        drawnWinner: "Drawn Winner",
+        spinDrawBtn: "Spin & Pick Random Winner",
+        confirmWinnerBtn: "Save Winner",
+        scheduledMember: "Scheduled Recipient",
+        confirmTurnBtn: "Confirm Cycle Recipient",
+        turnScheduleTitle: "Cycle-by-Cycle Turn Plan (Tap cycle to edit)",
+        membersHeading: "Members & Payment Status",
+        markAllPaid: "✓ Mark All Paid",
+        ledgerHeading: "Chit Cycle Ledger & Results",
+        ledgerSub: "Complete history of winners, bid discounts, dividends, and payouts",
+        exportCsv: "Export CSV",
+        thCycle: "Cycle",
+        thWinner: "Winner",
+        thDiscount: "Discount",
+        thDividend: "Dividend/Tkt",
+        thPrize: "Prize Paid",
+        thPayoutStatus: "Payout",
+        thAction: "Share",
+        createChitTitle: "Create New Chit Group",
+        groupNameLabel: "Chit Group Name",
+        chitTypeLabel: "Chit Method",
+        potValueLabel: "Total Chit Value (₹)",
+        tenureLabel: "Total Months / Cycles",
+        commPctLabel: "Foreman Fee (%)",
+        dueDayLabel: "Monthly Due Day",
+        upiLabel: "Organizer UPI ID / Payment Note (for WhatsApp)",
+        deleteGroup: "Delete Group",
+        saveBtn: "Save Group",
+        addMemberTitle: "Add Member",
+        editMemberTitle: "Edit Member",
+        memberName: "Member Name",
+        memberPhone: "WhatsApp Number (with Country Code)",
+        ticketShare: "Ticket Share (1 = Full, 0.5 = Half, 2 = Double)",
+        saveMemberBtn: "Save Member",
+        backupTitle: "Local Data, Backup & Sample",
+        backupDesc: "All your chit groups, member statuses, and auction records are saved privately in your browser. Export a JSON backup regularly or load sample mock data to test features.",
+        exportJsonBtn: "Download Backup (.JSON)",
+        importJsonBtn: "Restore from Backup (.JSON)",
+        loadSample: "Load Sample Mock Data",
+        clearAllBtn: "Reset to Blank App",
+        guideTitle: "How to Use ChitManager",
+        guideSub: "Step-by-step documentation for group organizers",
+        gStep1Title: "1. Create a Chit Group",
+        gStep1Body: "Tap '+ New Chit' to set your total chit value (e.g. ₹1,00,000), total months/cycles (e.g. 10), how often you collect (every month, or every 2 to 6 months), the first collection month, organizer commission %, monthly due date, and your UPI ID for WhatsApp reminders.",
+        gStep2Title: "2. Add Members & Ticket Shares",
+        gStep2Body: "Go to the Members tab and add participants with their WhatsApp numbers. Set Ticket Share to 1 for a full ticket, 0.5 for a half ticket, or 2 for a double ticket.",
+        gStep3Title: "3. Conduct Monthly Draw / Auction (3 Modes)",
+        gModeAuction: "Auction Chit: Select the winning bidder and enter the bid discount. The app deducts your commission, splits the remaining discount as dividend per ticket, and updates net dues.",
+        gModeLottery: "Lottery / Draw Chit: Spin the digital draw wheel to randomly pick a winner strictly from members who have not won yet.",
+        gModeFixed: "Fixed Turn Chit: Assign or pre-plan which member receives the pot in each month.",
+        gStep4Title: "4. Track Collections & Share on WhatsApp",
+        gStep4Body: "Tap any member's status badge to cycle between Pending, Paid, and Overdue. Use 'Remind' to send an individual WhatsApp message, or broadcast the monthly result to your group.",
+        gStep5Title: "5. Offline PWA & Backup",
+        gStep5Body: "All data stays 100% locally on your device. Tap the database icon in the top bar anytime to download a .JSON backup file or restore it on another device.",
+        gotItBtn: "Got It",
+        statusPaid: "Paid",
+        statusPending: "Pending",
+        statusOverdue: "Overdue",
+        payoutPaid: "Prize Disbursed",
+        payoutPending: "Payout Pending",
+        prizedBadge: "Won",
+        remindBtn: "Remind",
+        type_auction: "Auction Chit",
+        type_lottery: "Lottery Chit",
+        type_fixed: "Fixed Turn"
+      },
+      ta: {
+        appTitle: "சீட்டு மேனேஜர்",
+        appSubtitle: "குழு சீட்டு கணக்கு & குலுக்கல் செயலி",
+        install: "நிறுவு",
+        newGroup: "புதிய சீட்டு",
+        emptyTitle: "சீட்டு மேனேஜருக்கு வரவேற்கிறோம்",
+        emptyDesc: "ஏலச் சீட்டு, குலுக்கல் சீட்டு மற்றும் முறைச் சீட்டு கணக்குகளை எளிதாக நிர்வகிக்கவும். மாதாந்திர தவணை, கசறு கணக்கீடு மற்றும் WhatsApp நினைவூட்டல்களை ஒரே கிளிக்கில் அனுப்பவும்.",
+        createFirstChit: "புதிய சீட்டு குழு உருவாக்கு",
+        tryMockData: "மாதிரி தரவை ஏற்று (Mock Data)",
+        step1Short: "குழு உருவாக்கு",
+        step1ShortDesc: "தொகை, மாதங்கள் & வகையை அமைக்கவும்",
+        step2Short: "உறுப்பினர்கள் சேர்",
+        step2ShortDesc: "பெயர் மற்றும் பங்கு அளவை சேர்க்கவும்",
+        step3Short: "ஏலம் & பகிர்வு",
+        step3ShortDesc: "வெற்றியாளரை தேர்வு செய்து WhatsApp-ல் பகிரவும்",
+        openFullGuide: "பயன்பாட்டு வழிகாட்டியைப் படிக்கவும் →",
+        wfMembers: "உறுப்பினர்கள்",
+        wfDraw: "ஏலம் / குலுக்கல்",
+        wfCollect: "வசூல்",
+        wfPayout: "பட்டுவாடா",
+        tabDashboard: "முகப்பு",
+        tabDraw: "ஏலம் / குலுக்கல்",
+        tabMembers: "உறுப்பினர்கள்",
+        tabHistory: "சீட்டு பதிவேடு",
+        navHome: "முகப்பு",
+        navDraw: "ஏலம்/குலுக்கல்",
+        navMembers: "உறுப்பினர்கள்",
+        navLedger: "பதிவேடு",
+        totalPot: "மொத்த சீட்டு தொகை",
+        currentMonth: "நடப்பு தவணை",
+        collectedThisMonth: "வசூலான தொகை",
+        netPayableNow: "செலுத்த வேண்டிய தவணை",
+        cycleOverview: "நடப்பு மாத விவரம்",
+        cycleOverviewSub: "மாதாந்திர வசூல் நிலை மற்றும் பட்டுவாடா விவரம்",
+        selectMonth: "மாதம்:",
+        collectionProgress: "வசூல் முன்னேற்றம்",
+        cycleWinnerLabel: "இந்த மாத வெற்றியாளர்",
+        goToDraw: "ஏலம் / குலுக்கல் நடத்து →",
+        shareGroupReminder: "தவணை நினைவூட்டல் அனுப்பு",
+        shareResultBtn: "சீட்டு முடிவைப் பகிர்",
+        pendingDues: "நிலுவை உள்ளவர்கள்",
+        viewAll: "அனைத்தும்",
+        addMemberBtn: "+ உறுப்பினர் சேர்",
+        drawHeading: "மாதாந்திர சீட்டு நடத்து",
+        drawSubheading: "கீழே உள்ள படிகளைப் பின்பற்றி இந்த மாதச் சீட்டை முடிக்கவும்",
+        needMembersFirst: "ஏலம் அல்லது குலுக்கல் நடத்தும் முன் உறுப்பினர்களைச் சேர்க்கவும்.",
+        aucStep1: "ஏலம் எடுத்தவரைத் தேர்வு செய்",
+        aucStep2: "ஏலத் தள்ளுபடி & கமிஷன் உள்ளிடுக",
+        aucStep3: "பட்டுவாடா & கசறு சரிபார்",
+        lotStep1: "தகுதியான உறுப்பினர்கள்",
+        lotStep2: "குலுக்கல் நடத்தி வெற்றியாளரை சேமி",
+        fixStep1: "இந்த மாத பயனாளியைத் தேர்வு செய்",
+        bidDiscountAmt: "ஏலத் தள்ளுபடி தொகை (₹)",
+        foremanComm: "நடத்துனர் கமிஷன் (₹)",
+        prizePayable: "வெற்றியாளர் பெறுவது",
+        totalDividend: "மொத்த கசறு",
+        dividendPerMember: "கசறு / பங்கு",
+        nextInstallment: "தவணை / பங்கு",
+        confirmAuction: "ஏலத்தை உறுதி செய்",
+        drawnWinner: "குலுக்கல் வெற்றியாளர்",
+        spinDrawBtn: "குலுக்கல் நடத்து",
+        confirmWinnerBtn: "வெற்றியாளரை சேமி",
+        scheduledMember: "இந்த மாத பயனாளி",
+        confirmTurnBtn: "உறுதி செய்",
+        turnScheduleTitle: "மாதாந்திர முறை அட்டவணை",
+        membersHeading: "உறுப்பினர்கள் & தவணை நிலை",
+        markAllPaid: "✓ அனைத்தும் வரவு வை",
+        ledgerHeading: "சீட்டு வரலாறு & முடிவுகள்",
+        ledgerSub: "ஏலம், கசறு மற்றும் பட்டுவாடா விவரங்கள்",
+        exportCsv: "CSV பதிவிறக்கம்",
+        thCycle: "மாதம்",
+        thWinner: "வெற்றியாளர்",
+        thDiscount: "தள்ளுபடி",
+        thDividend: "கசறு",
+        thPrize: "பட்டுவாடா",
+        thPayoutStatus: "நிலை",
+        thAction: "பகிர்",
+        createChitTitle: "புதிய சீட்டு குழு உருவாக்கு",
+        groupNameLabel: "சீட்டு குழு பெயர்",
+        chitTypeLabel: "சீட்டு வகை",
+        potValueLabel: "மொத்த சீட்டு மதிப்பு (₹)",
+        tenureLabel: "மொத்த மாதங்கள்",
+        commPctLabel: "கமிஷன் (%)",
+        dueDayLabel: "மாதாந்திர கடைசி தேதி",
+        upiLabel: "UPI ID / பணம் செலுத்தும் விவரம்",
+        deleteGroup: "குழுவை நீக்கு",
+        saveBtn: "சேமி",
+        addMemberTitle: "புதிய உறுப்பினர்",
+        editMemberTitle: "உறுப்பினர் திருத்து",
+        memberName: "உறுப்பினர் பெயர்",
+        memberPhone: "WhatsApp எண் (91 உடன்)",
+        ticketShare: "பங்கு அளவு (1 = முழு, 0.5 = அரை)",
+        saveMemberBtn: "சேமி",
+        backupTitle: "தரவு காப்பு & மாதிரி தரவு",
+        backupDesc: "உங்கள் சீட்டு கணக்குகள் அனைத்தும் இந்த போனிலேயே பாதுகாப்பாக சேமிக்கப்பட்டுள்ளன. JSON கோப்பாக பதிவிறக்கலாம் அல்லது மாதிரி தரவை ஏற்றி பார்க்கலாம்.",
+        exportJsonBtn: "Backup பதிவிறக்கு (.JSON)",
+        importJsonBtn: "Backup மீட்டெடு (.JSON)",
+        loadSample: "மாதிரி தரவை ஏற்று",
+        clearAllBtn: "அனைத்தையும் அழி (Blank App)",
+        guideTitle: "செயலி பயன்பாட்டு வழிகாட்டி",
+        guideSub: "சீட்டு நடத்துனர்களுக்கான படிப்படியான விளக்கம்",
+        gStep1Title: "1. சீட்டு குழு உருவாக்குதல்",
+        gStep1Body: "'+ புதிய சீட்டு' பொத்தானை அழுத்தி மொத்த சீட்டு தொகை, மாதங்கள், கமிஷன் %, கடைசி தேதி மற்றும் UPI ID ஆகியவற்றை உள்ளிடவும்.",
+        gStep2Title: "2. உறுப்பினர்களைச் சேர்த்தல்",
+        gStep2Body: "உறுப்பினர்கள் பகுதியில் பெயர், WhatsApp எண் மற்றும் பங்கு அளவை (முழு பங்கு = 1, அரை பங்கு = 0.5) சேர்க்கவும்.",
+        gStep3Title: "3. மாதாந்திர ஏலம் / குலுக்கல் நடத்துதல்",
+        gModeAuction: "ஏலச் சீட்டு: ஏலம் எடுத்தவரைத் தேர்வு செய்து தள்ளுபடி தொகையை உள்ளிடவும். செயலி உங்கள் கமிஷனைக் கழித்து, மீதமுள்ள தொகையை ஒரு பங்கிற்கான கசறாகப் பிரித்து, செலுத்த வேண்டிய தவணையைப் புதுப்பிக்கும்.",
+        gModeLottery: "குலுக்கல் சீட்டு: இதுவரை சீட்டு எடுக்காத உறுப்பினர்களில் இருந்து ஒரு வெற்றியாளரைத் தேர்வு செய்ய குலுக்கல் சக்கரத்தைச் சுழற்றவும்.",
+        gModeFixed: "முறைச் சீட்டு: ஒவ்வொரு மாதமும் சீட்டுத் தொகையைப் பெறும் உறுப்பினரை முன்கூட்டியே திட்டமிடவும் அல்லது ஒதுக்கவும்.",
+        gStep4Title: "4. வசூல் & WhatsApp பகிர்வு",
+        gStep4Body: "உறுப்பினர் நிலையைத் தொட்டு Paid / Pending / Overdue என மாற்றலாம். WhatsApp மூலம் தனிப்பட்ட நினைவூட்டல் மற்றும் குழு முடிவுகளை அனுப்பலாம்.",
+        gStep5Title: "5. Offline & Backup",
+        gStep5Body: "இணையம் இல்லாமலும் செயல்படும். மேலே உள்ள டேட்டாபேஸ் ஐகான் மூலம் JSON Backup எடுத்துக்கொள்ளலாம்.",
+        gotItBtn: "புரிந்தது",
+        statusPaid: "செலுத்தப்பட்டது",
+        statusPending: "நிலுவை",
+        statusOverdue: "தாமதம்",
+        payoutPaid: "பட்டுவாடா முடிந்தது",
+        payoutPending: "பட்டுவாடா நிலுவை",
+        prizedBadge: "வெற்றி",
+        remindBtn: "நினைவூட்டு",
+        type_auction: "ஏலச் சீட்டு",
+        type_lottery: "குலுக்கல் சீட்டு",
+        type_fixed: "முறைச் சீட்டு"
+      },
+      ml: {
+        appTitle: "ചിട്ടി മാനേജർ",
+        appSubtitle: "ഗ്രൂപ്പ് ചിട്ടി കണക്കും നറുക്കെടുപ്പും",
+        install: "ഇൻസ്റ്റാൾ",
+        newGroup: "പുതിയ ചിട്ടി",
+        emptyTitle: "ചിട്ടി മാനേജറിലേക്ക് സ്വാഗതം",
+        emptyDesc: "ലേല ചിട്ടി, നറുക്കെടുപ്പ് ചിട്ടി എന്നിവ ഓഫ്‌ലൈനായി കൈകാര്യം ചെയ്യുക. പ്രതിമാസ തവണകളും ഡിവിഡന്റും കണക്കാക്കി വാട്ട്‌സ്ആപ്പ് വഴി അറിയിപ്പുകൾ അയക്കുക.",
+        createFirstChit: "ആദ്യ ചിട്ടി ഗ്രൂപ്പ് തുടങ്ങുക",
+        tryMockData: "സാമ്പിൾ ഡാറ്റ ലോഡ് ചെയ്യുക",
+        step1Short: "ഗ്രൂപ്പ് നിർമ്മിക്കുക",
+        step1ShortDesc: "തുകയും മാസങ്ങളും രീതിയും നൽകുക",
+        step2Short: "അംഗങ്ങളെ ചേർക്കുക",
+        step2ShortDesc: "പേരും ടിക്കറ്റ് വിഹിതവും ചേർക്കുക",
+        step3Short: "നറുക്കെടുപ്പും ഷെയറും",
+        step3ShortDesc: "വിജയിയെ തിരഞ്ഞെടുത്ത് വാട്ട്‌സ്ആപ്പിൽ പങ്കിടുക",
+        openFullGuide: "പൂർണ്ണ യൂസർ ഗൈഡ് വായിക്കുക →",
+        wfMembers: "അംഗങ്ങൾ",
+        wfDraw: "ലേലം / നറുക്കെടുപ്പ്",
+        wfCollect: "പിരിവ്",
+        wfPayout: "വിതരണം",
+        tabDashboard: "ഡാഷ്‌ബോർഡ്",
+        tabDraw: "ലേലം / നറുക്കെടുപ്പ്",
+        tabMembers: "അംഗങ്ങൾ",
+        tabHistory: "ലഡ്ജർ",
+        navHome: "ഹോം",
+        navDraw: "ലേലം/നറുക്ക്",
+        navMembers: "അംഗങ്ങൾ",
+        navLedger: "ലഡ്ജർ",
+        totalPot: "ആകെ ചിട്ടി തുക",
+        currentMonth: "നിലവിലെ മാസം",
+        collectedThisMonth: "പിരിച്ചെടുത്ത തുക",
+        netPayableNow: "അടയ്ക്കേണ്ട തവണ",
+        cycleOverview: "നിലവിലെ മാസത്തെ വിവരങ്ങൾ",
+        cycleOverviewSub: "പ്രതിമാസ പിരിവും വിജയിക്കുള്ള തുക വിതരണവും",
+        selectMonth: "മാസം:",
+        collectionProgress: "പിരിവ് പുരോഗതി",
+        cycleWinnerLabel: "ഈ മാസത്തെ വിജയി",
+        goToDraw: "ലേലം / നറുക്കെടുപ്പ് നടത്തുക →",
+        shareGroupReminder: "പേയ്‌മെന്റ് റിമൈൻഡർ അയക്കുക",
+        shareResultBtn: "ചിട്ടി ഫലം പങ്കിടുക",
+        pendingDues: "കുടിശ്ശികയുള്ളവർ",
+        viewAll: "എല്ലാം കാണുക",
+        addMemberBtn: "+ അംഗത്തെ ചേർക്കുക",
+        drawHeading: "പ്രതിമാസ ചിട്ടി നടത്തുക",
+        drawSubheading: "താഴെ പറയുന്ന ഘട്ടങ്ങൾ പൂർത്തിയാക്കുക",
+        needMembersFirst: "ലേലമോ നറുക്കെടുപ്പോ നടത്തുന്നതിന് മുമ്പ് അംഗങ്ങളെ ചേർക്കുക.",
+        aucStep1: "ലേലം പിടിച്ചയാളെ തിരഞ്ഞെടുക്കുക",
+        aucStep2: "ലേല കിഴിവും കമ്മീഷനും നൽകുക",
+        aucStep3: "തുകയും ഡിവിഡന്റും പരിശോധിക്കുക",
+        lotStep1: "അർഹരായ അംഗങ്ങൾ",
+        lotStep2: "നറുക്കെടുത്ത് വിജയിയെ സേവ് ചെയ്യുക",
+        fixStep1: "ഈ മാസത്തെ സ്വീകർത്താവിനെ തിരഞ്ഞെടുക്കുക",
+        bidDiscountAmt: "ലേല കിഴിവ് തുക (₹)",
+        foremanComm: "കമ്മീഷൻ (₹)",
+        prizePayable: "വിജയിക്ക് ലഭിക്കുന്നത്",
+        totalDividend: "ആകെ ഡിവിഡന്റ്",
+        dividendPerMember: "ഡിവിഡന്റ് / ടിക്കറ്റ്",
+        nextInstallment: "അടയ്ക്കേണ്ട തുക / ടിക്കറ്റ്",
+        confirmAuction: "ലേലം സ്ഥിരീകരിക്കുക",
+        drawnWinner: "നറുക്കെടുപ്പ് വിജയി",
+        spinDrawBtn: "നറുക്കെടുപ്പ് നടത്തുക",
+        confirmWinnerBtn: "വിജയിയെ സേവ് ചെയ്യുക",
+        scheduledMember: "തിരഞ്ഞെടുത്ത അംഗം",
+        confirmTurnBtn: "സ്ഥിരീകരിക്കുക",
+        turnScheduleTitle: "മാസാന്ത ക്രമം",
+        membersHeading: "അംഗങ്ങളും പേയ്‌മെന്റ് നിലയും",
+        markAllPaid: "✓ എല്ലാം അടച്ചതായി രേഖപ്പെടുത്തുക",
+        ledgerHeading: "ചിട്ടി ചരിത്രവും ഫലങ്ങളും",
+        ledgerSub: "വിജയികൾ, കിഴിവ്, ഡിവിഡന്റ് എന്നിവയുടെ പൂർണ്ണ വിവരങ്ങൾ",
+        exportCsv: "CSV ഡൗൺലോഡ്",
+        thCycle: "മാസം",
+        thWinner: "വിജയി",
+        thDiscount: "കിഴിവ്",
+        thDividend: "ഡിവിഡന്റ്",
+        thPrize: "നൽകിയ തുക",
+        thPayoutStatus: "നില",
+        thAction: "ഷെയർ",
+        createChitTitle: "പുതിയ ചിട്ടി ഗ്രൂപ്പ്",
+        groupNameLabel: "ഗ്രൂപ്പിന്റെ പേര്",
+        chitTypeLabel: "ചിട്ടി രീതി",
+        potValueLabel: "ആകെ ചിട്ടി തുക (₹)",
+        tenureLabel: "ആകെ മാസങ്ങൾ",
+        commPctLabel: "കമ്മീഷൻ (%)",
+        dueDayLabel: "പ്രതിമാസ അവസാന തീയതി",
+        upiLabel: "UPI ID / പേയ്‌മെന്റ് വിവരങ്ങൾ",
+        deleteGroup: "ഗ്രൂപ്പ് നീക്കം ചെയ്യുക",
+        saveBtn: "സേവ് ചെയ്യുക",
+        addMemberTitle: "അംഗത്തെ ചേർക്കുക",
+        editMemberTitle: "അംഗത്തെ തിരുത്തുക",
+        memberName: "അംഗത്തിന്റെ പേര്",
+        memberPhone: "വാട്ട്‌സ്ആപ്പ് നമ്പർ",
+        ticketShare: "ടിക്കറ്റ് വിഹിതം (1 = മുഴുവൻ, 0.5 = പകുതി)",
+        saveMemberBtn: "സേവ് ചെയ്യുക",
+        backupTitle: "ബാക്കപ്പ് & സാമ്പിൾ ഡാറ്റ",
+        backupDesc: "എല്ലാ വിവരങ്ങളും നിങ്ങളുടെ ഫോണിൽ തന്നെ സുരക്ഷിതമാണ്. JSON ബാക്കപ്പ് ഡൗൺലോഡ് ചെയ്യുകയോ സാമ്പിൾ ഡാറ്റ ലോഡ് ചെയ്യുകയോ ചെയ്യാം.",
+        exportJsonBtn: "ബാക്കപ്പ് ഡൗൺലോഡ് (.JSON)",
+        importJsonBtn: "ബാക്കപ്പ് റീസ്റ്റോർ (.JSON)",
+        loadSample: "സാമ്പിൾ ഡാറ്റ ലോഡ് ചെയ്യുക",
+        clearAllBtn: "എല്ലാം മായ്ക്കുക (Blank App)",
+        guideTitle: "ചിട്ടി മാനേജർ ഉപയോഗിക്കേണ്ട വിധം",
+        guideSub: "ഘട്ടം ഘട്ടമായുള്ള സഹായി",
+        gStep1Title: "1. ചിട്ടി ഗ്രൂപ്പ് നിർമ്മിക്കുക",
+        gStep1Body: "'+ പുതിയ ചിട്ടി' ക്ലിക്ക് ചെയ്ത് ആകെ തുക, മാസങ്ങൾ, കമ്മീഷൻ %, UPI ID എന്നിവ നൽകുക.",
+        gStep2Title: "2. അംഗങ്ങളെ ചേർക്കുക",
+        gStep2Body: "അംഗങ്ങളുടെ പേരും വാട്ട്‌സ്ആപ്പ് നമ്പറും ടിക്കറ്റ് വിഹിതവും (1 അല്ലെങ്കിൽ 0.5) ചേർക്കുക.",
+        gStep3Title: "3. പ്രതിമാസ ലേലം / നറുക്കെടുപ്പ്",
+        gModeAuction: "ലേല ചിട്ടി: ലേലം പിടിച്ചയാളെ തിരഞ്ഞെടുത്ത് കിഴിവ് തുക നൽകുക. ആപ്പ് നിങ്ങളുടെ കമ്മീഷൻ കുറച്ച്, ബാക്കി തുക ഓരോ ടിക്കറ്റിനുമുള്ള ഡിവിഡന്റായി വീതിച്ച് അടയ്ക്കേണ്ട തുക പുതുക്കും.",
+        gModeLottery: "നറുക്കെടുപ്പ് ചിട്ടി: ഇതുവരെ ചിട്ടി ലഭിക്കാത്ത അംഗങ്ങളിൽ നിന്ന് ഒരാളെ വിജയിയായി തിരഞ്ഞെടുക്കാൻ നറുക്കെടുപ്പ് ചക്രം കറക്കുക.",
+        gModeFixed: "നിശ്ചിത ക്രമം ചിട്ടി: ഓരോ മാസവും ചിട്ടി തുക ലഭിക്കേണ്ട അംഗത്തെ മുൻകൂട്ടി നിശ്ചയിക്കുക അല്ലെങ്കിൽ തിരഞ്ഞെടുക്കുക.",
+        gStep4Title: "4. പിരിവും വാട്ട്‌സ്ആപ്പ് സന്ദേശങ്ങളും",
+        gStep4Body: "അംഗങ്ങളുടെ സ്റ്റാറ്റസ് മാറ്റി വാട്ട്‌സ്ആപ്പ് വഴി റിമൈൻഡറുകളും ഫലങ്ങളും പങ്കിടാം.",
+        gStep5Title: "5. ഓഫ്‌ലൈൻ & ബാക്കപ്പ്",
+        gStep5Body: "ഇന്റർനെറ്റ് ഇല്ലാതെയും പ്രവർത്തിക്കും. മുകളിലെ ഡാറ്റാബേസ് ഐക്കൺ വഴി ബാക്കപ്പ് എടുക്കാം.",
+        gotItBtn: "മനസ്സിലായി",
+        statusPaid: "അടച്ചു",
+        statusPending: "ബാക്കി",
+        statusOverdue: "വൈകി",
+        payoutPaid: "തുക നൽകി",
+        payoutPending: "നൽകാനുണ്ട്",
+        prizedBadge: "വിജയി",
+        remindBtn: "ഓർമ്മിപ്പിക്കുക",
+        type_auction: "ലേല ചിട്ടി",
+        type_lottery: "നറുക്കെടുപ്പ് ചിട്ടി",
+        type_fixed: "നിശ്ചിത ക്രമം"
+      },
+      te: {
+        appTitle: "చిట్ మేనేజర్",
+        appSubtitle: "గ్రూప్ చిట్ ఫండ్ ఖాతా & డ్రా మేనేజర్",
+        install: "ఇన్‌స్టాల్",
+        newGroup: "కొత్త చిట్",
+        emptyTitle: "చిట్ మేనేజర్‌కు స్వాగతం",
+        emptyDesc: "వేలం చిట్, లాటరీ డ్రా చిట్ మరియు ఫిక్స్‌డ్ టర్న్ చిట్‌లను ఆఫ్‌లైన్‌లో నిర్వహించండి. నెలవారీ వాయిదాలు, డివిడెండ్ లెక్కించి వాట్సాప్ రిమైండర్లు పంపండి.",
+        createFirstChit: "మొదటి చిట్ గ్రూప్ సృష్టించండి",
+        tryMockData: "నమూనా డేటా లోడ్ చేయండి",
+        step1Short: "గ్రూప్ సృష్టించండి",
+        step1ShortDesc: "మొత్తం విలువ, నెలలు & రకం ఎంచుకోండి",
+        step2Short: "సభ్యులను చేర్చండి",
+        step2ShortDesc: "సభ్యులు & టికెట్ వాటా జోడించండి",
+        step3Short: "డ్రా & వాట్సాప్ షేర్",
+        step3ShortDesc: "విజేతను ఎంచుకుని వాట్సాప్‌లో పంపండి",
+        openFullGuide: "పూర్తి యూజర్ గైడ్ చదవండి →",
+        wfMembers: "సభ్యులు",
+        wfDraw: "వేలం / డ్రా",
+        wfCollect: "వసూలు",
+        wfPayout: "చెల్లింపు",
+        tabDashboard: "డ్యాష్‌బోర్డ్",
+        tabDraw: "వేలం / డ్రా",
+        tabMembers: "సభ్యులు",
+        tabHistory: "లెడ్జర్",
+        navHome: "హోమ్",
+        navDraw: "వేలం/డ్రా",
+        navMembers: "సభ్యులు",
+        navLedger: "లెడ్జర్",
+        totalPot: "మొత్తం చిట్ విలువ",
+        currentMonth: "ప్రస్తుత నెల",
+        collectedThisMonth: "వసూలైన మొత్తం",
+        netPayableNow: "చెల్లించాల్సిన వాయిదా",
+        cycleOverview: "ప్రస్తుత నెల వివరాలు",
+        cycleOverviewSub: "నెలవారీ వసూలు స్థితి మరియు విజేత చెల్లింపు",
+        selectMonth: "నెల:",
+        collectionProgress: "వసూలు పురోగతి",
+        cycleWinnerLabel: "ఈ నెల విజేత",
+        goToDraw: "వేలం / డ్రా నిర్వహించండి →",
+        shareGroupReminder: "పేమెంట్ రిమైండర్ పంపండి",
+        shareResultBtn: "చిట్ ఫలితం షేర్ చేయండి",
+        pendingDues: "బాకీ ఉన్న సభ్యులు",
+        viewAll: "అన్నీ చూడండి",
+        addMemberBtn: "+ సభ్యుడిని చేర్చండి",
+        drawHeading: "నెలవారీ చిట్ నిర్వహణ",
+        drawSubheading: "ఈ నెలను పూర్తి చేయడానికి క్రింది దశలను అనుసరించండి",
+        needMembersFirst: "వేలం లేదా డ్రా నిర్వహించే ముందు సభ్యులను చేర్చండి.",
+        aucStep1: "వేలం విజేతను ఎంచుకోండి",
+        aucStep2: "వేలం తగ్గింపు & కమీషన్ నమోదు చేయండి",
+        aucStep3: "చెల్లింపు & డివిడెండ్ సరిచూడండి",
+        lotStep1: "అర్హులైన సభ్యులు",
+        lotStep2: "డ్రా తీసి విజేతను సేవ్ చేయండి",
+        fixStep1: "ఈ నెల గ్రహీతను ఎంచుకోండి",
+        bidDiscountAmt: "వేలం తగ్గింపు మొత్తం (₹)",
+        foremanComm: "కమీషన్ (₹)",
+        prizePayable: "విజేతకు వచ్చే మొత్తం",
+        totalDividend: "మొత్తం డివిడెండ్",
+        dividendPerMember: "డివిడెండ్ / టికెట్",
+        nextInstallment: "వాయిదా / టికెట్",
+        confirmAuction: "వేలం నిర్ధారించండి",
+        drawnWinner: "లాటరీ విజేత",
+        spinDrawBtn: "డ్రా తీయండి",
+        confirmWinnerBtn: "విజేతను సేవ్ చేయండి",
+        scheduledMember: "ఎంచుకున్న సభ్యుడు",
+        confirmTurnBtn: "నిర్ధారించండి",
+        turnScheduleTitle: "నెలవారీ వంతుల పట్టిక",
+        membersHeading: "సభ్యులు & చెల్లింపు స్థితి",
+        markAllPaid: "✓ అన్నీ చెల్లించినట్లు గుర్తించు",
+        ledgerHeading: "చిట్ చరిత్ర & ఫలితాలు",
+        ledgerSub: "విజేతలు, తగ్గింపు మరియు డివిడెండ్ పూర్తి వివరాలు",
+        exportCsv: "CSV డౌన్‌లోడ్",
+        thCycle: "నెల",
+        thWinner: "విజేత",
+        thDiscount: "తగ్గింపు",
+        thDividend: "డివిడెండ్",
+        thPrize: "చెల్లించిన మొత్తం",
+        thPayoutStatus: "స్థితి",
+        thAction: "షేర్",
+        createChitTitle: "కొత్త చిట్ గ్రూప్",
+        groupNameLabel: "చిట్ గ్రూప్ పేరు",
+        chitTypeLabel: "చిట్ రకం",
+        potValueLabel: "మొత్తం చిట్ విలువ (₹)",
+        tenureLabel: "మొత్తం నెలలు",
+        commPctLabel: "కమీషన్ (%)",
+        dueDayLabel: "నెలవారీ చివరి తేదీ",
+        upiLabel: "UPI ID / చెల్లింపు వివరాలు",
+        deleteGroup: "గ్రూప్ తొలగించు",
+        saveBtn: "సేవ్ చేయండి",
+        addMemberTitle: "సభ్యుడిని చేర్చండి",
+        editMemberTitle: "సభ్యుడిని సవరించండి",
+        memberName: "సభ్యుని పేరు",
+        memberPhone: "వాట్సాప్ నంబర్",
+        ticketShare: "టికెట్ వాటా (1 = పూర్తి, 0.5 = సగం)",
+        saveMemberBtn: "సేవ్ చేయండి",
+        backupTitle: "బ్యాకప్ & నమూనా డేటా",
+        backupDesc: "మీ చిట్ వివరాలు మీ ఫోన్‌లోనే సురక్షితంగా ఉంటాయి. JSON బ్యాకప్ డౌన్‌లోడ్ చేసుకోవచ్చు లేదా నమూనా డేటాను లోడ్ చేయవచ్చు.",
+        exportJsonBtn: "బ్యాకప్ డౌన్‌లోడ్ (.JSON)",
+        importJsonBtn: "బ్యాకప్ రీస్టోర్ (.JSON)",
+        loadSample: "నమూనా డేటా లోడ్ చేయండి",
+        clearAllBtn: "మొత్తం క్లియర్ చేయండి (Blank App)",
+        guideTitle: "చిట్ మేనేజర్ వినియోగ గైడ్",
+        guideSub: "నిర్వాహకుల కోసం దశలవారీ వివరణ",
+        gStep1Title: "1. చిట్ గ్రూప్ సృష్టించండి",
+        gStep1Body: "'+ కొత్త చిట్' నొక్కి మొత్తం విలువ, నెలలు, కమీషన్ %, UPI ID నమోదు చేయండి.",
+        gStep2Title: "2. సభ్యులను చేర్చండి",
+        gStep2Body: "సభ్యుల విభాగంలో పేరు, వాట్సాప్ నంబర్ మరియు టికెట్ వాటా (1 లేదా 0.5) చేర్చండి.",
+        gStep3Title: "3. నెలవారీ వేలం / డ్రా",
+        gModeAuction: "వేలం చిట్: వేలం విజేతను ఎంచుకుని తగ్గింపు మొత్తాన్ని నమోదు చేయండి. యాప్ మీ కమీషన్‌ను తీసివేసి, మిగిలిన మొత్తాన్ని టికెట్‌కు డివిడెండ్‌గా పంచి చెల్లించాల్సిన బాకీలను అప్‌డేట్ చేస్తుంది.",
+        gModeLottery: "లాటరీ / డ్రా చిట్: ఇప్పటివరకు చిట్ గెలవని సభ్యుల నుండి ఒక విజేతను ఎంచుకోవడానికి డిజిటల్ డ్రా చక్రాన్ని తిప్పండి.",
+        gModeFixed: "ఫిక్స్‌డ్ టర్న్ చిట్: ప్రతి నెలలో చిట్ మొత్తాన్ని పొందే సభ్యుడిని ముందే ప్లాన్ చేయండి లేదా కేటాయించండి.",
+        gStep4Title: "4. వసూలు & వాట్సాప్ షేర్",
+        gStep4Body: "సభ్యుల స్థితిని Paid / Pending / Overdue గా మార్చి వాట్సాప్ ద్వారా రిమైండర్లు పంపండి.",
+        gStep5Title: "5. ఆఫ్‌లైన్ & బ్యాకప్",
+        gStep5Body: "ఇంటర్నెట్ లేకపోయినా పనిచేస్తుంది. పైన ఉన్న డేటాబేస్ ఐకాన్ ద్వారా JSON బ్యాకప్ తీసుకోవచ్చు.",
+        gotItBtn: "అర్థమైంది",
+        statusPaid: "చెల్లించారు",
+        statusPending: "బాకీ",
+        statusOverdue: "ఆలస్యం",
+        payoutPaid: "చెల్లింపు పూర్తయింది",
+        payoutPending: "చెల్లింపు బాకీ",
+        prizedBadge: "విజేత",
+        remindBtn: "రిమైండ్",
+        type_auction: "వేలం చిట్",
+        type_lottery: "లాటరీ చిట్",
+        type_fixed: "ఫిక్స్‌డ్ టర్న్"
+      },
+      kn: {
+        appTitle: "ಚಿಟ್ ಮ್ಯಾನೇಜರ್",
+        appSubtitle: "ಗುಂಪು ಚಿಟ್ ಫಂಡ್ ಲೆಡ್ಜರ್ ಮತ್ತು ಡ್ರಾ",
+        install: "ಇನ್‌ಸ್ಟಾಲ್",
+        newGroup: "ಹೊಸ ಚಿಟ್",
+        emptyTitle: "ಚಿಟ್ ಮ್ಯಾನೇಜರ್‌ಗೆ ಸುಸ್ವಾಗತ",
+        emptyDesc: "ಹರಾಜು ಚಿಟ್, ಲಾಟರಿ ಡ್ರಾ ಚಿಟ್ ಮತ್ತು ನಿಗದಿತ ಸರದಿ ಚಿಟ್‌ಗಳನ್ನು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ನಿರ್ವಹಿಸಿ. ಮಾಸಿಕ ಕಂತು, ಡಿವಿಡೆಂಡ್ ಲೆಕ್ಕಹಾಕಿ ಮತ್ತು ವಾಟ್ಸಾಪ್ ಜ್ಞಾಪನೆಗಳನ್ನು ಕಳುಹಿಸಿ.",
+        createFirstChit: "ಮೊದಲ ಚಿಟ್ ಗುಂಪು ರಚಿಸಿ",
+        tryMockData: "ಮಾದರಿ ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ",
+        step1Short: "ಗುಂಪು ರಚಿಸಿ",
+        step1ShortDesc: "ಮೊತ್ತ, ತಿಂಗಳು ಮತ್ತು ವಿಧಾನ ಹೊಂದಿಸಿ",
+        step2Short: "ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ",
+        step2ShortDesc: "ಸದಸ್ಯರು ಮತ್ತು ಟಿಕೆಟ್ ಪಾಲು ಸೇರಿಸಿ",
+        step3Short: "ಡ್ರಾ ಮತ್ತು ಹಂಚಿಕೆ",
+        step3ShortDesc: "ವಿಜೇತರನ್ನು ಆಯ್ಕೆ ಮಾಡಿ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ",
+        openFullGuide: "ಸಂಪೂರ್ಣ ಬಳಕೆದಾರ ಮಾರ್ಗದರ್ಶಿ ಓದಿ →",
+        wfMembers: "ಸದಸ್ಯರು",
+        wfDraw: "ಹರಾಜು / ಡ್ರಾ",
+        wfCollect: "ವಸೂಲಿ",
+        wfPayout: "ಪಾವತಿ",
+        tabDashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+        tabDraw: "ಹರಾಜು / ಡ್ರಾ",
+        tabMembers: "ಸದಸ್ಯರು",
+        tabHistory: "ಲೆಡ್ಜರ್",
+        navHome: "ಹೋಮ್",
+        navDraw: "ಹರಾಜು/ಡ್ರಾ",
+        navMembers: "ಸದಸ್ಯರು",
+        navLedger: "ಲೆಡ್ಜರ್",
+        totalPot: "ಒಟ್ಟು ಚಿಟ್ ಮೌಲ್ಯ",
+        currentMonth: "ಪ್ರಸ್ತುತ ತಿಂಗಳು",
+        collectedThisMonth: "ಸಂಗ್ರಹವಾದ ಮೊತ್ತ",
+        netPayableNow: "ಪಾವತಿಸಬೇಕಾದ ಕಂತು",
+        cycleOverview: "ಪ್ರಸ್ತುತ ತಿಂಗಳ ವಿವರ",
+        cycleOverviewSub: "ಮಾಸಿಕ ಸಂಗ್ರಹ ಸ್ಥಿತಿ ಮತ್ತು ವಿಜೇತರ ಪಾವತಿ",
+        selectMonth: "ತಿಂಗಳು:",
+        collectionProgress: "ಸಂಗ್ರಹ ಪ್ರಗತಿ",
+        cycleWinnerLabel: "ಈ ತಿಂಗಳ ವಿಜೇತ",
+        goToDraw: "ಹರಾಜು / ಡ್ರಾ ನಡೆಸಿ →",
+        shareGroupReminder: "ಪಾವತಿ ಜ್ಞಾಪನೆ ಕಳುಹಿಸಿ",
+        shareResultBtn: "ಚಿಟ್ ಫಲಿತಾಂಶ ಹಂಚಿಕೊಳ್ಳಿ",
+        pendingDues: "ಬಾಕಿ ಇರುವ ಸದಸ್ಯರು",
+        viewAll: "ಎಲ್ಲಾ ನೋಡಿ",
+        addMemberBtn: "+ ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ",
+        drawHeading: "ಮಾಸಿಕ ಚಿಟ್ ನಡೆಸಿ",
+        drawSubheading: "ಈ ತಿಂಗಳನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಕೆಳಗಿನ ಹಂತಗಳನ್ನು ಅನುಸರಿಸಿ",
+        needMembersFirst: "ಹರಾಜು ಅಥವಾ ಡ್ರಾ ನಡೆಸುವ ಮೊದಲು ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ.",
+        aucStep1: "ವಿಜೇತ ಬಿಡ್ಡರ್ ಆಯ್ಕೆ ಮಾಡಿ",
+        aucStep2: "ಹರಾಜು ರಿಯಾಯಿತಿ ಮತ್ತು ಕಮಿಷನ್ ನಮೂದಿಸಿ",
+        aucStep3: "ಪಾವತಿ ಮತ್ತು ಡಿವಿಡೆಂಡ್ ಪರಿಶೀಲಿಸಿ",
+        lotStep1: "ಅರ್ಹ ಸದಸ್ಯರ ಪಟ್ಟಿ",
+        lotStep2: "ಡ್ರಾ ಮಾಡಿ ವಿಜೇತರನ್ನು ಉಳಿಸಿ",
+        fixStep1: "ಈ ತಿಂಗಳ ಸ್ವೀಕರಿಸುವವರನ್ನು ಆಯ್ಕೆ ಮಾಡಿ",
+        bidDiscountAmt: "ಹರಾಜು ರಿಯಾಯಿತಿ ಮೊತ್ತ (₹)",
+        foremanComm: "ಕಮಿಷನ್ (₹)",
+        prizePayable: "ವಿಜೇತರಿಗೆ ಸಿಗುವ ಮೊತ್ತ",
+        totalDividend: "ಒಟ್ಟು ಡಿವಿಡೆಂಡ್",
+        dividendPerMember: "ಡಿವಿಡೆಂಡ್ / ಟಿಕೆಟ್",
+        nextInstallment: "ಕಂತು / ಟಿಕೆಟ್",
+        confirmAuction: "ಹರಾಜು ದೃಢೀಕರಿಸಿ",
+        drawnWinner: "ಲಾಟರಿ ವಿಜೇತ",
+        spinDrawBtn: "ಡ್ರಾ ತಿರುಗಿಸಿ",
+        confirmWinnerBtn: "ವಿಜೇತರನ್ನು ಉಳಿಸಿ",
+        scheduledMember: "ಆಯ್ಕೆ ಮಾಡಿದ ಸದಸ್ಯ",
+        confirmTurnBtn: "ದೃಢೀಕರಿಸಿ",
+        turnScheduleTitle: "ಮಾಸಿಕ ಸರದಿ ಯೋಜನೆ",
+        membersHeading: "ಸದಸ್ಯರು ಮತ್ತು ಪಾವತಿ ಸ್ಥಿತಿ",
+        markAllPaid: "✓ ಎಲ್ಲಾ ಪಾವತಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ",
+        ledgerHeading: "ಚಿಟ್ ಇತಿಹಾಸ ಮತ್ತು ಫಲಿತಾಂಶಗಳು",
+        ledgerSub: "ವಿಜೇತರು, ರಿಯಾಯಿತಿ ಮತ್ತು ಡಿವಿಡೆಂಡ್ ಪೂರ್ಣ ವಿವರ",
+        exportCsv: "CSV ಡೌನ್‌ಲೋಡ್",
+        thCycle: "ತಿಂಗಳು",
+        thWinner: "ವಿಜೇತ",
+        thDiscount: "ರಿಯಾಯಿತಿ",
+        thDividend: "ಡಿವಿಡೆಂಡ್",
+        thPrize: "ಪಾವತಿಸಿದ ಮೊತ್ತ",
+        thPayoutStatus: "ಸ್ಥಿತಿ",
+        thAction: "ಹಂಚಿ",
+        createChitTitle: "ಹೊಸ ಚಿಟ್ ಗುಂಪು",
+        groupNameLabel: "ಗುಂಪಿನ ಹೆಸರು",
+        chitTypeLabel: "ಚಿಟ್ ವಿಧಾನ",
+        potValueLabel: "ಒಟ್ಟು ಚಿಟ್ ಮೌಲ್ಯ (₹)",
+        tenureLabel: "ಒಟ್ಟು ತಿಂಗಳುಗಳು",
+        commPctLabel: "ಕಮಿಷನ್ (%)",
+        dueDayLabel: "ಮಾಸಿಕ ಕೊನೆಯ ದಿನಾಂಕ",
+        upiLabel: "UPI ID / ಪಾವತಿ ವಿವರ",
+        deleteGroup: "ಗುಂಪು ಅಳಿಸಿ",
+        saveBtn: "ಉಳಿಸಿ",
+        addMemberTitle: "ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ",
+        editMemberTitle: "ಸದಸ್ಯರನ್ನು ತಿದ್ದುಪಡಿ ಮಾಡಿ",
+        memberName: "ಸದಸ್ಯರ ಹೆಸರು",
+        memberPhone: "ವಾಟ್ಸಾಪ್ ಸಂಖ್ಯೆ",
+        ticketShare: "ಟಿಕೆಟ್ ಪಾಲು (1 = ಪೂರ್ಣ, 0.5 = ಅರ್ಧ)",
+        saveMemberBtn: "ಉಳಿಸಿ",
+        backupTitle: "ಬ್ಯಾಕಪ್ ಮತ್ತು ಮಾದರಿ ಡೇಟಾ",
+        backupDesc: "ನಿಮ್ಮ ಎಲ್ಲಾ ವಿವರಗಳು ನಿಮ್ಮ ಫೋನಿನಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿರುತ್ತವೆ. JSON ಬ್ಯಾಕಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಬಹುದು ಅಥವಾ ಮಾದರಿ ಡೇಟಾ ಲೋಡ್ ಮಾಡಬಹುದು.",
+        exportJsonBtn: "ಬ್ಯಾಕಪ್ ಡೌನ್‌ಲೋಡ್ (.JSON)",
+        importJsonBtn: "ಬ್ಯಾಕಪ್ ಮರುಸ್ಥಾಪಿಸಿ (.JSON)",
+        loadSample: "ಮಾದರಿ ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ",
+        clearAllBtn: "ಎಲ್ಲಾ ಅಳಿಸಿ (Blank App)",
+        guideTitle: "ಚಿಟ್ ಮ್ಯಾನೇಜರ್ ಬಳಸುವ ವಿಧಾನ",
+        guideSub: "ಹಂತ ಹಂತದ ಮಾರ್ಗದರ್ಶಿ",
+        gStep1Title: "1. ಚಿಟ್ ಗುಂಪು ರಚಿಸಿ",
+        gStep1Body: "'+ ಹೊಸ ಚಿಟ್' ಒತ್ತಿ ಒಟ್ಟು ಮೌಲ್ಯ, ತಿಂಗಳುಗಳು, ಕಮಿಷನ್ %, UPI ID ನಮೂದಿಸಿ.",
+        gStep2Title: "2. ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ",
+        gStep2Body: "ಸದಸ್ಯರ ವಿಭಾಗದಲ್ಲಿ ಹೆಸರು, ವಾಟ್ಸಾಪ್ ಸಂಖ್ಯೆ ಮತ್ತು ಟಿಕೆಟ್ ಪಾಲು (1 ಅಥವಾ 0.5) ಸೇರಿಸಿ.",
+        gStep3Title: "3. ಮಾಸಿಕ ಹರಾಜು / ಡ್ರಾ",
+        gModeAuction: "ಹರಾಜು ಚಿಟ್: ವಿಜೇತ ಬಿಡ್ಡರ್ ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಿ ಮತ್ತು ಬಿಡ್ ರಿಯಾಯಿತಿ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ. ಆಪ್ ನಿಮ್ಮ ಕಮಿಷನ್ ಕಳೆದು, ಉಳಿದ ರಿಯಾಯಿತಿಯನ್ನು ಪ್ರತಿ ಟಿಕೆಟ್‌ಗೆ ಡಿವಿಡೆಂಡ್ ಆಗಿ ಹಂಚಿ ಕಂತುಗಳನ್ನು ನವೀಕರಿಸುತ್ತದೆ.",
+        gModeLottery: "ಲಾಟರಿ / ಡ್ರಾ ಚಿಟ್: ಇದುವರೆಗೆ ಗೆಲ್ಲದ ಸದಸ್ಯರಿಂದ ಮಾತ್ರ ವಿಜೇತರನ್ನು ಆಯ್ಕೆ ಮಾಡಲು ಡಿಜಿಟಲ್ ಡ್ರಾ ಚಕ್ರವನ್ನು ತಿರುಗಿಸಿ.",
+        gModeFixed: "ನಿಗದಿತ ಸರದಿ ಚಿಟ್: ಪ್ರತಿ ತಿಂಗಳು ಚಿಟ್ ಮೊತ್ತವನ್ನು ಪಡೆಯುವ ಸದಸ್ಯರನ್ನು ಮುಂಚಿತವಾಗಿ ಯೋಜಿಸಿ ಅಥವಾ ನಿಯೋಜಿಸಿ.",
+        gStep4Title: "4. ವಸೂಲಿ ಮತ್ತು ವಾಟ್ಸಾಪ್ ಹಂಚಿಕೆ",
+        gStep4Body: "ಸದಸ್ಯರ ಸ್ಥಿತಿಯನ್ನು Paid / Pending / Overdue ಎಂದು ಬದಲಾಯಿಸಿ ವಾಟ್ಸಾಪ್ ಮೂಲಕ ಜ್ಞಾಪನೆ ಕಳುಹಿಸಿ.",
+        gStep5Title: "5. ಆಫ್‌ಲೈನ್ ಮತ್ತು ಬ್ಯಾಕಪ್",
+        gStep5Body: "ಇಂಟರ್ನೆಟ್ ಇಲ್ಲದೆಯೂ ಕೆಲಸ ಮಾಡುತ್ತದೆ. ಮೇಲಿನ ಡೇಟಾಬೇಸ್ ಐಕಾನ್ ಮೂಲಕ JSON ಬ್ಯಾಕಪ್ ತೆಗೆದುಕೊಳ್ಳಬಹುದು.",
+        gotItBtn: "ಅರ್ಥವಾಯಿತು",
+        statusPaid: "ಪಾವತಿಸಲಾಗಿದೆ",
+        statusPending: "ಬಾಕಿ",
+        statusOverdue: "ವಿಳಂಬ",
+        payoutPaid: "ಹಣ ನೀಡಲಾಗಿದೆ",
+        payoutPending: "ನೀಡಬೇಕಾಗಿದೆ",
+        prizedBadge: "ವಿಜೇತ",
+        remindBtn: "ಜ್ಞಾಪನೆ",
+        type_auction: "ಹರಾಜು ಚಿಟ್",
+        type_lottery: "ಲಾಟರಿ ಚಿಟ್",
+        type_fixed: "ನಿಗದಿತ ಸರದಿ"
+      },
+      hi: {
+        appTitle: "चिट मैनेजर",
+        appSubtitle: "समूह चिट फंड खाता और ड्रॉ मैनेजर",
+        install: "इंस्टॉल",
+        newGroup: "नई चिट",
+        emptyTitle: "चिट मैनेजर में आपका स्वागत है",
+        emptyDesc: "नीलामी, लॉटरी या निश्चित बारी वाली समूह चिट को ऑफ़लाइन प्रबंधित करें। मासिक किस्त और लाभांश की गणना करें और एक टैप में WhatsApp रिमाइंडर भेजें।",
+        createFirstChit: "अपना पहला चिट समूह बनाएं",
+        tryMockData: "सैंपल मॉक डेटा लोड करें",
+        step1Short: "चिट समूह बनाएं",
+        step1ShortDesc: "कुल राशि, महीने और प्रकार चुनें",
+        step2Short: "सदस्य जोड़ें",
+        step2ShortDesc: "सदस्य और टिकट हिस्सा जोड़ें",
+        step3Short: "ड्रॉ और शेयर",
+        step3ShortDesc: "विजेता चुनें और WhatsApp पर भेजें",
+        openFullGuide: "पूरी यूज़र गाइड पढ़ें →",
+        wfMembers: "सदस्य",
+        wfDraw: "नीलामी / ड्रॉ",
+        wfCollect: "संग्रह",
+        wfPayout: "भुगतान",
+        tabDashboard: "डैशबोर्ड",
+        tabDraw: "नीलामी / ड्रॉ",
+        tabMembers: "सदस्य और स्थिति",
+        tabHistory: "लेजर और परिणाम",
+        navHome: "होम",
+        navDraw: "नीलामी/ड्रॉ",
+        navMembers: "सदस्य",
+        navLedger: "लेजर",
+        totalPot: "कुल चिट राशि",
+        currentMonth: "वर्तमान किस्त",
+        collectedThisMonth: "संग्रह (इस माह)",
+        netPayableNow: "देय किस्त / टिकट",
+        cycleOverview: "वर्तमान माह विवरण",
+        cycleOverviewSub: "मासिक संग्रह स्थिति और विजेता भुगतान",
+        selectMonth: "माह:",
+        collectionProgress: "संग्रह प्रगति",
+        cycleWinnerLabel: "इस माह का विजेता",
+        goToDraw: "नीलामी / ड्रॉ करें →",
+        shareGroupReminder: "भुगतान रिमाइंडर भेजें",
+        shareResultBtn: "चिट परिणाम साझा करें",
+        pendingDues: "बकाया भुगतान",
+        viewAll: "सभी देखें",
+        addMemberBtn: "+ सदस्य जोड़ें",
+        drawHeading: "मासिक चिट संचालन",
+        drawSubheading: "इस माह को पूरा करने के लिए नीचे दिए गए चरणों का पालन करें",
+        needMembersFirst: "नीलामी या ड्रॉ करने से पहले इस समूह में सदस्य जोड़ें।",
+        aucStep1: "विजेता बोलीदाता चुनें",
+        aucStep2: "बोली छूट और कमीशन दर्ज करें",
+        aucStep3: "भुगतान और लाभांश जांचें",
+        lotStep1: "पात्र सदस्य सूची",
+        lotStep2: "ड्रॉ निकालें और विजेता सहेजें",
+        fixStep1: "वर्तमान माह का प्राप्तकर्ता चुनें",
+        bidDiscountAmt: "बोली छूट राशि (₹)",
+        foremanComm: "फोरमैन कमीशन (₹)",
+        prizePayable: "विजेता को मिलेगा",
+        totalDividend: "कुल लाभांश",
+        dividendPerMember: "लाभांश / टिकट",
+        nextInstallment: "देय किस्त / टिकट",
+        confirmAuction: "नीलामी की पुष्टि करें",
+        drawnWinner: "लॉटरी विजेता",
+        spinDrawBtn: "ड्रॉ निकालें",
+        confirmWinnerBtn: "विजेता सहेजें",
+        scheduledMember: "निर्धारित प्राप्तकर्ता",
+        confirmTurnBtn: "पुष्टि करें",
+        turnScheduleTitle: "मासिक बारी योजना",
+        membersHeading: "सदस्य और भुगतान स्थिति",
+        markAllPaid: "✓ सभी भुगतान चिह्नित करें",
+        ledgerHeading: "चिट इतिहास और परिणाम",
+        ledgerSub: "विजेताओं, छूट और लाभांश का पूरा रिकॉर्ड",
+        exportCsv: "CSV डाउनलोड",
+        thCycle: "माह",
+        thWinner: "विजेता",
+        thDiscount: "छूट",
+        thDividend: "लाभांश",
+        thPrize: "भुगतान राशि",
+        thPayoutStatus: "स्थिति",
+        thAction: "शेयर",
+        createChitTitle: "नया चिट समूह बनाएं",
+        groupNameLabel: "समूह का नाम",
+        chitTypeLabel: "चिट का प्रकार",
+        potValueLabel: "कुल चिट राशि (₹)",
+        tenureLabel: "कुल महीने",
+        commPctLabel: "कमीशन (%)",
+        dueDayLabel: "मासिक नियत तारीख",
+        upiLabel: "UPI ID / भुगतान विवरण",
+        deleteGroup: "समूह हटाएं",
+        saveBtn: "सहेजें",
+        addMemberTitle: "नया सदस्य जोड़ें",
+        editMemberTitle: "सदस्य संपादित करें",
+        memberName: "सदस्य का नाम",
+        memberPhone: "WhatsApp नंबर",
+        ticketShare: "टिकट हिस्सा (1 = पूरा, 0.5 = आधा)",
+        saveMemberBtn: "सहेजें",
+        backupTitle: "लोकल डेटा, बैकअप और सैंपल",
+        backupDesc: "आपका सारा डेटा आपके डिवाइस पर सुरक्षित है। आप JSON बैकअप डाउनलोड कर सकते हैं या परीक्षण के लिए सैंपल डेटा लोड कर सकते हैं।",
+        exportJsonBtn: "बैकअप डाउनलोड करें (.JSON)",
+        importJsonBtn: "बैकअप रीस्टोर करें (.JSON)",
+        loadSample: "सैंपल मॉक डेटा लोड करें",
+        clearAllBtn: "सब साफ़ करें (Blank App)",
+        guideTitle: "चिट मैनेजर उपयोग गाइड",
+        guideSub: "समूह आयोजकों के लिए चरण-दर-चरण निर्देश",
+        gStep1Title: "1. चिट समूह बनाएं",
+        gStep1Body: "'+ नई चिट' पर टैप करें और कुल चिट राशि, महीने, कमीशन %, नियत तारीख और अपनी UPI ID दर्ज करें।",
+        gStep2Title: "2. सदस्य और टिकट जोड़ें",
+        gStep2Body: "सदस्य टैब में प्रतिभागियों के नाम, WhatsApp नंबर और टिकट हिस्सा (1 या 0.5) जोड़ें।",
+        gStep3Title: "3. मासिक नीलामी / ड्रॉ करें",
+        gModeAuction: "नीलामी चिट: विजेता बोलीदाता चुनें और बोली छूट दर्ज करें। ऐप आपका कमीशन काटकर शेष छूट को प्रति टिकट लाभांश के रूप में बांटता है और शुद्ध देय किस्त अपडेट करता है।",
+        gModeLottery: "लॉटरी / ड्रॉ चिट: केवल उन सदस्यों में से एक विजेता चुनने के लिए डिजिटल ड्रॉ व्हील घुमाएं जिन्होंने अभी तक चिट नहीं जीती है।",
+        gModeFixed: "निश्चित बारी चिट: प्रत्येक माह में चिट राशि प्राप्त करने वाले सदस्य को पहले से तय या असाइन करें।",
+        gStep4Title: "4. संग्रह और WhatsApp शेयर",
+        gStep4Body: "सदस्य की स्थिति बदलकर Paid / Pending / Overdue करें और WhatsApp पर रिमाइंडर या परिणाम भेजें।",
+        gStep5Title: "5. ऑफ़लाइन PWA और बैकअप",
+        gStep5Body: "यह ऐप बिना इंटरनेट के भी काम करता है। ऊपर डेटाबेस आइकन से कभी भी .JSON बैकअप लें।",
+        gotItBtn: "समझ गया",
+        statusPaid: "भुगतान हुआ",
+        statusPending: "बकाया",
+        statusOverdue: "अतिदेय",
+        payoutPaid: "राशि दी गई",
+        payoutPending: "भुगतान शेष",
+        prizedBadge: "विजेता",
+        remindBtn: "रिमाइंडर",
+        type_auction: "नीलामी चिट",
+        type_lottery: "लॉटरी चिट",
+        type_fixed: "निश्चित बारी"
+      }
+    };
+
+    // ==================== UTILITIES & STATE ====================
+    const STORAGE_KEY = "kovai_chit_manager_v4";
+    let state = {
+      lang: "en",
+      activeGroupId: null,
+      activeCycle: 1,
+      memberFilter: "all",
+      groups: []
+    };
+
+    function escapeHTML(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatDisplayPhone(phone) {
+      const digits = String(phone || "").replace(/\D/g, "");
+      if (!digits) return "No WhatsApp number";
+      if (digits === "911111111111" || digits === "1111111111") return "11111 11111";
+      if (digits.length === 12 && digits.startsWith("91")) {
+        return "+91 " + digits.slice(2, 7) + " " + digits.slice(7);
+      }
+      if (digits.length === 10) {
+        return digits.slice(0, 5) + " " + digits.slice(5);
+      }
+      return digits;
+    }
+
+    function createSampleData() {
+      const gid = "grp_" + Date.now();
+      return {
+        lang: state.lang || "en",
+        activeGroupId: null,
+        activeCycle: 1,
+        memberFilter: "all",
+        groups: [
+          {
+            id: gid,
+            name: "Kovai Friends ₹1L Chit",
+            type: "auction",
+            potValue: 100000,
+            months: 10,
+            frequencyMonths: 1,
+            startMonth: currentMonthKey(),
+            commissionPct: 5,
+            dueDay: 5,
+            upi: "chitadmin@okicici",
+            members: [
+              { id: "m1", name: "Senthil Kumar", phone: "911111111111", tickets: 1 },
+              { id: "m2", name: "Karthik Raja", phone: "911111111111", tickets: 1 },
+              { id: "m3", name: "Prakash M", phone: "911111111111", tickets: 1 },
+              { id: "m4", name: "Aravind S", phone: "911111111111", tickets: 1 },
+              { id: "m5", name: "Vigneshwaran", phone: "911111111111", tickets: 1 },
+              { id: "m6", name: "Deepak N", phone: "911111111111", tickets: 1 },
+              { id: "m7", name: "Manoj Kumar", phone: "911111111111", tickets: 1 },
+              { id: "m8", name: "Saravanan P", phone: "911111111111", tickets: 1 },
+              { id: "m9", name: "Balaji K", phone: "911111111111", tickets: 1 },
+              { id: "m10", name: "Naveen R", phone: "911111111111", tickets: 1 }
+            ],
+            cycles: {
+              1: {
+                winnerId: "m3",
+                discount: 15000,
+                commission: 5000,
+                dividendPerTicket: 1000,
+                prizePaid: 85000,
+                prizeDisbursed: true,
+                payments: {
+                  m1: "paid", m2: "paid", m3: "paid", m4: "pending", m5: "paid",
+                  m6: "overdue", m7: "paid", m8: "pending", m9: "paid", m10: "pending"
+                }
+              }
+            }
+          }
+        ]
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.groups)) {
+            state = parsed;
+            state.groups.forEach(ensureGroupDefaults);
+            // New home is the chits list: always start there.
+            state.activeGroupId = null;
+            return;
+          }
+        }
+      } catch (e) { console.error(e); }
+      // Default to clean blank app
+      state = {
+        lang: "en",
+        activeGroupId: null,
+        activeCycle: 1,
+        memberFilter: "all",
+        groups: []
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function getActiveGroup() {
+      if (!state.groups || state.groups.length === 0) return null;
+      if (!state.activeGroupId) return null;
+      return state.groups.find(g => g.id === state.activeGroupId) || state.groups[0];
+    }
+
+    function getCycleData(group, cycleNum) {
+      if (!group.cycles[cycleNum]) {
+        const defaultComm = Math.round((group.potValue * group.commissionPct) / 100);
+        group.cycles[cycleNum] = {
+          winnerId: null,
+          discount: 0,
+          commission: defaultComm,
+          dividendPerTicket: 0,
+          prizePaid: Math.max(0, group.potValue - defaultComm),
+          prizeDisbursed: false,
+          payments: {}
+        };
+      }
+      return group.cycles[cycleNum];
+    }
+
+    function t(key) {
+      return (I18N[state.lang] && I18N[state.lang][key]) || I18N.en[key] || key;
+    }
+
+    function formatINR(num) {
+      return "₹" + Number(num || 0).toLocaleString("en-IN");
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("opacity-0");
+      setTimeout(() => el.classList.add("opacity-0"), 2600);
+    }
+
+    async function checkForUpdates() {
+      const btn = document.getElementById('update-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) { location.reload(); return; }
+        await reg.update();
+        if (reg.waiting) { location.reload(); return; }
+        const installing = reg.installing;
+        if (installing) {
+          await new Promise((resolve) => {
+            const timer = setTimeout(resolve, 5000);
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed') { clearTimeout(timer); resolve(); }
+            });
+          });
+          if (reg.waiting) { location.reload(); return; }
+        }
+        if (btn) btn.disabled = false;
+        showToast("You're on the latest version");
+      } catch (e) {
+        if (btn) btn.disabled = false;
+        location.reload();
+      }
+    }
+
+    // ==================== RENDERING ENGINE ====================
+    function applyTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (I18N[state.lang] && I18N[state.lang][key]) {
+          el.textContent = I18N[state.lang][key];
+        }
+      });
+      const langSel = document.getElementById("langSelector");
+      if (langSel) langSel.value = state.lang;
+    }
+
+    function setLang(lang) {
+      state.lang = lang;
+      saveState();
+      renderAll();
+    }
+
+    function getBaseInstallment(group) {
+      const shares = Math.max(1, Number(group.months || 10));
+      return Math.round(group.potValue / shares);
+    }
+
+    // ==================== COLLECTION MONTHS (frequency + start month) ====================
+    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    function parseMonthKey(key) {
+      const parts = String(key || "").split("-");
+      const y = Number(parts[0]);
+      const m = Number(parts[1]);
+      if (!y || !m || m < 1 || m > 12) return null;
+      return { y, m };
+    }
+    function monthKey(y, m) {
+      return y + "-" + String(m).padStart(2, "0");
+    }
+    function currentMonthKey() {
+      const d = new Date();
+      return monthKey(d.getFullYear(), d.getMonth() + 1);
+    }
+    function addMonthsKey(key, n) {
+      const p = parseMonthKey(key);
+      if (!p) return currentMonthKey();
+      const total = (p.y * 12 + (p.m - 1)) + n;
+      const y = Math.floor(total / 12);
+      const m = total - y * 12 + 1;
+      return monthKey(y, m);
+    }
+    function monthLabel(key) {
+      const p = parseMonthKey(key);
+      if (!p) return String(key || "");
+      return MONTH_NAMES[p.m - 1] + " " + p.y;
+    }
+    function getFrequency(group) {
+      const f = Number(group.frequencyMonths || 1);
+      return Math.min(6, Math.max(1, f || 1));
+    }
+    function getStartMonth(group) {
+      return parseMonthKey(group.startMonth) ? group.startMonth : currentMonthKey();
+    }
+    function cycleMonthKey(group, cycleNum) {
+      return addMonthsKey(getStartMonth(group), (Number(cycleNum) - 1) * getFrequency(group));
+    }
+    function cycleMonthLabel(group, cycleNum) {
+      return monthLabel(cycleMonthKey(group, cycleNum));
+    }
+    function isCycleFuture(group, cycleNum) {
+      return cycleMonthKey(group, cycleNum) > currentMonthKey();
+    }
+    function getCurrentCycleNumber(group) {
+      const nowKey = currentMonthKey();
+      for (let i = 1; i <= group.months; i++) {
+        if (cycleMonthKey(group, i) >= nowKey) return i;
+      }
+      return Math.max(1, group.months);
+    }
+    function freqLabel(group) {
+      const f = getFrequency(group);
+      return f === 1 ? "Every month" : "Every " + f + " months";
+    }
+    function ensureGroupDefaults(group) {
+      if (!group) return group;
+      group.frequencyMonths = getFrequency(group);
+      if (!parseMonthKey(group.startMonth)) {
+        // Legacy chit (saved before frequency existed): keep the cycle with
+        // recorded activity in the current month, so nothing already done moves.
+        let lastTouched = 1;
+        Object.keys(group.cycles || {}).forEach(k => {
+          const c = group.cycles[k];
+          if (c && (c.winnerId || (c.payments && Object.keys(c.payments).length))) {
+            lastTouched = Math.max(lastTouched, Number(k) || 1);
+          }
+        });
+        group.startMonth = addMonthsKey(currentMonthKey(), -(lastTouched - 1) * group.frequencyMonths);
+      }
+      return group;
+    }
+    function cycleOrEmpty(group, cycleNum) {
+      return group.cycles[cycleNum] || { winnerId: null, discount: 0, commission: 0, dividendPerTicket: 0, prizePaid: 0, prizeDisbursed: false, payments: {} };
+    }
+
+    function updateWorkflowBadges(group, cycle) {
+      const hasMembers = group.members.length > 0;
+      const hasWinner = Boolean(cycle.winnerId);
+      const allPaid = hasMembers && group.members.every(m => cycle.payments[m.id] === "paid");
+      const disbursed = Boolean(cycle.prizeDisbursed);
+
+      const states = [hasMembers, hasWinner, allPaid, disbursed];
+      states.forEach((done, idx) => {
+        const badge = document.getElementById("stepBadge" + (idx + 1));
+        if (!badge) return;
+        if (done) {
+          badge.textContent = "✓";
+          badge.className = "w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[11px] flex items-center justify-center";
+        } else {
+          badge.textContent = String(idx + 1);
+          badge.className = "w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center justify-center";
+        }
+      });
+    }
+
+    function renderAll() {
+      applyTranslations();
+      const group = getActiveGroup();
+
+      const emptyView = document.getElementById("emptyStateView");
+      const listView = document.getElementById("groupsListView");
+      const workspace = document.getElementById("mainWorkspace");
+      const desktopNav = document.getElementById("desktopNav");
+      const mobileNav = document.getElementById("mobileNav");
+
+      if (!state.groups || state.groups.length === 0) {
+        emptyView.classList.remove("hidden");
+        listView.classList.add("hidden");
+        workspace.classList.add("hidden");
+        desktopNav.classList.add("hidden");
+        desktopNav.classList.remove("md:block");
+        mobileNav.classList.add("hidden");
+        return;
+      }
+
+      if (!group) {
+        // List-first home: all chits as big cards, tap one to open it.
+        emptyView.classList.add("hidden");
+        workspace.classList.add("hidden");
+        desktopNav.classList.add("hidden");
+        desktopNav.classList.remove("md:block");
+        mobileNav.classList.remove("hidden");
+        listView.classList.remove("hidden");
+        setWorkspaceNavEnabled(false);
+        renderGroupsList();
+        return;
+      }
+
+      emptyView.classList.add("hidden");
+      listView.classList.add("hidden");
+      workspace.classList.remove("hidden");
+      desktopNav.classList.add("md:block");
+      mobileNav.classList.remove("hidden");
+      setWorkspaceNavEnabled(true);
+
+      ensureGroupDefaults(group);
+
+      // Month tabs: one tab per collection month, future months disabled.
+      if (state.activeCycle > group.months) state.activeCycle = 1;
+      const currentCycleNum = getCurrentCycleNumber(group);
+      const tabsEl = document.getElementById("cycleTabs");
+      let tabsHtml = "";
+      for (let i = 1; i <= group.months; i++) {
+        const future = isCycleFuture(group, i) && i !== currentCycleNum;
+        const hasWin = group.cycles[i] && group.cycles[i].winnerId;
+        const active = i === state.activeCycle;
+        tabsHtml += `<button type="button" ${future ? "aria-disabled=\"true\"" : ""} onclick="changeActiveCycle(${i})" aria-label="${cycleMonthLabel(group, i)}, cycle ${i} of ${group.months}" class="cycle-tab${active ? " active" : ""}${future ? " future" : ""}"><span class="cycle-tab-month">${cycleMonthLabel(group, i)}</span><span class="cycle-tab-sub">Cycle ${i} / ${group.months}${hasWin ? " ✓" : ""}${future ? " • Soon" : ""}</span></button>`;
+      }
+      tabsEl.innerHTML = tabsHtml;
+
+      // Detail header: back to list + chit name.
+      document.getElementById("detailGroupName").textContent = group.name;
+      document.getElementById("detailGroupMeta").textContent =
+        t("type_" + group.type) + " • " + freqLabel(group) + " • " + group.members.length +
+        (group.members.length === 1 ? " member" : " members") + " • " +
+        cycleMonthLabel(group, 1) + " – " + cycleMonthLabel(group, group.months);
+
+      const cycle = getCycleData(group, state.activeCycle);
+      updateWorkflowBadges(group, cycle);
+
+      const baseInstallment = getBaseInstallment(group);
+      const dividendPerTkt = Number(cycle.dividendPerTicket || 0);
+      const netPayablePerTkt = Math.max(0, baseInstallment - dividendPerTkt);
+
+      // Dashboard KPI Cards
+      document.getElementById("dash-totalPot").textContent = formatINR(group.potValue);
+      document.getElementById("dash-chitTypeBadge").textContent = t("type_" + group.type);
+      document.getElementById("dash-cycle").textContent = cycleMonthLabel(group, state.activeCycle);
+      document.getElementById("dash-baseInstallment").textContent = `Cycle ${state.activeCycle} of ${group.months} • Base: ${formatINR(baseInstallment)} / tkt`;
+      document.getElementById("dash-netPayable").textContent = formatINR(netPayablePerTkt);
+      document.getElementById("dash-dividendNote").textContent = `Dividend: ${formatINR(dividendPerTkt)} / tkt`;
+
+      // Collection Math
+      let totalDue = 0;
+      let totalCollected = 0;
+      let paidCount = 0;
+      group.members.forEach(m => {
+        const tkt = Number(m.tickets || 1);
+        const due = Math.round(netPayablePerTkt * tkt);
+        totalDue += due;
+        const st = cycle.payments[m.id] || "pending";
+        if (st === "paid") {
+          totalCollected += due;
+          paidCount++;
+        }
+      });
+
+      const pct = totalDue > 0 ? Math.min(100, Math.round((totalCollected / totalDue) * 100)) : 0;
+      document.getElementById("dash-collected").textContent = formatINR(totalCollected);
+      document.getElementById("dash-collectedCount").textContent = `${paidCount} / ${group.members.length} ${t("statusPaid")}`;
+      document.getElementById("dash-progressPct").textContent = pct + "%";
+      document.getElementById("dash-progressBar").style.width = pct + "%";
+
+      // Winner Box & Payout Toggle
+      const winner = group.members.find(m => m.id === cycle.winnerId);
+      const winnerTextEl = document.getElementById("dash-winnerText");
+      const payoutBtn = document.getElementById("dash-payoutToggle");
+      if (winner) {
+        winnerTextEl.innerHTML = `<span class="font-bold text-slate-900">${escapeHTML(winner.name)}</span> • <span class="num font-semibold text-slate-900">${formatINR(cycle.prizePaid)}</span>` +
+          (cycle.discount > 0 ? ` <span class="text-xs text-slate-500">(Discount: ${formatINR(cycle.discount)})</span>` : "");
+        payoutBtn.classList.remove("hidden");
+        if (cycle.prizeDisbursed) {
+          payoutBtn.textContent = "✓ " + t("payoutPaid");
+          payoutBtn.className = "px-3 py-3 rounded-md text-sm font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200 transition";
+        } else {
+          payoutBtn.textContent = t("payoutPending");
+          payoutBtn.className = "px-3 py-3 rounded-md text-sm font-semibold border bg-white text-slate-700 border-slate-300 hover:bg-slate-100 transition";
+        }
+      } else {
+        winnerTextEl.textContent = "Pending draw / auction for " + cycleMonthLabel(group, state.activeCycle) + " (Cycle " + state.activeCycle + ")";
+        payoutBtn.classList.add("hidden");
+      }
+
+      // Pending List on Dashboard
+      const pendingMembers = group.members.filter(m => (cycle.payments[m.id] || "pending") !== "paid");
+      const pendingListEl = document.getElementById("dash-pendingList");
+      if (group.members.length === 0) {
+        pendingListEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-50 text-slate-500 text-xs text-center">No members added yet.</div>`;
+      } else if (pendingMembers.length === 0) {
+        pendingListEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium text-center">✓ All members paid for ${cycleMonthLabel(group, state.activeCycle)} (Cycle ${state.activeCycle})</div>`;
+      } else {
+        pendingListEl.innerHTML = pendingMembers.map(m => {
+          const st = cycle.payments[m.id] || "pending";
+          const amt = Math.round(netPayablePerTkt * Number(m.tickets || 1));
+          const badge = st === "overdue"
+            ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">${escapeHTML(t("statusOverdue"))}</span>`
+            : `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/80">${escapeHTML(t("statusPending"))}</span>`;
+          return `
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-900 truncate">${escapeHTML(m.name)}</p>
+                <div class="flex items-center gap-1.5 mt-1">${badge}<span class="num text-[11px] font-medium text-slate-600">${formatINR(amt)}</span></div>
+              </div>
+              <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-100 shrink-0 transition">
+                ${escapeHTML(t("remindBtn"))}
+              </button>
+            </div>`;
+        }).join("");
+      }
+
+      renderDrawTab(group, cycle);
+      renderMembersTab(group, cycle, netPayablePerTkt);
+      renderHistoryTab(group);
+    }
+
+    function renderDrawTab(group, cycle) {
+      document.getElementById("draw-methodPill").textContent = t("type_" + group.type);
+      document.getElementById("mode-auction").classList.add("hidden");
+      document.getElementById("mode-lottery").classList.add("hidden");
+      document.getElementById("mode-fixed").classList.add("hidden");
+
+      const noMemAlert = document.getElementById("draw-noMembersAlert");
+      if (group.members.length === 0) {
+        noMemAlert.classList.remove("hidden");
+        return;
+      }
+      noMemAlert.classList.add("hidden");
+
+      const prizedIds = new Set();
+      Object.entries(group.cycles).forEach(([cNum, cData]) => {
+        if (Number(cNum) !== state.activeCycle && cData.winnerId) prizedIds.add(cData.winnerId);
+      });
+
+      const eligibleMembers = group.members.filter(m => !prizedIds.has(m.id));
+      const candidatePool = eligibleMembers.length > 0 ? eligibleMembers : group.members;
+
+      if (group.type === "auction") {
+        document.getElementById("mode-auction").classList.remove("hidden");
+        const sel = document.getElementById("auc-winner");
+        sel.innerHTML = candidatePool.map(m =>
+          `<option value="${escapeHTML(m.id)}" ${cycle.winnerId === m.id ? "selected" : ""}>${escapeHTML(m.name)}</option>`
+        ).join("");
+        document.getElementById("auc-discount").value = cycle.discount || "";
+        document.getElementById("auc-commission").value = cycle.commission ?? Math.round((group.potValue * group.commissionPct) / 100);
+        previewAuction();
+      } else if (group.type === "lottery") {
+        document.getElementById("mode-lottery").classList.remove("hidden");
+        document.getElementById("lottery-eligibleNames").textContent =
+          candidatePool.map(m => m.name).join(" • ");
+        if (cycle.winnerId) {
+          const w = group.members.find(m => m.id === cycle.winnerId);
+          if (w) {
+            document.getElementById("lottery-resultBanner").classList.remove("hidden");
+            document.getElementById("lottery-winnerName").textContent = w.name;
+          }
+        } else {
+          document.getElementById("lottery-resultBanner").classList.add("hidden");
+        }
+      } else {
+        document.getElementById("mode-fixed").classList.remove("hidden");
+        const sel = document.getElementById("fixed-winner");
+        sel.innerHTML = group.members.map(m =>
+          `<option value="${escapeHTML(m.id)}" ${cycle.winnerId === m.id ? "selected" : ""}>${escapeHTML(m.name)}</option>`
+        ).join("");
+        let schedHtml = "";
+        for (let i = 1; i <= group.months; i++) {
+          const c = group.cycles[i];
+          const w = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
+          const isFutureCycle = isCycleFuture(group, i) && i !== getCurrentCycleNumber(group);
+          schedHtml += `
+            <button type="button" onclick="changeActiveCycle(${i}, true)" class="w-full text-left cursor-pointer p-3 rounded-xl border ${i === state.activeCycle ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-white hover:bg-slate-100"} flex items-center justify-between gap-2 text-sm min-h-[56px]">
+              <span class="font-semibold text-slate-600 shrink-0">${cycleMonthLabel(group, i)} • Cycle ${i}${isFutureCycle ? " (Soon)" : ""}</span>
+              <span class="font-semibold truncate ${w ? "text-slate-900" : "text-slate-400"}">${w ? escapeHTML(w.name) : "Unassigned"}</span>
+            </button>`;
+        }
+        document.getElementById("fixed-scheduleList").innerHTML = schedHtml;
+      }
+    }
+
+    let pendingLotteryWinnerId = null;
+    function spinLotteryDraw() {
+      const group = getActiveGroup();
+      const prizedIds = new Set();
+      Object.entries(group.cycles).forEach(([cNum, cData]) => {
+        if (Number(cNum) !== state.activeCycle && cData.winnerId) prizedIds.add(cData.winnerId);
+      });
+      const eligible = group.members.filter(m => !prizedIds.has(m.id));
+      const pool = eligible.length > 0 ? eligible : group.members;
+      if (pool.length === 0) return showToast("Please add members first!");
+
+      const wheel = document.getElementById("lotteryWheel");
+      wheel.classList.remove("spinning");
+      void wheel.offsetWidth;
+      wheel.classList.add("spinning");
+
+      setTimeout(() => {
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        pendingLotteryWinnerId = chosen.id;
+        document.getElementById("lottery-resultBanner").classList.remove("hidden");
+        document.getElementById("lottery-winnerName").textContent = chosen.name;
+        document.getElementById("lottery-saveBtn").classList.remove("hidden");
+      }, 1600);
+    }
+
+    function previewAuction() {
+      const group = getActiveGroup();
+      const shares = Math.max(1, Number(group.months || 10));
+      const baseInstallment = getBaseInstallment(group);
+      const discount = Math.max(0, Number(document.getElementById("auc-discount").value || 0));
+      const comm = Math.max(0, Number(document.getElementById("auc-commission").value || 0));
+
+      const warnEl = document.getElementById("auc-warning");
+      if (discount > 0 && discount < comm) {
+        warnEl.textContent = "Note: Bid discount is less than foreman commission, so dividend is ₹0.";
+        warnEl.classList.remove("hidden");
+      } else {
+        warnEl.classList.add("hidden");
+      }
+
+      const prize = Math.max(0, group.potValue - discount);
+      const divPool = Math.max(0, discount - comm);
+      const divEach = Math.round(divPool / shares);
+      const netPay = Math.max(0, baseInstallment - divEach);
+
+      document.getElementById("auc-preview-prize").textContent = formatINR(prize);
+      document.getElementById("auc-preview-divPool").textContent = formatINR(divPool);
+      document.getElementById("auc-preview-divEach").textContent = formatINR(divEach);
+      document.getElementById("auc-preview-netPay").textContent = formatINR(netPay);
+    }
+
+    function saveCycleResult(mode) {
+      const group = getActiveGroup();
+      if (group.members.length === 0) return showToast("Please add members first!");
+      const cycle = getCycleData(group, state.activeCycle);
+      const shares = Math.max(1, Number(group.months || 10));
+      const defaultComm = Math.round((group.potValue * group.commissionPct) / 100);
+
+      if (mode === "auction") {
+        const winnerId = document.getElementById("auc-winner").value;
+        const discount = Math.max(0, Number(document.getElementById("auc-discount").value || 0));
+        const comm = Math.max(0, Number(document.getElementById("auc-commission").value || 0));
+        const divPool = Math.max(0, discount - comm);
+        cycle.winnerId = winnerId;
+        cycle.discount = discount;
+        cycle.commission = comm;
+        cycle.dividendPerTicket = Math.round(divPool / shares);
+        cycle.prizePaid = Math.max(0, group.potValue - discount);
+      } else if (mode === "lottery") {
+        if (!pendingLotteryWinnerId && !cycle.winnerId) return showToast("Spin the draw first!");
+        cycle.winnerId = pendingLotteryWinnerId || cycle.winnerId;
+        cycle.discount = 0;
+        cycle.commission = defaultComm;
+        cycle.dividendPerTicket = 0;
+        cycle.prizePaid = Math.max(0, group.potValue - defaultComm);
+      } else if (mode === "fixed") {
+        cycle.winnerId = document.getElementById("fixed-winner").value;
+        cycle.discount = 0;
+        cycle.commission = defaultComm;
+        cycle.dividendPerTicket = 0;
+        cycle.prizePaid = Math.max(0, group.potValue - defaultComm);
+      }
+
+      saveState();
+      renderAll();
+      showToast("Cycle " + state.activeCycle + " result saved!");
+      switchTab("dashboard");
+    }
+
+    function togglePrizeDisbursed(cycleNum = state.activeCycle) {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, cycleNum);
+      if (!cycle.winnerId) return;
+      cycle.prizeDisbursed = !cycle.prizeDisbursed;
+      saveState();
+      renderAll();
+      showToast(cycle.prizeDisbursed ? "Marked prize as disbursed!" : "Marked prize as pending.");
+    }
+
+    function renderMembersTab(group, cycle, netPayablePerTkt) {
+      document.getElementById("members-cycleInfo").textContent =
+        `${cycleMonthLabel(group, state.activeCycle)} • Cycle ${state.activeCycle} / ${group.months} • Net Payable: ${formatINR(netPayablePerTkt)} / tkt`;
+
+      ["all", "paid", "pending", "overdue"].forEach(f => {
+        const btn = document.getElementById("filter-" + f);
+        btn.className = f === state.memberFilter
+          ? "filter-pill px-4 py-3 rounded-lg bg-slate-900 text-white font-semibold shrink-0"
+          : "filter-pill px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-medium shrink-0";
+      });
+
+      const wonCycleMap = {};
+      Object.entries(group.cycles).forEach(([cNum, cData]) => {
+        if (cData.winnerId) wonCycleMap[cData.winnerId] = cNum;
+      });
+
+      const searchQ = (document.getElementById("memberSearchInput").value || "").trim().toLowerCase();
+      const filtered = group.members.filter(m => {
+        const st = cycle.payments[m.id] || "pending";
+        const matchesFilter = state.memberFilter === "all" || st === state.memberFilter;
+        const matchesSearch = !searchQ || m.name.toLowerCase().includes(searchQ) || (m.phone || "").includes(searchQ);
+        return matchesFilter && matchesSearch;
+      });
+
+      const listEl = document.getElementById("membersList");
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="card p-6 text-center text-xs text-slate-500 col-span-full">No members match this filter.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(m => {
+        const st = cycle.payments[m.id] || "pending";
+        const tkt = Number(m.tickets || 1);
+        const dueAmt = Math.round(netPayablePerTkt * tkt);
+        const wonCyc = wonCycleMap[m.id];
+
+        const statusConfig = {
+          paid: { cls: "bg-emerald-50 text-emerald-700 border-emerald-200", label: "✓ " + t("statusPaid") },
+          pending: { cls: "bg-slate-100 text-slate-700 border-slate-200", label: t("statusPending") },
+          overdue: { cls: "bg-rose-50 text-rose-700 border-rose-200", label: "! " + t("statusOverdue") }
+        }[st];
+
+        return `
+          <div class="card p-4 sm:p-4 flex flex-col justify-between gap-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="font-semibold text-slate-900 text-sm truncate">${escapeHTML(m.name)}</h4>
+                  ${tkt !== 1 ? `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${tkt} Tkt</span>` : ""}
+                  ${wonCyc ? `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">${escapeHTML(t("prizedBadge"))} #${wonCyc}</span>` : ""}
+                </div>
+                <p class="num text-xs text-slate-500 mt-0.5 truncate">${escapeHTML(formatDisplayPhone(m.phone))}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="num text-sm font-bold text-slate-900">${formatINR(dueAmt)}</p>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <button onclick="cycleMemberStatus('${escapeHTML(m.id)}')" class="px-4 py-3 rounded-lg border text-base font-semibold transition ${statusConfig.cls}">
+                ${escapeHTML(statusConfig.label)}
+              </button>
+              <div class="flex items-center gap-1.5">
+                <button onclick="sendIndividualReminder('${escapeHTML(m.id)}')" class="px-3 py-3 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 text-sm font-medium transition">
+                  ${escapeHTML(t("remindBtn"))}
+                </button>
+                <button onclick="openEditMemberModal('${escapeHTML(m.id)}')" title="Edit Member" aria-label="Edit Member" class="p-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
+                <button onclick="removeMember('${escapeHTML(m.id)}')" title="Remove Member" aria-label="Remove Member" class="p-3 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    function renderHistoryTab(group) {
+      const tbody = document.getElementById("ledgerTableBody");
+      let rows = "";
+      for (let i = 1; i <= group.months; i++) {
+        const c = group.cycles[i];
+        const winner = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
+        const payoutBadge = winner
+          ? (c.prizeDisbursed
+              ? `<button onclick="togglePrizeDisbursed(${i})" class="px-3 py-3 rounded-md text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Paid</button>`
+              : `<button onclick="togglePrizeDisbursed(${i})" class="px-3 py-3 rounded-md text-sm font-semibold bg-slate-100 text-slate-700 border border-slate-200">Due</button>`)
+          : "<span class='text-slate-300'>—</span>";
+        rows += `
+          <tr class="hover:bg-slate-50/80">
+            <td data-label="${t("thCycle")}" class="py-3 px-3 num font-semibold text-slate-700">#${i}<br><span class="text-xs font-medium text-slate-500">${cycleMonthLabel(group, i)}</span></td>
+            <td data-label="${t("thWinner")}" class="py-3 px-3 font-semibold ${winner ? "text-slate-900" : "text-slate-400"}">${winner ? escapeHTML(winner.name) : "—"}</td>
+            <td data-label="${t("thDiscount")}" class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.discount) : "—"}</td>
+            <td data-label="${t("thDividend")}" class="py-3 px-3 num text-slate-600">${winner ? formatINR(c.dividendPerTicket) : "—"}</td>
+            <td data-label="${t("thPrize")}" class="py-3 px-3 num text-slate-900 font-bold">${winner ? formatINR(c.prizePaid) : "—"}</td>
+            <td data-label="${t("thPayoutStatus")}" class="py-3 px-3">${payoutBadge}</td>
+            <td data-label="${t("thAction")}" class="py-3 px-3 text-right">
+              ${winner ? `<button onclick="shareCycleResultByNum(${i})" class="px-4 py-3 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-sm font-semibold hover:bg-slate-200 transition">Share</button>` : ""}
+            </td>
+          </tr>`;
+      }
+      tbody.innerHTML = rows;
+    }
+
+    // ==================== MEMBER & STATUS ACTIONS ====================
+    function cycleMemberStatus(memberId) {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, state.activeCycle);
+      const order = ["pending", "paid", "overdue"];
+      const curr = cycle.payments[memberId] || "pending";
+      const next = order[(order.indexOf(curr) + 1) % order.length];
+      cycle.payments[memberId] = next;
+      saveState();
+      renderAll();
+    }
+
+    function markAllPaid() {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, state.activeCycle);
+      group.members.forEach(m => { cycle.payments[m.id] = "paid"; });
+      saveState();
+      renderAll();
+      showToast("All members marked Paid for Cycle " + state.activeCycle);
+    }
+
+    function filterMembers(f) {
+      state.memberFilter = f;
+      renderAll();
+    }
+
+    function openAddMemberModal() {
+      document.getElementById("editMemberId").value = "";
+      document.getElementById("memberModalTitle").textContent = t("addMemberTitle");
+      document.getElementById("mem-name").value = "";
+      document.getElementById("mem-phone").value = "";
+      document.getElementById("mem-tickets").value = "1";
+      openModal("addMemberModal");
+    }
+
+    function openEditMemberModal(memberId) {
+      const group = getActiveGroup();
+      const m = group.members.find(x => x.id === memberId);
+      if (!m) return;
+      document.getElementById("editMemberId").value = m.id;
+      document.getElementById("memberModalTitle").textContent = t("editMemberTitle");
+      document.getElementById("mem-name").value = m.name;
+      document.getElementById("mem-phone").value = m.phone || "";
+      document.getElementById("mem-tickets").value = m.tickets || 1;
+      openModal("addMemberModal");
+    }
+
+    function saveMember() {
+      const editId = document.getElementById("editMemberId").value;
+      const name = document.getElementById("mem-name").value.trim();
+      const phone = document.getElementById("mem-phone").value.replace(/\D/g, "");
+      const tickets = parseFloat(document.getElementById("mem-tickets").value) || 1;
+      if (!name) return showToast("Enter member name");
+
+      const group = getActiveGroup();
+      if (editId) {
+        const m = group.members.find(x => x.id === editId);
+        if (m) Object.assign(m, { name, phone, tickets });
+      } else {
+        group.members.push({
+          id: "m_" + Date.now(),
+          name,
+          phone,
+          tickets
+        });
+      }
+      closeModal("addMemberModal");
+      saveState();
+      renderAll();
+      showToast(editId ? "Member updated!" : "Member added!");
+    }
+
+    function removeMember(memberId) {
+      if (!confirm("Remove this member from the group?")) return;
+      const group = getActiveGroup();
+      group.members = group.members.filter(m => m.id !== memberId);
+      saveState();
+      renderAll();
+    }
+
+    // ==================== WHATSAPP SHARING ENGINE ====================
+    function openWhatsApp(text, phone = "") {
+      const encoded = encodeURIComponent(text);
+      const url = phone
+        ? `https://wa.me/${phone}?text=${encoded}`
+        : `https://api.whatsapp.com/send?text=${encoded}`;
+      window.open(url, "_blank");
+    }
+
+    function getNetPayableForActiveCycle(group, cycle) {
+      const baseInstallment = getBaseInstallment(group);
+      return Math.max(0, baseInstallment - Number(cycle.dividendPerTicket || 0));
+    }
+
+    function sendIndividualReminder(memberId) {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, state.activeCycle);
+      const member = group.members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const netPerTkt = getNetPayableForActiveCycle(group, cycle);
+      const amt = Math.round(netPerTkt * Number(member.tickets || 1));
+      const upiLine = group.upi ? `\n💳 Pay via UPI: *${group.upi}*` : "";
+
+      let msg = "";
+      if (state.lang === "ta") {
+        msg = `வணக்கம் *${member.name}*,\n\n*${group.name}* - தவணை #${state.activeCycle}/${group.months} நினைவூட்டல்:\n💰 செலுத்த வேண்டிய தொகை: *${formatINR(amt)}*\n📅 கடைசி தேதி: மாதத்தின் ${group.dueDay}-ம் தேதி${upiLine}\n\nசெலுத்திய பின் தெரியப்படுத்தவும். நன்றி!`;
+      } else if (state.lang === "ml") {
+        msg = `നമസ്കാരം *${member.name}*,\n\n*${group.name}* - തവണ #${state.activeCycle}/${group.months} ഓർമ്മപ്പെടുത്തൽ:\n💰 അടയ്ക്കേണ്ട തുക: *${formatINR(amt)}*\n📅 അവസാന തീയതി: മാസം ${group.dueDay}-ാം തീയതി${upiLine}\n\nഅടച്ച ശേഷം അറിയിക്കുക. നന്ദി!`;
+      } else if (state.lang === "te") {
+        msg = `నమస్కారం *${member.name}*,\n\n*${group.name}* - వాయిదా #${state.activeCycle}/${group.months} రిమైండర్:\n💰 చెల్లించాల్సిన మొత్తం: *${formatINR(amt)}*\n📅 చివరి తేదీ: నెలలో ${group.dueDay}వ తేదీ${upiLine}\n\nచెల్లించిన తర్వాత తెలియజేయండి. ధన్యవాదాలు!`;
+      } else if (state.lang === "kn") {
+        msg = `ನಮಸ್ಕಾರ *${member.name}*,\n\n*${group.name}* - ಕಂತು #${state.activeCycle}/${group.months} ಜ್ಞಾಪನೆ:\n💰 ಪಾವತಿಸಬೇಕಾದ ಮೊತ್ತ: *${formatINR(amt)}*\n📅 ಕೊನೆಯ ದಿನಾಂಕ: ತಿಂಗಳ ${group.dueDay}ನೇ ತಾರೀಖು${upiLine}\n\nಪಾವತಿಸಿದ ನಂತರ ತಿಳಿಸಿ. ಧನ್ಯವಾದಗಳು!`;
+      } else if (state.lang === "hi") {
+        msg = `नमस्ते *${member.name}*,\n\n*${group.name}* - किस्त #${state.activeCycle}/${group.months} रिमाइंडर:\n💰 देय राशि: *${formatINR(amt)}*\n📅 नियत तारीख: माह की ${group.dueDay} तारीख${upiLine}\n\nभुगतान के बाद सूचित करें। धन्यवाद!`;
+      } else {
+        msg = `Hi *${member.name}*,\n\nPayment reminder for *${group.name}* (Cycle #${state.activeCycle}/${group.months}):\n💰 Net Payable: *${formatINR(amt)}*\n📅 Due Date: ${group.dueDay}th of this month${upiLine}\n\nKindly share confirmation once paid. Thank you!`;
+      }
+      openWhatsApp(msg, member.phone);
+    }
+
+    function shareGroupReminderWhatsApp() {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, state.activeCycle);
+      const netPerTkt = getNetPayableForActiveCycle(group, cycle);
+      const pending = group.members.filter(m => (cycle.payments[m.id] || "pending") !== "paid");
+      const upiLine = group.upi ? `\n💳 UPI / Payment: *${group.upi}*` : "";
+      const pendingNames = pending.length > 0
+        ? pending.map((m, idx) => `${idx + 1}. ${m.name} (${formatINR(Math.round(netPerTkt * (m.tickets || 1)))})`).join("\n")
+        : "✅ All members paid!";
+
+      let msg = "";
+      if (state.lang === "ta") {
+        msg = `📢 *${group.name} - தவணை நினைவூட்டல்*\nமாதம்: *#${state.activeCycle} / ${group.months}*\n💵 ஒரு பங்கு தவணை: *${formatINR(netPerTkt)}* (கசறு: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *நிலுவை உள்ளவர்கள்:*\n${pendingNames}`;
+      } else if (state.lang === "ml") {
+        msg = `📢 *${group.name} - പേയ്‌മെന്റ് റിമൈൻഡർ*\nമാസം: *#${state.activeCycle} / ${group.months}*\n💵 തവണ / ടിക്കറ്റ്: *${formatINR(netPerTkt)}* (ഡിവിഡന്റ്: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *ബാക്കിയുള്ള അംഗങ്ങൾ:*\n${pendingNames}`;
+      } else if (state.lang === "te") {
+        msg = `📢 *${group.name} - పేమెంట్ రిమైండర్*\nనెల: *#${state.activeCycle} / ${group.months}*\n💵 వాయిదా / టికెట్: *${formatINR(netPerTkt)}* (డివిడెండ్: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *బాకీ ఉన్న సభ్యులు:*\n${pendingNames}`;
+      } else if (state.lang === "kn") {
+        msg = `📢 *${group.name} - ಪಾವತಿ ಜ್ಞಾಪನೆ*\nತಿಂಗಳು: *#${state.activeCycle} / ${group.months}*\n💵 ಕಂತು / ಟಿಕೆಟ್: *${formatINR(netPerTkt)}* (ಡಿವಿಡೆಂಡ್: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *ಬಾಕಿ ಇರುವ ಸದಸ್ಯರು:*\n${pendingNames}`;
+      } else if (state.lang === "hi") {
+        msg = `📢 *${group.name} - भुगतान रिमाइंडर*\nमाह: *#${state.activeCycle} / ${group.months}*\n💵 किस्त / टिकट: *${formatINR(netPerTkt)}* (लाभांश: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *बकाया सदस्य:*\n${pendingNames}`;
+      } else {
+        msg = `📢 *${group.name} - Payment Reminder*\nCycle: *#${state.activeCycle} / ${group.months}*\n💵 Installment / Ticket: *${formatINR(netPerTkt)}* (Dividend: ${formatINR(cycle.dividendPerTicket)})${upiLine}\n\n⏳ *Pending Members:*\n${pendingNames}`;
+      }
+      openWhatsApp(msg);
+    }
+
+    function shareLatestResultWhatsApp() {
+      shareCycleResultByNum(state.activeCycle);
+    }
+
+    function shareCycleResultByNum(cycleNum) {
+      const group = getActiveGroup();
+      const cycle = getCycleData(group, cycleNum);
+      const winner = group.members.find(m => m.id === cycle.winnerId);
+      if (!winner) return showToast("No winner recorded for Cycle " + cycleNum);
+
+      const netPerTkt = getNetPayableForActiveCycle(group, cycle);
+      let msg = "";
+      if (state.lang === "ta") {
+        msg = `🏆 *${group.name} - சீட்டு முடிவு (#${cycleNum}/${group.months})*\n\n🎉 வெற்றியாளர்: *${winner.name}*\n💰 மொத்த மதிப்பு: ${formatINR(group.potValue)}\n📉 ஏலத் தள்ளுபடி: ${formatINR(cycle.discount)}\n🎁 பட்டுவாடா தொகை: *${formatINR(cycle.prizePaid)}*\n✨ கசறு / பங்கு: *${formatINR(cycle.dividendPerTicket)}*\n💵 கட்ட வேண்டிய தவணை: *${formatINR(netPerTkt)}*`;
+      } else if (state.lang === "ml") {
+        msg = `🏆 *${group.name} - ചിട്ടി ഫലം (#${cycleNum}/${group.months})*\n\n🎉 വിജയി: *${winner.name}*\n💰 ആകെ തുക: ${formatINR(group.potValue)}\n📉 ലേല കിഴിവ്: ${formatINR(cycle.discount)}\n🎁 നൽകിയ തുക: *${formatINR(cycle.prizePaid)}*\n✨ ഡിവിഡന്റ് / ടിക്കറ്റ്: *${formatINR(cycle.dividendPerTicket)}*\n💵 അടയ്ക്കേണ്ട തവണ: *${formatINR(netPerTkt)}*`;
+      } else if (state.lang === "te") {
+        msg = `🏆 *${group.name} - చిట్ ఫలితం (#${cycleNum}/${group.months})*\n\n🎉 విజేత: *${winner.name}*\n💰 మొత్తం విలువ: ${formatINR(group.potValue)}\n📉 వేలం తగ్గింపు: ${formatINR(cycle.discount)}\n🎁 చెల్లించిన మొత్తం: *${formatINR(cycle.prizePaid)}*\n✨ డివిడెండ్ / టికెట్: *${formatINR(cycle.dividendPerTicket)}*\n💵 చెల్లించాల్సిన వాయిదా: *${formatINR(netPerTkt)}*`;
+      } else if (state.lang === "kn") {
+        msg = `🏆 *${group.name} - ಚಿಟ್ ಫಲಿತಾಂಶ (#${cycleNum}/${group.months})*\n\n🎉 ವಿಜೇತ: *${winner.name}*\n💰 ಒಟ್ಟು ಮೌಲ್ಯ: ${formatINR(group.potValue)}\n📉 ಹರಾಜು ರಿಯಾಯಿತಿ: ${formatINR(cycle.discount)}\n🎁 ನೀಡಿದ ಮೊತ್ತ: *${formatINR(cycle.prizePaid)}*\n✨ ಡಿವಿಡೆಂಡ್ / ಟಿಕೆಟ್: *${formatINR(cycle.dividendPerTicket)}*\n💵 ಪಾವತಿಸಬೇಕಾದ ಕಂತು: *${formatINR(netPerTkt)}*`;
+      } else if (state.lang === "hi") {
+        msg = `🏆 *${group.name} - चिट परिणाम (#${cycleNum}/${group.months})*\n\n🎉 विजेता: *${winner.name}*\n💰 कुल चिट राशि: ${formatINR(group.potValue)}\n📉 बोली छूट: ${formatINR(cycle.discount)}\n🎁 भुगतान राशि: *${formatINR(cycle.prizePaid)}*\n✨ लाभांश / टिकट: *${formatINR(cycle.dividendPerTicket)}*\n💵 देय किस्त: *${formatINR(netPerTkt)}*`;
+      } else {
+        msg = `🏆 *${group.name} - Chit Result (Cycle #${cycleNum}/${group.months})*\n\n🎉 Winner: *${winner.name}*\n💰 Total Pot: ${formatINR(group.potValue)}\n📉 Bid Discount: ${formatINR(cycle.discount)}\n🎁 Prize Payout: *${formatINR(cycle.prizePaid)}*\n✨ Dividend / Ticket: *${formatINR(cycle.dividendPerTicket)}*\n💵 Net Installment: *${formatINR(netPerTkt)}*`;
+      }
+      openWhatsApp(msg);
+    }
+
+    // ==================== GROUP CRUD & NAVIGATION ====================
+    function switchTab(tabName) {
+      if (tabName !== "dashboard" && !getActiveGroup()) { showToast("Choose a chit first"); return; }
+      document.querySelectorAll(".tab-view").forEach(el => el.classList.add("hidden"));
+      document.getElementById("view-" + tabName).classList.remove("hidden");
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        const active = btn.getAttribute("data-tab") === tabName;
+        btn.className = active
+          ? "nav-btn py-3 border-b-2 border-indigo-600 text-indigo-600 font-semibold"
+          : "nav-btn py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900 font-medium";
+      });
+
+      document.querySelectorAll(".mob-nav-btn").forEach(btn => {
+        const active = btn.getAttribute("data-tab") === tabName;
+        btn.className = active
+          ? "mob-nav-btn flex flex-col items-center text-sm tab-active px-2 py-1.5"
+          : "mob-nav-btn flex flex-col items-center text-sm text-slate-500 px-2 py-1.5";
+      });
+    }
+
+    // Round 2 (2026-11-23): workspace tabs mean nothing until a chit is open.
+    function setWorkspaceNavEnabled(enabled) {
+      document.querySelectorAll("#mobileNav .mob-nav-btn").forEach(btn => {
+        if (btn.getAttribute("data-tab") === "dashboard") return;
+        btn.disabled = !enabled;
+        btn.setAttribute("aria-disabled", String(!enabled));
+        btn.classList.toggle("nav-disabled", !enabled);
+      });
+    }
+    function toggleSettingsMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById("settingsMenu");
+      const btn = document.getElementById("settingsBtn");
+      const open = menu.classList.contains("hidden");
+      menu.classList.toggle("hidden", !open);
+      if (btn) btn.setAttribute("aria-expanded", String(open));
+      if (open && !window.__settingsMenuBound) {
+        window.__settingsMenuBound = true;
+        document.addEventListener("click", (ev) => {
+          const m = document.getElementById("settingsMenu");
+          const b = document.getElementById("settingsBtn");
+          if (m && !m.classList.contains("hidden") && !m.contains(ev.target) && b && !b.contains(ev.target)) closeSettingsMenu();
+        });
+        document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closeSettingsMenu(); });
+      }
+    }
+    function closeSettingsMenu() {
+      const menu = document.getElementById("settingsMenu");
+      const btn = document.getElementById("settingsBtn");
+      if (menu) menu.classList.add("hidden");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    }
+
+    function skipToContent(e) {
+      e.preventDefault();
+      const views = ["mainWorkspace", "groupsListView", "emptyStateView"];
+      for (const id of views) {
+        const el = document.getElementById(id);
+        if (el && !el.classList.contains("hidden")) { el.setAttribute("tabindex", "-1"); el.focus(); return; }
+      }
+    }
+
+    function switchGroup(groupId) {
+      openGroup(groupId);
+    }
+
+    function openGroup(groupId) {
+      const group = state.groups.find(g => g.id === groupId);
+      if (!group) return;
+      ensureGroupDefaults(group);
+      state.activeGroupId = groupId;
+      state.activeCycle = getCurrentCycleNumber(group);
+      saveState();
+      switchTab("dashboard");
+      renderAll();
+      window.scrollTo(0, 0);
+    }
+
+    function showGroupsList() {
+      state.activeGroupId = null;
+      saveState();
+      renderAll();
+      window.scrollTo(0, 0);
+    }
+
+    function renderGroupsList() {
+      const listEl = document.getElementById("groupsList");
+      document.getElementById("groupsListCount").textContent =
+        state.groups.length + (state.groups.length === 1 ? " chit" : " chits") + " • Tap one to open it";
+      listEl.innerHTML = state.groups.map(g => {
+        ensureGroupDefaults(g);
+        const cur = getCurrentCycleNumber(g);
+        const cyc = cycleOrEmpty(g, cur);
+        const base = getBaseInstallment(g);
+        const net = Math.max(0, base - Number(cyc.dividendPerTicket || 0));
+        let paid = 0;
+        let collected = 0;
+        g.members.forEach(m => {
+          if ((cyc.payments || {})[m.id] === "paid") {
+            paid++;
+            collected += Math.round(net * Number(m.tickets || 1));
+          }
+        });
+        const winner = cyc.winnerId ? g.members.find(m => m.id === cyc.winnerId) : null;
+        return `
+          <button type="button" onclick="openGroup('${escapeHTML(g.id)}')" class="chit-card card p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="text-lg font-bold text-slate-900 leading-snug">${escapeHTML(g.name)}</h3>
+                <p class="text-sm text-slate-500 mt-1 leading-relaxed">${escapeHTML(t("type_" + g.type))} • ${freqLabel(g)} • ${g.members.length} ${g.members.length === 1 ? "member" : "members"}</p>
+              </div>
+              <span class="text-2xl text-slate-300 shrink-0 leading-none mt-1">&rsaquo;</span>
+            </div>
+            <div class="flex items-end justify-between gap-3 pt-1">
+              <div>
+                <p class="text-sm text-slate-500 leading-relaxed">Chit value</p>
+                <p class="num text-xl font-bold text-slate-900 mt-1">${formatINR(g.potValue)}</p>
+                <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">${formatINR(base)} per collection</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-semibold text-slate-700 leading-relaxed">${cycleMonthLabel(g, cur)} • Cycle ${cur} / ${g.months}</p>
+                <p class="num text-base font-bold text-slate-900 mt-1">${formatINR(collected)} collected</p>
+                <p class="text-sm text-slate-500 mt-1 leading-relaxed">${paid} / ${g.members.length} paid</p>
+              </div>
+            </div>
+            ${winner ? `<p class="text-sm font-semibold text-slate-700 pt-3 border-t border-slate-100 leading-relaxed"><svg class="w-5 h-5 inline-block -mt-0.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 6H4a1 1 0 00-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 011 1c0 2.5-2 4-4 4"/></svg>${cycleMonthLabel(g, cur)} winner: ${escapeHTML(winner.name)} — ${formatINR(cyc.prizePaid)}</p>` : ""}
+            <p class="text-sm text-slate-400 leading-relaxed">${cycleMonthLabel(g, 1)} – ${cycleMonthLabel(g, g.months)}</p>
+          </button>`;
+      }).join("");
+    }
+
+    function changeActiveCycle(cycleNum, allowFuture = false) {
+      const group = getActiveGroup();
+      const n = Number(cycleNum);
+      if (group && !allowFuture && isCycleFuture(group, n) && n !== getCurrentCycleNumber(group)) {
+        showToast(cycleMonthLabel(group, n) + " hasn't arrived yet");
+        return;
+      }
+      state.activeCycle = n;
+      saveState();
+      renderAll();
+    }
+
+    function advanceNextCycle() {
+      const group = getActiveGroup();
+      if (!group) return;
+      const next = state.activeCycle < group.months ? state.activeCycle + 1 : 1;
+      if (isCycleFuture(group, next) && next !== getCurrentCycleNumber(group)) {
+        showToast("Next collection is " + cycleMonthLabel(group, next));
+        return;
+      }
+      state.activeCycle = next;
+      saveState();
+      renderAll();
+    }
+
+    function openModal(id) {
+      if (id === "newGroupModal") {
+        document.getElementById("editGroupId").value = "";
+        document.getElementById("groupModalTitle").textContent = t("createChitTitle");
+        document.getElementById("grp-name").value = "";
+        document.getElementById("grp-type").value = "auction";
+        document.getElementById("grp-pot").value = "100000";
+        document.getElementById("grp-months").value = "10";
+        document.getElementById("grp-comm").value = "5";
+        document.getElementById("grp-dueDay").value = "5";
+        document.getElementById("grp-upi").value = "";
+        setFrequency(1);
+        document.getElementById("grp-startMonth").value = currentMonthKey();
+        updateFreqHint();
+        document.getElementById("deleteGroupBtn").classList.add("hidden");
+      }
+      const m = document.getElementById(id);
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+    }
+
+    function openEditGroupModal() {
+      const g = getActiveGroup();
+      if (!g) return;
+      openModal("newGroupModal");
+      document.getElementById("editGroupId").value = g.id;
+      document.getElementById("groupModalTitle").textContent = "Edit Chit Group";
+      document.getElementById("grp-name").value = g.name;
+      document.getElementById("grp-type").value = g.type;
+      document.getElementById("grp-pot").value = g.potValue;
+      document.getElementById("grp-months").value = g.months;
+      document.getElementById("grp-comm").value = g.commissionPct;
+      document.getElementById("grp-dueDay").value = g.dueDay;
+      document.getElementById("grp-upi").value = g.upi || "";
+      setFrequency(getFrequency(g));
+      document.getElementById("grp-startMonth").value = getStartMonth(g);
+      updateFreqHint();
+      document.getElementById("deleteGroupBtn").classList.remove("hidden");
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      m.classList.add("hidden");
+      m.classList.remove("flex");
+    }
+
+    function setFrequency(n) {
+      const freq = Math.min(6, Math.max(1, Number(n) || 1));
+      document.getElementById("grp-freq").value = String(freq);
+      document.querySelectorAll("#freqPicker .freq-btn").forEach(btn => {
+        btn.classList.toggle("selected", Number(btn.getAttribute("data-freq")) === freq);
+      });
+      updateFreqHint();
+    }
+
+    function updateFreqHint() {
+      const hintEl = document.getElementById("freqHint");
+      if (!hintEl) return;
+      const months = Math.max(2, Number(document.getElementById("grp-months").value) || 10);
+      const freq = Math.min(6, Math.max(1, Number(document.getElementById("grp-freq").value) || 1));
+      const pot = Number(document.getElementById("grp-pot").value) || 0;
+      const start = parseMonthKey(document.getElementById("grp-startMonth").value)
+        ? document.getElementById("grp-startMonth").value
+        : currentMonthKey();
+      const end = addMonthsKey(start, (months - 1) * freq);
+      const perCollection = pot > 0 ? Math.round(pot / months) : 0;
+      hintEl.textContent = months + " collections • " + monthLabel(start) + " to " + monthLabel(end) +
+        (perCollection > 0 ? " • " + formatINR(perCollection) + " each time" : "");
+    }
+
+    function saveGroup() {
+      const editId = document.getElementById("editGroupId").value;
+      const name = document.getElementById("grp-name").value.trim();
+      const type = document.getElementById("grp-type").value;
+      const potValue = Number(document.getElementById("grp-pot").value) || 100000;
+      const months = Math.max(2, Number(document.getElementById("grp-months").value) || 10);
+      const commissionPct = Math.max(0, Number(document.getElementById("grp-comm").value) || 0);
+      const dueDay = Math.min(31, Math.max(1, Number(document.getElementById("grp-dueDay").value) || 5));
+      const upi = document.getElementById("grp-upi").value.trim();
+      const freq = Math.min(6, Math.max(1, Number(document.getElementById("grp-freq").value) || 1));
+      const startMonth = parseMonthKey(document.getElementById("grp-startMonth").value) ? document.getElementById("grp-startMonth").value : currentMonthKey();
+
+      if (!name) return showToast("Please enter a group name");
+
+      if (editId) {
+        const g = state.groups.find(x => x.id === editId);
+        if (g) Object.assign(g, { name, type, potValue, months, commissionPct, dueDay, upi, frequencyMonths: freq, startMonth });
+      } else {
+        const newId = "grp_" + Date.now();
+        state.groups.push({
+          id: newId,
+          name,
+          type,
+          potValue,
+          months,
+          frequencyMonths: freq,
+          startMonth,
+          commissionPct,
+          dueDay,
+          upi,
+          members: [],
+          cycles: {}
+        });
+        state.activeGroupId = newId;
+        state.activeCycle = 1;
+      }
+
+      closeModal("newGroupModal");
+      saveState();
+      renderAll();
+      showToast("Chit group saved!");
+    }
+
+    function deleteCurrentGroup() {
+      if (!confirm("Delete this chit group and its records?")) return;
+      state.groups = state.groups.filter(g => g.id !== state.activeGroupId);
+      state.activeGroupId = null;
+      state.activeCycle = 1;
+      closeModal("newGroupModal");
+      saveState();
+      renderAll();
+    }
+
+    // ==================== BACKUP, RESTORE, MOCK & BLANK RESET ====================
+    function exportBackupJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `chitmanager-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup JSON downloaded!");
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data || !Array.isArray(data.groups)) {
+            throw new Error("Invalid backup format");
+          }
+          state = data;
+          state.groups.forEach(ensureGroupDefaults);
+          state.activeGroupId = null;
+          saveState();
+          renderAll();
+          closeModal("backupModal");
+          showToast("Backup restored successfully!");
+        } catch (err) {
+          alert("Invalid backup file. Please select a valid ChitManager JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function exportCSV() {
+      const group = getActiveGroup();
+      if (!group) return;
+      let csv = "Cycle,Winner,Bid Discount,Commission,Dividend Per Ticket,Prize Paid,Payout Status\n";
+      for (let i = 1; i <= group.months; i++) {
+        const c = group.cycles[i];
+        const w = c && c.winnerId ? group.members.find(m => m.id === c.winnerId) : null;
+        const pStatus = w ? (c.prizeDisbursed ? "Paid" : "Due") : "Pending";
+        csv += `${i},"${w ? w.name.replace(/"/g, '""') : "Pending"}",${c ? c.discount : 0},${c ? c.commission : 0},${c ? c.dividendPerTicket : 0},${c ? c.prizePaid : 0},${pStatus}\n`;
+      }
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${group.name.replace(/\s+/g, "_")}_ledger.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadDemoData(skipConfirm = false) {
+      if (!skipConfirm && state.groups.length > 0 && !confirm("Replace current data with sample mock chit group?")) return;
+      state = createSampleData();
+      saveState();
+      renderAll();
+      closeModal("backupModal");
+      showToast("Sample mock chit loaded!");
+    }
+
+    function clearAllData() {
+      if (!confirm("Clear all chit groups and reset to a blank app?")) return;
+      state = {
+        lang: state.lang || "en",
+        activeGroupId: null,
+        activeCycle: 1,
+        memberFilter: "all",
+        groups: []
+      };
+      localStorage.removeItem(STORAGE_KEY);
+      renderAll();
+      closeModal("backupModal");
+      showToast("App reset to blank state.");
+    }
+
+    // ==================== PWA MANIFEST & INSTALL SETUP ====================
+    let deferredPrompt = null;
+    function generatePWAIconDataURL(size) {
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#5B3EDB";
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size * 0.22);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${Math.round(size * 0.56)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("₹", size / 2, size / 2 + size * 0.04);
+      return canvas.toDataURL("image/png");
+    }
+
+    function setupPWA() {
+      try {
+        const icon192 = generatePWAIconDataURL(192);
+        const icon512 = generatePWAIconDataURL(512);
+
+        const appleIcon = document.createElement("link");
+        appleIcon.rel = "apple-touch-icon";
+        appleIcon.href = icon192;
+        document.head.appendChild(appleIcon);
+
+        const manifest = {
+          name: "ChitManager • Kovai.fyi",
+          short_name: "ChitManager",
+          start_url: window.location.href,
+          scope: window.location.origin + "/",
+          display: "standalone",
+          background_color: "#FFF9F0",
+          theme_color: "#5B3EDB",
+          icons: [
+            { src: icon192, sizes: "192x192", type: "image/png" },
+            { src: icon512, sizes: "512x512", type: "image/png" }
+          ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+        const manifestLink = document.createElement("link");
+        manifestLink.rel = "manifest";
+        manifestLink.href = URL.createObjectURL(manifestBlob);
+        document.head.appendChild(manifestLink);
+      } catch (e) { console.warn("Manifest setup skipped:", e); }
+
+      window.addEventListener("beforeinstallprompt", e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById("pwaInstallBtn");
+        btn.classList.remove("hidden");
+        btn.classList.add("inline-flex");
+        refreshInstallSheetState();
+        if (new URLSearchParams(location.search).has("install")) showInstallSheet();
+      });
+      window.addEventListener("appinstalled", () => {
+        deferredPrompt = null;
+        document.getElementById("installSheetBackdrop").style.display = "none";
+        document.getElementById("pwaInstallBtn").classList.add("hidden");
+      });
+      // Opened from the dashboard's Install button: show the sheet shortly after load.
+      // The sheet only closes when the user taps the X or "Not now"; it never auto-closes.
+      if (new URLSearchParams(location.search).has("install") && !isStandaloneMode()) {
+        setTimeout(showInstallSheet, 600);
+        setTimeout(() => {
+          const els = installSheetEls();
+          if (!deferredPrompt && !isInstallIOS() && els.backdrop.style.display === "flex") els.hint.classList.remove("hidden");
+        }, 5000);
+      }
+    }
+
+    function isInstallIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    function isStandaloneMode() { return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone; }
+    function installSheetEls() { return { backdrop: document.getElementById("installSheetBackdrop"), cta: document.getElementById("installSheetCta"), hint: document.getElementById("installSheetHint"), main: document.getElementById("installSheetMain"), ios: document.getElementById("installSheetIOS") }; }
+    function refreshInstallSheetState() {
+      const { cta, hint, main, ios } = installSheetEls();
+      if (isInstallIOS()) { main.classList.add("hidden"); ios.classList.remove("hidden"); return; }
+      main.classList.remove("hidden"); ios.classList.add("hidden");
+      if (deferredPrompt) { cta.disabled = false; cta.textContent = "Install"; cta.style.opacity = "1"; hint.classList.add("hidden"); }
+      else { cta.disabled = true; cta.textContent = "Preparing…"; cta.style.opacity = "0.6"; }
+    }
+    function showInstallSheet() {
+      if (installSheetDismissed || isStandaloneMode()) return;
+      refreshInstallSheetState();
+      installSheetEls().backdrop.style.display = "flex";
+    }
+    function hideInstallSheet() {
+      installSheetEls().backdrop.style.display = "none";
+      installSheetDismissed = true;
+    }
+    async function installFromSheet() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById("pwaInstallBtn").classList.add("hidden");
+      hideInstallSheet();
+    }
+    function installPWA() { showInstallSheet(); }
+    let installSheetDismissed = false;
+
+    // Boot
+    loadState();
+    setupPWA();
+    renderAll();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => { reg.update(); }).catch((err) => {
+          console.log('ServiceWorker registration skipped or failed:', err);
+        });
+      });
+    }
+  </script>
+
+  <!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
+  <div id="installSheetBackdrop" style="display:none; position:fixed; inset:0; z-index:100; align-items:flex-end; justify-content:center; background:rgba(27,42,74,0.45)">
+    <div class="install-sheet-anim w-full max-w-md bg-[#FFF9F0] rounded-t-3xl shadow-2xl p-5 pb-7 relative">
+      <button onclick="hideInstallSheet()" aria-label="Close" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#F0E6D8] text-[#1B2A4A] text-xl leading-none">×</button>
+      <div class="w-10 h-1.5 rounded-full bg-[#D8CDB8] mx-auto mb-4"></div>
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🪙</span>
+        <div>
+          <h3 class="font-semibold text-lg" style="color:#1B2A4A">Install ChitManager</h3>
+          <p class="text-sm" style="color:#44506B">Add to your home screen for quick access. Works offline.</p>
+        </div>
+      </div>
+      <div id="installSheetMain">
+        <button id="installSheetCta" onclick="installFromSheet()" class="w-full mt-5 py-4 rounded-2xl text-white font-bold text-base" style="background:#5B3EDB">Install</button>
+        <p id="installSheetHint" class="hidden text-center text-xs mt-3" style="color:#64748B">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+      </div>
+      <div id="installSheetIOS" class="hidden mt-5">
+        <p class="text-sm font-semibold" style="color:#1B2A4A">On iPhone, install it in two taps:</p>
+        <p class="text-sm mt-1" style="color:#44506B">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</p>
+      </div>
+      <button onclick="hideInstallSheet()" class="w-full mt-3 py-3 text-base font-semibold" style="color:#44506B">Not now</button>
+    </div>
+  </div>
+</body>
+</html>

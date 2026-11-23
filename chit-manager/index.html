@@ -96,7 +96,17 @@
     .menu-item:hover { background: #F0E6D8; }
     .menu-item svg { width: 22px; height: 22px; flex-shrink: 0; }
     /* Round 2: schematic titles + step accents. */
-    #view-draw h2, #view-history h2 { letter-spacing: .02em; }
+    /* Round 3 (2026-11-23): one letter-spacing scheme for every card + title. */
+    h2, h3 { letter-spacing: .01em; }
+    h2 + p { letter-spacing: .01em; }
+    label { letter-spacing: .01em; }
+    .card-label { text-transform: uppercase; letter-spacing: .08em; }
+    .chit-card p { letter-spacing: .01em; }
+    .chit-card p.card-label { letter-spacing: .08em; }
+    #dash-baseInstallment, #dash-collectedCount, #dash-dividendNote { letter-spacing: .01em; }
+    #view-history thead th { letter-spacing: .08em; text-transform: uppercase; }
+    #view-history td::before { letter-spacing: .08em; text-transform: uppercase; }
+    .settings-menu { padding: 8px; }
     #view-draw h3.uppercase { letter-spacing: .08em; }
     #view-draw .bg-slate-50\/80 { box-shadow: inset 3px 0 0 #5B3EDB; }
     .freq-btn { min-height: 56px; font-size: 15px; font-weight: 700; border-radius: 0.75rem; border: 1px solid #EDE4D6; background: #fff; color: #1B2A4A; padding: 10px 8px; }
@@ -132,7 +142,6 @@
       header { padding-top: env(safe-area-inset-top); }
       header a.w-9 { width: 48px !important; height: 48px !important; font-size: 20px !important; }
       header button, header select { min-height: 48px; }
-      header .p-2 { min-width: 48px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
       header h1 { font-size: 18px !important; }
       /* Desktop tabs off on phone/tablet; bottom nav on */
       #mobileNav { display: flex !important; min-height: 68px; padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important; box-shadow: 0 -2px 12px rgba(27,42,74,.08); }
@@ -346,9 +355,9 @@
         <button id="settingsBtn" onclick="toggleSettingsMenu(event)" aria-haspopup="true" aria-expanded="false" aria-controls="settingsMenu" title="Settings" aria-label="Settings" class="icon-btn">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z"/></svg>
         </button>
-        <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-72 card rounded-2xl shadow-lg p-2 z-40" role="menu" aria-label="Settings">
+        <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-72 card rounded-2xl shadow-lg settings-menu z-40" role="menu" aria-label="Settings">
           <div class="px-3 pt-2 pb-1">
-            <label for="langSelector" class="block text-xs font-bold uppercase tracking-wider text-slate-500">Language</label>
+            <label for="langSelector" class="block text-xs font-bold uppercase card-label text-slate-500">Language</label>
             <div class="relative mt-1.5">
               <select id="langSelector" onchange="setLang(this.value); closeSettingsMenu()" class="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 text-base font-medium rounded-xl pl-3 pr-8 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 cursor-pointer">
                 <option value="en">English</option>
@@ -500,7 +509,7 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="totalPot">Total Chit Value</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug card-label" data-i18n="totalPot">Total Chit Value</p>
             <p id="dash-totalPot" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
           <span id="dash-chitTypeBadge" class="inline-block self-start mt-3 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 truncate max-w-full">Auction</span>
@@ -508,7 +517,7 @@
 
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="currentMonth">Current Cycle</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug card-label" data-i18n="currentMonth">Current Cycle</p>
             <p id="dash-cycle" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 whitespace-nowrap">1 / 10</p>
           </div>
           <div class="flex items-end justify-between gap-2 mt-3">
@@ -519,7 +528,7 @@
 
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="collectedThisMonth">Collected (Cycle)</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug card-label" data-i18n="collectedThisMonth">Collected (Cycle)</p>
             <p id="dash-collected" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
           <p id="dash-collectedCount" class="text-sm text-slate-500 mt-3 leading-snug">0 / 0 Paid</p>
@@ -527,7 +536,7 @@
 
         <div class="card p-4 sm:p-4 flex flex-col justify-between min-w-0">
           <div>
-            <p class="text-sm font-medium text-slate-500 leading-snug" data-i18n="netPayableNow">Net Payable / Ticket</p>
+            <p class="text-sm font-medium text-slate-500 leading-snug card-label" data-i18n="netPayableNow">Net Payable / Ticket</p>
             <p id="dash-netPayable" class="num text-lg sm:text-2xl font-bold text-slate-900 mt-1 truncate">₹0</p>
           </div>
           <p id="dash-dividendNote" class="text-sm text-slate-500 mt-3 leading-snug">Dividend: ₹0</p>
@@ -551,7 +560,7 @@
             <!-- Progress Bar -->
             <div class="pt-1">
               <div class="flex justify-between text-xs mb-1.5">
-                <span class="font-medium text-slate-600" data-i18n="collectionProgress">Collection Progress</span>
+                <span class="font-medium text-slate-600 card-label" data-i18n="collectionProgress">Collection Progress</span>
                 <span id="dash-progressPct" class="num font-semibold text-slate-900">0%</span>
               </div>
               <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
@@ -563,7 +572,7 @@
             <div class="p-4 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div class="space-y-1.5 min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500" data-i18n="cycleWinnerLabel">Cycle Winner</span>
+                  <span class="text-[11px] font-semibold uppercase card-label text-slate-500" data-i18n="cycleWinnerLabel">Cycle Winner</span>
                   <button id="dash-payoutToggle" onclick="togglePrizeDisbursed()" class="hidden px-3 py-3 rounded-md text-sm font-semibold border transition"></button>
                 </div>
                 <p id="dash-winnerText" class="text-sm font-medium text-slate-800 break-words">Pending draw / auction for this cycle</p>
@@ -700,7 +709,7 @@
               🎲
             </div>
             <div id="lottery-resultBanner" class="hidden w-full max-w-sm px-4 py-3 rounded-xl bg-white border border-slate-200">
-              <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider" data-i18n="drawnWinner">Drawn Winner</p>
+              <p class="text-[11px] text-slate-500 font-semibold uppercase card-label" data-i18n="drawnWinner">Drawn Winner</p>
               <p id="lottery-winnerName" class="text-lg font-bold text-slate-900 mt-0.5 break-words"></p>
             </div>
             <div class="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-3">
@@ -790,7 +799,7 @@
         <div class="overflow-visible -mx-4 sm:mx-0 px-4 sm:px-0">
           <table class="ledger-table w-full text-left border-collapse text-base">
             <thead>
-              <tr class="border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider">
+              <tr class="border-b border-slate-200 text-slate-500 text-[11px] uppercase">
                 <th class="py-3 px-3" data-i18n="thCycle">Cycle</th>
                 <th class="py-3 px-3" data-i18n="thWinner">Winner</th>
                 <th class="py-3 px-3" data-i18n="thDiscount">Discount</th>
@@ -2782,7 +2791,7 @@
             </div>
             <div class="flex items-end justify-between gap-3 pt-1">
               <div>
-                <p class="text-sm text-slate-500 leading-relaxed">Chit value</p>
+                <p class="text-sm text-slate-500 leading-relaxed card-label">Chit value</p>
                 <p class="num text-xl font-bold text-slate-900 mt-1">${formatINR(g.potValue)}</p>
                 <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">${formatINR(base)} per collection</p>
               </div>
