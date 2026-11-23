@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chitmanager-pwa-v2';
+const CACHE_NAME = 'chitmanager-pwa-v3';
 const ASSETS = [
   './',
   './index.html',

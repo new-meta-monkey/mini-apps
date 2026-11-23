@@ -71,8 +71,8 @@
         </svg>
         <span>Install App</span>
       </button>
-      <button onclick="seedDemoData()" class="text-xs px-3 py-1.5 rounded-xl border border-[#F0E6D8] bg-white hover:bg-[#FFF9F0] text-[#5A6B8A] font-semibold transition" id="demo-btn">
-        Load 7-Day Demo
+      <button onclick="clearAllData()" class="text-xs px-3 py-1.5 rounded-xl border border-[#F5D5D0] bg-white hover:bg-[#FDF2F0] text-[#C0392B] font-semibold transition" id="reset-btn">
+        Reset data
       </button>
       <button onclick="exportCSV()" class="text-xs px-3 py-1.5 rounded-xl border border-[#F0E6D8] bg-white hover:bg-[#FFF9F0] text-[#5A6B8A] font-semibold transition" id="export-btn">
         Export CSV
@@ -198,7 +198,6 @@
     <div class="rounded-[22px] bg-white border border-[#F0E6D8] card-shadow overflow-hidden theme-card">
       <div class="px-6 py-4 border-b border-[#F0E6D8] flex items-center justify-between">
         <h3 class="text-base font-fredoka font-semibold">Sleep Log History</h3>
-        <button onclick="clearAllData()" class="text-xs text-[#8A97B0] hover:text-coral transition">Clear All</button>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -258,6 +257,7 @@
 
   <footer class="w-full max-w-4xl mx-auto px-4 py-6 text-center text-xs text-[#8A97B0]">
     Installable Offline PWA &bull; Data stored privately in browser <code class="bg-[#F0E6D8] px-1.5 py-0.5 rounded text-[#5A6B8A]">localStorage</code>.
+    <br /><button id="update-btn" onclick="checkForUpdates()" class="mt-2 font-semibold text-[#5A6B8A] underline underline-offset-2">Check for updates</button>
   </footer>
 
   <!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
@@ -351,7 +351,7 @@
     // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((err) => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => { reg.update(); }).catch((err) => {
           console.log('ServiceWorker registration skipped or failed:', err);
         });
       });
@@ -716,7 +716,7 @@
     function renderTable(logs) {
       const tbody = document.getElementById('history-tbody');
       if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-[#8A97B0]">No entries recorded yet. Click "Going to Sleep" or "Load 7-Day Demo" above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-[#8A97B0]">No entries recorded yet. Tap "Going to Sleep" above to log your first night.</td></tr>`;
         return;
       }
 
@@ -840,30 +840,33 @@
       a.click();
     }
 
-    function seedDemoData() {
-      const sampleDurations = [7.5, 6.2, 8.1, 7.8, 5.9, 8.4, 7.6];
-      const qualities = ['Rested', 'Groggy', 'Rested', 'Rested', 'Groggy', 'Rested', 'Okay'];
-      const now = new Date();
-      const demoLogs = [];
-
-      for (let i = 0; i < 7; i++) {
-        const wake = new Date(now);
-        wake.setDate(now.getDate() - i);
-        wake.setHours(6, 45 + (i % 3) * 10, 0, 0);
-
-        const sleep = new Date(wake.getTime() - sampleDurations[i] * 60 * 60 * 1000);
-        demoLogs.push({
-          id: 'demo-' + i,
-          sleepTime: sleep.toISOString(),
-          wakeTime: wake.toISOString(),
-          durationHours: sampleDurations[i],
-          quality: qualities[i]
-        });
+    async function checkForUpdates() {
+      const btn = document.getElementById('update-btn');
+      if (btn) { btn.textContent = 'Checking…'; btn.disabled = true; }
+      const done = (msg) => {
+        if (btn) { btn.textContent = 'Check for updates'; btn.disabled = false; }
+        if (msg) showToast(msg);
+      };
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) { location.reload(); return; }
+        await reg.update();
+        if (reg.waiting) { location.reload(); return; }
+        const installing = reg.installing;
+        if (installing) {
+          await new Promise((resolve) => {
+            const timer = setTimeout(resolve, 5000);
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed') { clearTimeout(timer); resolve(); }
+            });
+          });
+          if (reg.waiting) { location.reload(); return; }
+        }
+        done("You're on the latest version");
+      } catch (e) {
+        done();
+        location.reload();
       }
-      saveLogs(demoLogs);
-      localStorage.removeItem(ACTIVE_KEY);
-      renderAll();
-      showToast('Loaded 7 days of sample sleep data');
     }
 
     init();

@@ -659,6 +659,7 @@ function openSettingsSheet() {
     + '<div class="sheet-actions">'
     + '<button type="button" class="ghost-btn wide" id="settingsBackupBtn">Backup all apps</button>'
     + '<button type="button" class="ghost-btn wide" id="settingsRestoreBtn">Restore from backup</button>'
+    + '<button type="button" class="ghost-btn wide" id="settingsUpdateBtn">Check for updates</button>'
     + '</div>'
     + '<span id="settingsLastBackup" class="last-backup"></span>'
     + '<span class="install-note">Backup downloads one file with all three apps&rsquo; data. Restore replaces the data in the apps it covers and keeps a safety copy you can undo.</span>';
@@ -669,8 +670,35 @@ function openSettingsSheet() {
   document.getElementById('settingsRestoreBtn').addEventListener('click', function () {
     document.getElementById('restoreFile').click();
   });
+  document.getElementById('settingsUpdateBtn').addEventListener('click', function () {
+    checkForUpdates(this);
+  });
   showLastBackup();
   showSheet();
+}
+
+function checkForUpdates(btn) {
+  if (btn) { btn.textContent = 'Checking\u2026'; btn.disabled = true; }
+  function done(msg) {
+    if (btn) { btn.textContent = msg || 'Check for updates'; btn.disabled = false; }
+  }
+  if (!('serviceWorker' in navigator)) { location.reload(); return; }
+  navigator.serviceWorker.getRegistration().then(function (reg) {
+    if (!reg) { location.reload(); return; }
+    return reg.update().then(function () {
+      if (reg.waiting) { location.reload(); return; }
+      var installing = reg.installing;
+      if (!installing) { done("You're on the latest version"); return; }
+      var settled = false;
+      var finish = function () {
+        if (settled) return;
+        settled = true;
+        if (reg.waiting) { location.reload(); } else { done("You're on the latest version"); }
+      };
+      installing.addEventListener('statechange', function () { if (installing.state === 'installed') finish(); });
+      setTimeout(finish, 5000);
+    });
+  }).catch(function () { done(); location.reload(); });
 }
 
 function route() {
@@ -885,7 +913,7 @@ route();
 // Register the dashboard service worker so Mini Apps installs as a PWA.
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
+    navigator.serviceWorker.register('./sw.js').then(function (reg) { reg.update(); }).catch(function () {});
   });
 }
 </script>

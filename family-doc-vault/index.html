@@ -1206,6 +1206,19 @@
         </div>
 
         <div class="section-head">
+          <h2>App Updates</h2>
+        </div>
+        <div class="settings-group">
+          <div class="settings-row" style="cursor:pointer;" onclick="checkForUpdates()">
+            <div>
+              <div class="sr-title">Check for updates</div>
+              <div class="sr-desc">Get the latest version when one is available</div>
+            </div>
+            <span class="btn btn-soft btn-sm" id="update-btn">Check</span>
+          </div>
+        </div>
+
+        <div class="section-head">
           <h2>Danger Zone</h2>
         </div>
         <div class="settings-group">
@@ -2446,9 +2459,38 @@
        10. PWA & UTILS
        ========================================================================= */
     let deferredPrompt = null;
+    async function checkForUpdates() {
+      const btn = document.getElementById('update-btn');
+      if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+      const done = (msg) => {
+        if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+        if (msg) showToast(msg);
+      };
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) { location.reload(); return; }
+        await reg.update();
+        if (reg.waiting) { location.reload(); return; }
+        const installing = reg.installing;
+        if (installing) {
+          await new Promise((resolve) => {
+            const timer = setTimeout(resolve, 5000);
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed') { clearTimeout(timer); resolve(); }
+            });
+          });
+          if (reg.waiting) { location.reload(); return; }
+        }
+        done("You're on the latest version");
+      } catch (e) {
+        done();
+        location.reload();
+      }
+    }
+
     function registerPWA() {
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).then((reg) => { reg.update(); }).catch(() => {});
       }
       window.addEventListener("beforeinstallprompt", (e) => {
         e.preventDefault();

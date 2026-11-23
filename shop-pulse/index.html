@@ -3779,6 +3779,7 @@ function vSettings(){
       return `<div class="set-row"><div><b style="font-size:14px">Backup Status</b><div class="small" style="color:${warn?'#b45309':'var(--muted)'}">${warn?'⚠️ '+(d===null?'Never backed up yet':'Last backup was '+d+' days ago'):'✓ Last backup '+niceDate(db.settings.lastBackupAt)}</div></div><button class="btn btn-outline btn-sm" onclick="backup()">${I.down} Backup Now</button></div>`;})()}
     <div class="set-row"><div><b style="font-size:14px">Backup Full Data</b><div class="small muted">Download JSON backup of everything</div></div><button class="btn btn-outline btn-sm" onclick="backup()">${I.down} Backup</button></div>
     <div class="set-row"><div><b style="font-size:14px">Restore Backup</b><div class="small muted">Import a previously saved JSON</div></div><button class="btn btn-outline btn-sm" onclick="document.getElementById('restoreFile').click()">${I.up} Restore</button></div>
+    <div class="set-row"><div><b style="font-size:14px">Check for Updates</b><div class="small muted">Get the latest version when one is available</div></div><button class="btn btn-outline btn-sm" id="update-btn" onclick="checkForUpdates()">↻ Check for Updates</button></div>
     <div class="set-row"><div><b style="font-size:14px">Export Inventory</b><div class="small muted">CSV of all products & stock</div></div><button class="btn btn-outline btn-sm" onclick="exportProductsCSV()">${I.down} CSV</button></div>
     <div class="set-row"><div><b style="font-size:14px">Import Products (CSV)</b><div class="small muted">Bulk-add products from a CSV file or pasted text</div></div><button class="btn btn-outline btn-sm" onclick="openImportModal('products')">${I.up} Import</button></div>
     <div class="set-row"><div><b style="font-size:14px">Import Customers (CSV)</b><div class="small muted">Bulk-add customers from a CSV file or pasted text</div></div><button class="btn btn-outline btn-sm" onclick="openImportModal('customers')">${I.up} Import</button></div>
@@ -3868,6 +3869,31 @@ function savePin(){
 }
 
 /* ---------- Backup ---------- */
+async function checkForUpdates(){
+  var btn=document.getElementById('update-btn');
+  if(btn){btn.textContent='Checking\u2026';btn.disabled=true;}
+  try{
+    var reg=await navigator.serviceWorker.getRegistration();
+    if(!reg){location.reload();return;}
+    await reg.update();
+    if(reg.waiting){location.reload();return;}
+    var installing=reg.installing;
+    if(installing){
+      await new Promise(function(resolve){
+        var timer=setTimeout(resolve,5000);
+        installing.addEventListener('statechange',function(){
+          if(installing.state==='installed'){clearTimeout(timer);resolve();}
+        });
+      });
+      if(reg.waiting){location.reload();return;}
+    }
+    if(btn){btn.textContent='\u21bb Check for Updates';btn.disabled=false;}
+    toast("You're on the latest version",'ok');
+  }catch(e){
+    if(btn){btn.textContent='\u21bb Check for Updates';btn.disabled=false;}
+    location.reload();
+  }
+}
 function backup(silent){
   downloadFile('shoppulse_backup_'+todayStr()+'.json',JSON.stringify(db),'application/json');
   db.settings.lastBackupAt=new Date().toISOString();save();
@@ -4205,7 +4231,7 @@ if (new URLSearchParams(location.search).has('install') && !isStandaloneMode()) 
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then((reg) => { reg.update(); }).catch(() => {});
   });
 }
 </script>

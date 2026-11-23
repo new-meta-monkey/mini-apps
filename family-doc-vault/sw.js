@@ -1,4 +1,4 @@
-const CACHE_NAME = 'family-doc-vault-v2';
+const CACHE_NAME = 'family-doc-vault-v3';
 const APP_SHELL = [
   './',
   './index.html',
