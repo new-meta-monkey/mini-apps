@@ -47,6 +47,8 @@
     .dark-card-shadow {
       box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
     }
+    @keyframes installSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .install-sheet-anim { animation: installSheetUp 0.28s cubic-bezier(0.2, 0.9, 0.25, 1); }
   </style>
 </head>
 <body class="bg-cream text-navy font-nunito min-h-screen flex flex-col justify-between">
@@ -63,7 +65,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button id="install-btn" onclick="installPWA()" class="hidden text-xs px-3 py-1.5 rounded-xl bg-grape hover:bg-[#6A50E8] text-white font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+      <button id="install-btn" onclick="showInstallSheet()" class="hidden text-xs px-3 py-1.5 rounded-xl bg-grape hover:bg-[#6A50E8] text-white font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
         </svg>
@@ -258,6 +260,30 @@
     Installable Offline PWA &bull; Data stored privately in browser <code class="bg-[#F0E6D8] px-1.5 py-0.5 rounded text-[#5A6B8A]">localStorage</code>.
   </footer>
 
+  <!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
+  <div id="installSheetBackdrop" style="display:none; position:fixed; inset:0; z-index:50; align-items:flex-end; justify-content:center; background:rgba(27,42,74,0.45)">
+    <div class="install-sheet-anim w-full max-w-md bg-[#FFF9F0] rounded-t-3xl shadow-2xl p-5 pb-7 relative">
+      <button onclick="hideInstallSheet()" aria-label="Close" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#F0E6D8] text-[#1B2A4A] text-xl leading-none cursor-pointer">×</button>
+      <div class="w-10 h-1.5 rounded-full bg-[#D8CDB8] mx-auto mb-4"></div>
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🌙</span>
+        <div>
+          <h3 class="font-semibold text-lg text-[#1B2A4A]">Install SleepPulse</h3>
+          <p class="text-sm text-[#5A6B8A]">Add to your home screen for quick access. Works offline.</p>
+        </div>
+      </div>
+      <div id="installSheetMain">
+        <button id="installSheetCta" onclick="installFromSheet()" class="w-full mt-5 py-3.5 rounded-2xl bg-grape hover:bg-[#6A50E8] text-white font-bold text-base cursor-pointer">Install</button>
+        <p id="installSheetHint" class="hidden text-center text-xs text-[#8A97B0] mt-3">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+      </div>
+      <div id="installSheetIOS" class="hidden mt-5">
+        <p class="text-sm text-[#1B2A4A] font-semibold">On iPhone, install it in two taps:</p>
+        <p class="text-sm text-[#5A6B8A] mt-1">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</p>
+      </div>
+      <button onclick="hideInstallSheet()" class="w-full mt-3 py-2 text-sm font-semibold text-[#5A6B8A] cursor-pointer">Not now</button>
+    </div>
+  </div>
+
   <script>
     const STORAGE_KEY = 'sleeppulse_logs_v1';
     const ACTIVE_KEY = 'sleeppulse_active_sleep_v1';
@@ -266,34 +292,60 @@
     let isDark = localStorage.getItem(THEME_KEY) === 'dark';
     let deferredInstallPrompt = null;
 
-    // PWA Install Prompt Handling
+    // PWA install bottom sheet — the dashboard's Install button opens with ?install=1.
+    // The sheet only closes when the user taps the X or "Not now"; it never auto-closes.
+    let installSheetDismissed = false;
+    function isInstallIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    function isStandaloneMode() { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone; }
+    function installSheetEls() { return { backdrop: document.getElementById('installSheetBackdrop'), cta: document.getElementById('installSheetCta'), hint: document.getElementById('installSheetHint'), main: document.getElementById('installSheetMain'), ios: document.getElementById('installSheetIOS') }; }
+    function refreshInstallSheetState() {
+      const { cta, hint, main, ios } = installSheetEls();
+      if (isInstallIOS()) { main.classList.add('hidden'); ios.classList.remove('hidden'); return; }
+      main.classList.remove('hidden'); ios.classList.add('hidden');
+      if (deferredInstallPrompt) { cta.disabled = false; cta.textContent = 'Install'; cta.style.opacity = '1'; hint.classList.add('hidden'); }
+      else { cta.disabled = true; cta.textContent = 'Preparing…'; cta.style.opacity = '0.6'; }
+    }
+    function showInstallSheet() {
+      if (installSheetDismissed || isStandaloneMode()) return;
+      refreshInstallSheetState();
+      installSheetEls().backdrop.style.display = 'flex';
+    }
+    function hideInstallSheet() {
+      installSheetEls().backdrop.style.display = 'none';
+      installSheetDismissed = true;
+    }
+    async function installFromSheet() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      hideInstallSheet();
+    }
+    function installPWA() { showInstallSheet(); }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
       document.getElementById('install-btn').classList.remove('hidden');
-      if (new URLSearchParams(location.search).has('install')) showToast('Tap Install App up top to add SleepPulse to your home screen.');
+      refreshInstallSheetState();
+      if (new URLSearchParams(location.search).has('install')) showInstallSheet();
     });
 
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
       document.getElementById('install-btn').classList.add('hidden');
       document.getElementById('pwa-badge').classList.remove('hidden');
+      document.getElementById('installSheetBackdrop').style.display = 'none';
       showToast('SleepPulse installed on your device!');
     });
 
-    // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
-    if (new URLSearchParams(location.search).has('install') && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-      showToast('On iPhone: tap Share, then Add to Home Screen.');
-    }
-
-    async function installPWA() {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === 'accepted') {
-        document.getElementById('install-btn').classList.add('hidden');
-      }
-      deferredInstallPrompt = null;
+    // Opened from the dashboard's Install button: show the sheet shortly after load.
+    if (new URLSearchParams(location.search).has('install') && !isStandaloneMode()) {
+      setTimeout(showInstallSheet, 600);
+      setTimeout(() => {
+        const { backdrop, hint } = installSheetEls();
+        if (!deferredInstallPrompt && !isInstallIOS() && backdrop.style.display === 'flex') hint.classList.remove('hidden');
+      }, 5000);
     }
 
     // Register Service Worker

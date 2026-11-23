@@ -71,6 +71,8 @@
     .tab-active svg {
       stroke: #7B61FF;
     }
+    @keyframes installSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .install-sheet-anim { animation: installSheetUp 0.28s cubic-bezier(0.2, 0.9, 0.25, 1); }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #D8CDB8; border-radius: 9999px; }
     @keyframes spinWheel {
@@ -131,7 +133,7 @@
           <svg class="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </div>
 
-        <button id="pwaInstallBtn" onclick="installPWA()" class="hidden items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
+        <button id="pwaInstallBtn" onclick="showInstallSheet()" class="hidden items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold hover:bg-indigo-100 transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="install">Install</span>
         </button>
@@ -2774,22 +2776,54 @@
         const btn = document.getElementById("pwaInstallBtn");
         btn.classList.remove("hidden");
         btn.classList.add("inline-flex");
-        if (new URLSearchParams(location.search).has("install")) showToast("Tap Install up top to add ChitManager to your home screen.");
+        refreshInstallSheetState();
+        if (new URLSearchParams(location.search).has("install")) showInstallSheet();
       });
-
-      // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
-      if (new URLSearchParams(location.search).has("install") && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-        showToast("On iPhone: tap Share, then Add to Home Screen.");
+      window.addEventListener("appinstalled", () => {
+        deferredPrompt = null;
+        document.getElementById("installSheetBackdrop").style.display = "none";
+        document.getElementById("pwaInstallBtn").classList.add("hidden");
+      });
+      // Opened from the dashboard's Install button: show the sheet shortly after load.
+      // The sheet only closes when the user taps the X or "Not now"; it never auto-closes.
+      if (new URLSearchParams(location.search).has("install") && !isStandaloneMode()) {
+        setTimeout(showInstallSheet, 600);
+        setTimeout(() => {
+          const els = installSheetEls();
+          if (!deferredPrompt && !isInstallIOS() && els.backdrop.style.display === "flex") els.hint.classList.remove("hidden");
+        }, 5000);
       }
     }
 
-    async function installPWA() {
+    function isInstallIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    function isStandaloneMode() { return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone; }
+    function installSheetEls() { return { backdrop: document.getElementById("installSheetBackdrop"), cta: document.getElementById("installSheetCta"), hint: document.getElementById("installSheetHint"), main: document.getElementById("installSheetMain"), ios: document.getElementById("installSheetIOS") }; }
+    function refreshInstallSheetState() {
+      const { cta, hint, main, ios } = installSheetEls();
+      if (isInstallIOS()) { main.classList.add("hidden"); ios.classList.remove("hidden"); return; }
+      main.classList.remove("hidden"); ios.classList.add("hidden");
+      if (deferredPrompt) { cta.disabled = false; cta.textContent = "Install"; cta.style.opacity = "1"; hint.classList.add("hidden"); }
+      else { cta.disabled = true; cta.textContent = "Preparing…"; cta.style.opacity = "0.6"; }
+    }
+    function showInstallSheet() {
+      if (installSheetDismissed || isStandaloneMode()) return;
+      refreshInstallSheetState();
+      installSheetEls().backdrop.style.display = "flex";
+    }
+    function hideInstallSheet() {
+      installSheetEls().backdrop.style.display = "none";
+      installSheetDismissed = true;
+    }
+    async function installFromSheet() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
       deferredPrompt = null;
       document.getElementById("pwaInstallBtn").classList.add("hidden");
+      hideInstallSheet();
     }
+    function installPWA() { showInstallSheet(); }
+    let installSheetDismissed = false;
 
     // Boot
     loadState();
@@ -2805,5 +2839,29 @@
       });
     }
   </script>
+
+  <!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
+  <div id="installSheetBackdrop" style="display:none; position:fixed; inset:0; z-index:100; align-items:flex-end; justify-content:center; background:rgba(27,42,74,0.45)">
+    <div class="install-sheet-anim w-full max-w-md bg-[#FFF9F0] rounded-t-3xl shadow-2xl p-5 pb-7 relative">
+      <button onclick="hideInstallSheet()" aria-label="Close" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#F0E6D8] text-[#1B2A4A] text-xl leading-none">×</button>
+      <div class="w-10 h-1.5 rounded-full bg-[#D8CDB8] mx-auto mb-4"></div>
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🪙</span>
+        <div>
+          <h3 class="font-semibold text-lg" style="color:#1B2A4A">Install ChitManager</h3>
+          <p class="text-sm" style="color:#5A6B8A">Add to your home screen for quick access. Works offline.</p>
+        </div>
+      </div>
+      <div id="installSheetMain">
+        <button id="installSheetCta" onclick="installFromSheet()" class="w-full mt-5 py-3.5 rounded-2xl text-white font-bold text-base" style="background:#7B61FF">Install</button>
+        <p id="installSheetHint" class="hidden text-center text-xs mt-3" style="color:#8A97B0">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+      </div>
+      <div id="installSheetIOS" class="hidden mt-5">
+        <p class="text-sm font-semibold" style="color:#1B2A4A">On iPhone, install it in two taps:</p>
+        <p class="text-sm mt-1" style="color:#5A6B8A">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</p>
+      </div>
+      <button onclick="hideInstallSheet()" class="w-full mt-3 py-2 text-sm font-semibold" style="color:#5A6B8A">Not now</button>
+    </div>
+  </div>
 </body>
 </html>

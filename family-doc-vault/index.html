@@ -2454,19 +2454,57 @@
         e.preventDefault();
         deferredPrompt = e;
         document.getElementById("installBtn").classList.remove("hidden");
-        if (new URLSearchParams(location.search).has("install")) showToast("Tap Install up top to add DocVault to your home screen.");
+        refreshInstallSheetState();
+        if (new URLSearchParams(location.search).has("install")) showInstallSheet();
       });
-      // Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
-      if (new URLSearchParams(location.search).has("install") && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-        showToast("On iPhone: tap Share, then Add to Home Screen.");
-      }
-      document.getElementById("installBtn").addEventListener("click", async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
+      window.addEventListener("appinstalled", () => {
         deferredPrompt = null;
+        document.getElementById("installSheetBackdrop").style.display = "none";
         document.getElementById("installBtn").classList.add("hidden");
       });
+      document.getElementById("installBtn").addEventListener("click", () => showInstallSheet());
+      // Opened from the dashboard's Install button: show the sheet shortly after load.
+      // The sheet only closes when the user taps the X or "Not now"; it never auto-closes.
+      if (new URLSearchParams(location.search).has("install") && !isStandaloneMode()) {
+        setTimeout(showInstallSheet, 600);
+        setTimeout(() => {
+          const els = installSheetEls();
+          if (!deferredPrompt && !isInstallIOS() && els.backdrop.style.display === "flex") els.hint.style.display = "block";
+        }, 5000);
+      }
+    }
+
+    /* Install bottom sheet state */
+    let installSheetDismissed = false;
+    function isInstallIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    function isStandaloneMode() { return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone; }
+    function installSheetEls() { return { backdrop: document.getElementById("installSheetBackdrop"), cta: document.getElementById("installSheetCta"), hint: document.getElementById("installSheetHint"), main: document.getElementById("installSheetMain"), ios: document.getElementById("installSheetIOS") }; }
+    function refreshInstallSheetState() {
+      const els = installSheetEls();
+      if (!els.cta) return;
+      if (isInstallIOS()) { els.main.style.display = "none"; els.ios.style.display = "block"; return; }
+      els.main.style.display = "block"; els.ios.style.display = "none";
+      if (deferredPrompt) { els.cta.disabled = false; els.cta.textContent = "Install"; els.cta.style.opacity = "1"; els.hint.style.display = "none"; }
+      else { els.cta.disabled = true; els.cta.textContent = "Preparing…"; els.cta.style.opacity = "0.6"; }
+    }
+    function showInstallSheet() {
+      if (installSheetDismissed || isStandaloneMode()) return;
+      refreshInstallSheetState();
+      const b = document.getElementById("installSheetBackdrop");
+      if (b) b.style.display = "flex";
+    }
+    function hideInstallSheet() {
+      const b = document.getElementById("installSheetBackdrop");
+      if (b) b.style.display = "none";
+      installSheetDismissed = true;
+    }
+    async function installFromSheet() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById("installBtn").classList.add("hidden");
+      hideInstallSheet();
     }
 
     function copyText(val, label = "Value") {
@@ -2494,5 +2532,31 @@
 
     initApp();
   </script>
+
+  <!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
+  <div id="installSheetBackdrop" class="sheet-backdrop" style="display:none">
+    <div class="sheet" onclick="event.stopPropagation()" style="position:relative">
+      <div class="sheet-handle"></div>
+      <div class="sheet-body" style="padding: 6px 20px 28px">
+        <button onclick="hideInstallSheet()" aria-label="Close" style="position:absolute; top:14px; right:16px; width:36px; height:36px; border-radius:50%; border:none; background:rgba(79,70,229,0.1); color:var(--text); font-size:20px; line-height:1; cursor:pointer">×</button>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:8px">
+          <span style="font-size:36px">🔐</span>
+          <div>
+            <div style="font-size:18px; font-weight:700; color:var(--text)">Install DocVault</div>
+            <div style="font-size:13px; color:var(--muted)">Add to your home screen for quick access. Works offline.</div>
+          </div>
+        </div>
+        <div id="installSheetMain">
+          <button id="installSheetCta" onclick="installFromSheet()" style="width:100%; margin-top:18px; padding:14px; font-size:16px; font-weight:700; color:#fff; background:#4f46e5; border:none; border-radius:12px; cursor:pointer">Install</button>
+          <p id="installSheetHint" style="display:none; text-align:center; font-size:12px; color:var(--muted); margin:10px 0 0">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+        </div>
+        <div id="installSheetIOS" style="display:none; margin-top:18px">
+          <div style="font-size:14px; font-weight:700; color:var(--text)">On iPhone, install it in two taps:</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:4px">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</div>
+        </div>
+        <button onclick="hideInstallSheet()" style="width:100%; margin-top:12px; padding:10px; font-size:14px; font-weight:600; color:var(--muted); background:transparent; border:none; cursor:pointer">Not now</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

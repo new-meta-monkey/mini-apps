@@ -343,6 +343,31 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 <div id="shopPick" class="hidden"></div>
 <div id="printArea"></div>
 
+<!-- Install bottom sheet (dashboard Install button opens with ?install=1) -->
+<div id="installSheetBackdrop" style="display:none; position:fixed; inset:0; z-index:200; align-items:flex-end; justify-content:center; background:rgba(27,42,74,0.45)">
+  <div style="width:100%; max-width:480px; background:#FFF9F0; border-radius:22px 22px 0 0; box-shadow:0 -8px 32px rgba(27,42,74,0.25); padding:20px 20px 28px; position:relative; animation:spSheetUp .28s cubic-bezier(.2,.9,.25,1)">
+    <button onclick="hideInstallSheet()" aria-label="Close" style="position:absolute; top:14px; right:14px; width:36px; height:36px; border-radius:50%; border:none; background:#F0E6D8; color:#1B2A4A; font-size:20px; line-height:1; cursor:pointer">×</button>
+    <div style="width:40px; height:6px; border-radius:999px; background:#D8CDB8; margin:0 auto 16px"></div>
+    <div style="display:flex; align-items:center; gap:12px">
+      <span style="font-size:36px">🛍️</span>
+      <div>
+        <div style="font-size:18px; font-weight:800; color:#1B2A4A">Install ShopPulse</div>
+        <div style="font-size:13px; color:#5A6B8A">Add to your home screen for quick access. Works offline.</div>
+      </div>
+    </div>
+    <div id="installSheetMain">
+      <button id="installSheetCta" class="btn btn-primary" onclick="installFromSheet()" style="width:100%; margin-top:18px; padding:14px; font-size:16px">Install</button>
+      <p id="installSheetHint" style="display:none; text-align:center; font-size:12px; color:#8A97B0; margin:10px 0 0">Your browser hasn't offered install yet — try Chrome or Brave.</p>
+    </div>
+    <div id="installSheetIOS" style="display:none; margin-top:18px">
+      <div style="font-size:14px; font-weight:700; color:#1B2A4A">On iPhone, install it in two taps:</div>
+      <div style="font-size:13px; color:#5A6B8A; margin-top:4px">1. Tap <b>Share</b> in your browser toolbar.<br>2. Tap <b>Add to Home Screen</b>.</div>
+    </div>
+    <button onclick="hideInstallSheet()" class="btn" style="width:100%; margin-top:12px; padding:10px; font-size:14px">Not now</button>
+  </div>
+</div>
+<style>@keyframes spSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }</style>
+
 <script>
 'use strict';
 
@@ -1068,7 +1093,7 @@ function render(){
     bb.innerHTML='<span style="transform:rotate(180deg);display:inline-flex">'+I.arrow+'</span>';
     bb.title=canBack?'Back to '+VIEW_META[S.backStack[S.backStack.length-1].view][0]:'Back';
   }
-  $('#tbActions').innerHTML=(deferredPrompt?`<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>`:'')+`<button class="theme-btn" title="Switch theme" onclick="toggleTheme()">${db.settings.theme==='dark'?I.sun:I.moon}</button>`+topActions();
+  $('#tbActions').innerHTML=(deferredPrompt?`<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="showInstallSheet()">Install</button>`:'')+`<button class="theme-btn" title="Switch theme" onclick="toggleTheme()">${db.settings.theme==='dark'?I.sun:I.moon}</button>`+topActions();
   $('#sbShopName').textContent=db.settings.shopName||'ShopPulse';
   const sf=$('#sbFoot');if(sf)sf.innerHTML='100% offline · Using as <b>'+esc(S.user?S.user.name:'Owner')+'</b>'+(userRolesOn()?' · <a href="#" onclick="showUserPicker();return false" style="text-decoration:underline">Switch</a>':'');
   if(!canAccess(S.view))S.view='dashboard';
@@ -4100,26 +4125,62 @@ function bootApp(){
   if(db.settings.pinOn&&/^\d{4}$/.test(db.settings.pin||''))showLock();
   if(!S.user&&userRolesOn())showUserPicker();
 }
-/* ---------- PWA install: dashboard Install button opens with ?install=1 ---------- */
+/* ---------- PWA install bottom sheet: dashboard Install button opens with ?install=1 ---------- */
+/* The sheet only closes when the user taps the X or "Not now"; it never auto-closes. */
+let installSheetDismissed = false;
+function isInstallIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+function isStandaloneMode() { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone; }
+function installSheetEls() { return { backdrop: document.getElementById('installSheetBackdrop'), cta: document.getElementById('installSheetCta'), hint: document.getElementById('installSheetHint'), main: document.getElementById('installSheetMain'), ios: document.getElementById('installSheetIOS') }; }
+function refreshInstallSheetState() {
+  const { cta, hint, main, ios } = installSheetEls();
+  if (!cta) return;
+  if (isInstallIOS()) { main.style.display = 'none'; ios.style.display = 'block'; return; }
+  main.style.display = 'block'; ios.style.display = 'none';
+  if (deferredPrompt) { cta.disabled = false; cta.textContent = 'Install'; cta.style.opacity = '1'; hint.style.display = 'none'; }
+  else { cta.disabled = true; cta.textContent = 'Preparing…'; cta.style.opacity = '0.6'; }
+}
+function showInstallSheet() {
+  if (installSheetDismissed || isStandaloneMode()) return;
+  refreshInstallSheetState();
+  const b = document.getElementById('installSheetBackdrop');
+  if (b) b.style.display = 'flex';
+}
+function hideInstallSheet() {
+  const b = document.getElementById('installSheetBackdrop');
+  if (b) b.style.display = 'none';
+  installSheetDismissed = true;
+}
+async function installFromSheet() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  hideInstallSheet();
+  render();
+}
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   const tb = document.getElementById('tbActions');
   if (tb && !document.getElementById('spInstallBtn')) {
-    tb.insertAdjacentHTML('afterbegin', '<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>');
+    tb.insertAdjacentHTML('afterbegin', '<button id="spInstallBtn" class="btn btn-primary btn-sm" onclick="showInstallSheet()">Install</button>');
   }
-  if (new URLSearchParams(location.search).has('install')) toast('Tap Install up top to add ShopPulse to your home screen.');
+  refreshInstallSheetState();
+  if (new URLSearchParams(location.search).has('install')) showInstallSheet();
 });
-async function installPWA() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  render();
-}
-// Opened from the dashboard's Install button on an iPhone: no install prompt exists there.
-if (new URLSearchParams(location.search).has('install') && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-  toast('On iPhone: tap Share, then Add to Home Screen.');
+  const b = document.getElementById('installSheetBackdrop');
+  if (b) b.style.display = 'none';
+  toast('ShopPulse installed on your device!');
+});
+// Opened from the dashboard's Install button: show the sheet shortly after load.
+if (new URLSearchParams(location.search).has('install') && !isStandaloneMode()) {
+  setTimeout(showInstallSheet, 600);
+  setTimeout(() => {
+    const { backdrop, hint } = installSheetEls();
+    if (!deferredPrompt && !isInstallIOS() && backdrop && backdrop.style.display === 'flex') hint.style.display = 'block';
+  }, 5000);
 }
 (function boot(){
   if(!loadMaster()){
