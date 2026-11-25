@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mini-apps-pwa-v4';
+const CACHE_NAME = 'mini-apps-pwa-v5';
 const ASSETS = [
   './',
   './index.html',

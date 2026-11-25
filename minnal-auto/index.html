@@ -1,0 +1,4290 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sunny">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MINNAL AUTO — Auto Drift Express</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & AAA ARCADE RACING THEME SYSTEM
+       ========================================================================== */
+    :root, [data-theme="sunny"] {
+      --carbon-1: #0b0f19;
+      --carbon-2: #141b29;
+      --carbon-3: #1c2538;
+      --glass-dark: rgba(11, 15, 25, 0.72);
+      --glass-dark-strong: rgba(11, 15, 25, 0.88);
+      --border-steel: rgba(255, 255, 255, 0.16);
+      --border-gold: rgba(250, 204, 21, 0.65);
+      --accent-gold: #facc15;
+      --accent-amber: #f59e0b;
+      --accent-crimson: #ef4444;
+      --accent-emerald: #22c55e;
+      --accent-cyan: #38bdf8;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --safe-top: max(12px, env(safe-area-inset-top));
+      --safe-bottom: max(16px, env(safe-area-inset-bottom));
+      --safe-left: max(12px, env(safe-area-inset-left));
+      --safe-right: max(12px, env(safe-area-inset-right));
+      --font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans Tamil", "Noto Sans Devanagari", "Noto Sans Malayalam", "Noto Sans Telugu", "Noto Sans Kannada", sans-serif;
+    }
+
+    [data-theme="night"] {
+      --glass-dark: rgba(8, 10, 22, 0.80);
+      --glass-dark-strong: rgba(8, 10, 22, 0.92);
+      --border-steel: rgba(167, 139, 250, 0.28);
+      --border-gold: rgba(253, 224, 71, 0.72);
+    }
+
+    /* Subtle Diagonal Carbon-Fiber Weave Texture */
+    .carbon-surface {
+      background-color: #0e1320;
+      background-image:
+        linear-gradient(135deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255,255,255,0.025) 25%, #0e1320 25%);
+      background-position: 8px 0, 8px 0, 0 0, 0 0;
+      background-size: 16px 16px;
+      background-repeat: repeat;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      background: #0b0f19;
+      color: var(--text-light);
+      font-family: var(--font-ui);
+      line-height: 1.35;
+      user-select: none;
+      -webkit-user-select: none;
+      overscroll-behavior: none;
+      touch-action: none;
+    }
+
+    /* Full-Screen 3D Boulevard Canvas */
+    #game-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: block;
+      touch-action: none;
+    }
+
+    /* ==========================================================================
+       BOOT SPLASH OVERLAY (0.8s Smooth Logo Entrance)
+       ========================================================================== */
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: radial-gradient(circle at 50% 45%, #1e293b 0%, #090d16 75%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.45s ease;
+    }
+
+    #boot-splash.done {
+      opacity: 0;
+    }
+
+    .boot-logo-wrap {
+      width: min(76vw, 360px);
+      animation: bootPop 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .boot-logo-wrap img,
+    .boot-logo-wrap svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 12px 32px rgba(250, 204, 21, 0.42));
+    }
+
+    @keyframes bootPop {
+      0% { opacity: 0; transform: scale(0.82) translateY(14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .boot-bar {
+      width: min(50vw, 190px);
+      height: 4px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .boot-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fde047, #ef4444);
+      transform-origin: left;
+      animation: bootLoad 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes bootLoad {
+      0% { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+
+    /* ==========================================================================
+       TOP-RIGHT UTILITY CONTROLS (STRICTLY TOP-RIGHT, NEVER BOTTOM-LEFT)
+       ========================================================================== */
+    #top-right-utils {
+      position: fixed;
+      top: var(--safe-top);
+      right: var(--safe-right);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .util-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-steel);
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--text-light);
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.38);
+      transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .util-btn:hover {
+      border-color: var(--accent-gold);
+      background: rgba(20, 27, 41, 0.9);
+    }
+
+    .util-btn:active {
+      transform: scale(0.9);
+    }
+
+    .util-btn.accent-ring {
+      border-color: rgba(250, 204, 21, 0.55);
+    }
+
+    /* ==========================================================================
+       CINEMATIC TITLE SCREEN OVERLAY
+       ========================================================================== */
+    #title-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding:
+        calc(var(--safe-top) + 46px)
+        16px
+        calc(var(--safe-bottom) + 8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    body.state-title #title-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Centerpiece Hero Logo Stage */
+    .hero-logo-stage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 440px;
+      margin-top: min(2vh, 14px);
+    }
+
+    /* Rotating Racing Speed-Ray Burst behind Logo */
+    .speed-rays {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(88vw, 390px);
+      height: min(88vw, 390px);
+      transform: translate(-50%, -56%);
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(250, 204, 21, 0.16) 0deg 8deg,
+        transparent 8deg 22deg
+      );
+      -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,0.85) 18%, transparent 66%);
+      mask-image: radial-gradient(circle, rgba(0,0,0,0.85) 18%, transparent 66%);
+      animation: raysSpin 22s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes raysSpin {
+      from { transform: translate(-50%, -56%) rotate(0deg); }
+      to   { transform: translate(-50%, -56%) rotate(360deg); }
+    }
+
+    .logo-frame {
+      position: relative;
+      z-index: 2;
+      width: min(82vw, 360px);
+      max-height: 28dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 18px;
+      animation: logoFloat 3.4s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    #brand-logo {
+      width: 100%;
+      max-height: 27dvh;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 18px rgba(250, 204, 21, 0.35));
+    }
+
+    #brand-logo-fallback {
+      display: none;
+      width: 100%;
+      max-width: 360px;
+      max-height: 27dvh;
+      height: auto;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.58));
+    }
+
+    .btn-load-logo {
+      position: relative;
+      z-index: 2;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px dashed rgba(250, 204, 21, 0.72);
+      background: rgba(11, 15, 25, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fde047;
+      font-family: var(--font-ui);
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .btn-load-logo.visible { display: inline-flex; }
+    .btn-load-logo:active { transform: scale(0.95); }
+
+    /* Periodic Diagonal Metallic Light-Sweep Glint over Logo */
+    .logo-glint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        115deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.48) 48%,
+        rgba(254, 240, 138, 0.25) 54%,
+        transparent 68%
+      );
+      transform: translateX(-130%);
+      animation: logoSweep 3.8s ease-in-out infinite;
+    }
+
+    @keyframes logoSweep {
+      0%, 58% { transform: translateX(-130%); }
+      100%    { transform: translateX(130%); }
+    }
+
+    .tagline-pill {
+      position: relative;
+      z-index: 2;
+      padding: 5px 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(11,15,25,0.82), rgba(28,37,56,0.86));
+      border: 1.5px solid rgba(250, 204, 21, 0.6);
+      color: #fef08a;
+      font-size: clamp(11px, 3.1vw, 13.5px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      max-width: 92vw;
+    }
+
+    /* Lower Title Controls Dock */
+    .title-dock {
+      width: min(94vw, 440px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Clean 6-Language Pill Selector (3x2 grid on narrow phones, flex wrap on wider screens) */
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      width: 100%;
+    }
+
+    .lang-pill {
+      padding: 7px 6px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-steel);
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #f1f5f9;
+      font-family: var(--font-ui);
+      font-size: clamp(11.5px, 3vw, 13px);
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .lang-pill:hover { border-color: var(--accent-gold); }
+    .lang-pill:active { transform: scale(0.95); }
+
+    .lang-pill.active {
+      background: linear-gradient(180deg, #fde047, #f59e0b);
+      color: #271102;
+      border-color: #ffffff;
+      box-shadow: 0 3px 14px rgba(250, 204, 21, 0.5);
+    }
+
+    /* Primary & Secondary Title CTA Row */
+    .title-cta-stack {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .btn-race-primary {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 16px;
+      border: 2px solid #fef08a;
+      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-size: clamp(16px, 4.4vw, 19px);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 5px 0 #14532d, 0 12px 28px rgba(22, 163, 74, 0.45);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .btn-race-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.4) 50%, transparent 75%);
+      transform: translateX(-130%);
+      animation: sheenSweep 2.9s ease-in-out infinite;
+    }
+
+    @keyframes sheenSweep {
+      0%, 58% { transform: translateX(-130%); }
+      100%    { transform: translateX(130%); }
+    }
+
+    .btn-race-primary:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #14532d, 0 4px 12px rgba(22, 163, 74, 0.4);
+    }
+
+    .title-sub-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+    }
+
+    .btn-garage-pill {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-gold);
+      background: var(--glass-dark-strong);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fef08a;
+      font-family: var(--font-ui);
+      font-size: clamp(12.5px, 3.3vw, 14px);
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .btn-garage-pill:hover { background: rgba(28, 37, 56, 0.95); }
+    .btn-garage-pill:active { transform: scale(0.96); }
+
+    .best-badge-pill {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-steel);
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #f8fafc;
+      font-size: clamp(12px, 3.2vw, 13.5px);
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ==========================================================================
+       SLIM RACING TELEMETRY HUD (MOBILE-SAFE BELOW TOP-LEFT 56x56 CHROME)
+       ========================================================================== */
+    #racing-hud {
+      position: fixed;
+      z-index: 25;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+
+      /* Mobile Default (<768px): Clean full-width slim strip below top-left X & top-right buttons */
+      top: calc(var(--safe-top) + 48px);
+      left: var(--safe-left);
+      right: var(--safe-right);
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 12px;
+      background: var(--glass-dark);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-steel);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    body.state-playing #racing-hud,
+    body.state-paused #racing-hud {
+      opacity: 1;
+    }
+
+    /* Desktop (>=768px): Spans top edge cleanly to the left of the top-right utility cluster */
+    @media (min-width: 768px) {
+      #racing-hud {
+        top: var(--safe-top);
+        left: 16px;
+        right: 158px;
+        height: 40px;
+        padding: 0 16px;
+      }
+    }
+
+    .hud-left,
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 2.2vw, 14px);
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .hud-score {
+      font-size: clamp(14px, 3.8vw, 18px);
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .hud-coins {
+      font-size: clamp(12px, 3.2vw, 14px);
+      font-weight: 800;
+      color: #fde047;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .hud-hearts {
+      font-size: clamp(11px, 3vw, 13px);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .hud-speed {
+      font-size: clamp(12.5px, 3.3vw, 15px);
+      font-weight: 900;
+      color: #38bdf8;
+      min-width: 58px;
+      text-align: right;
+    }
+
+    .hud-nitro-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hud-nitro-track {
+      width: clamp(46px, 13vw, 96px);
+      height: 7px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      overflow: hidden;
+    }
+
+    .hud-nitro-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #f59e0b, #fde047, #ef4444);
+      transition: width 0.08s linear;
+    }
+
+    .hud-boost-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+    }
+
+    .boost-pip {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,0.45);
+    }
+
+    .boost-pip.active { display: inline-flex; }
+    .boost-pip.pip-shield { background: rgba(249, 115, 22, 0.85); }
+    .boost-pip.pip-magnet { background: rgba(168, 85, 247, 0.85); }
+    .boost-pip.pip-chill  { background: rgba(34, 197, 94, 0.85); }
+
+    /* ==========================================================================
+       SINGLE UPPER-SKY CALLOUT SLOT (NEVER STACKS OR OVERLAPS HUD/ROAD)
+       ========================================================================== */
+    #sky-callout {
+      position: fixed;
+      top: calc(var(--safe-top) + 96px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      z-index: 24;
+      pointer-events: none;
+      padding: 5px 16px;
+      border-radius: 999px;
+      background: rgba(11, 15, 25, 0.72);
+      border: 1.5px solid rgba(250, 204, 21, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fef08a;
+      font-size: clamp(13px, 3.6vw, 16px);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      opacity: 0;
+      transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @media (min-width: 768px) {
+      #sky-callout {
+        top: calc(var(--safe-top) + 56px);
+      }
+    }
+
+    #sky-callout.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* Minimal 2.2s First-Run Gesture Hint */
+    #gesture-hint {
+      position: fixed;
+      bottom: max(22dvh, 130px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 24;
+      pointer-events: none;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: rgba(11, 15, 25, 0.76);
+      border: 1.5px solid rgba(255, 255, 255, 0.32);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #gesture-hint.show {
+      opacity: 1;
+      animation: hintSlide 1.3s ease-in-out infinite;
+    }
+
+    @keyframes hintSlide {
+      0%, 100% { transform: translateX(-50%) translateX(-10px); }
+      50%      { transform: translateX(-50%) translateX(10px); }
+    }
+
+    /* ==========================================================================
+       CONTEXT-AWARE MOBILE ACTION BUTTONS (LOWER-RIGHT ONLY, HIDDEN ON DESKTOP)
+       ========================================================================== */
+    #mobile-action-dock {
+      display: none;
+      position: fixed;
+      right: 14px;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      z-index: 26;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    body.is-touch.state-playing #mobile-action-dock {
+      display: flex;
+    }
+
+    .ctx-action-btn {
+      padding: 11px 16px;
+      border-radius: 999px;
+      font-family: var(--font-ui);
+      font-size: 13.5px;
+      font-weight: 900;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(24px) scale(0.88);
+      transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ctx-action-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0) scale(1);
+    }
+
+    .ctx-action-btn:active {
+      transform: scale(0.92);
+    }
+
+    #btn-touch-horn {
+      border: 2px solid #bae6fd;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.94), rgba(3, 105, 161, 0.94));
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.72);
+    }
+
+    #btn-touch-nitro {
+      border: 2px solid #fef08a;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(220, 38, 38, 0.95));
+      box-shadow: 0 0 22px rgba(250, 204, 21, 0.78);
+    }
+
+    /* ==========================================================================
+       MODAL BACKDROP (CLEARANCE FOR TOP-RIGHT BUTTONS)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(6, 9, 18, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--safe-top) + 46px) 14px var(--safe-bottom);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-chassis {
+      width: min(94vw, 440px);
+      max-height: 90dvh;
+      overflow-y: auto;
+      border-radius: 22px;
+      border: 2px solid rgba(250, 204, 21, 0.45);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      transform: scale(0.92) translateY(14px);
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      color: var(--text-light);
+    }
+
+    .modal-backdrop.open .modal-chassis {
+      transform: scale(1) translateY(0);
+    }
+
+    /* ==========================================================================
+       AAA ARCADE RACING FINISH / TELEMETRY SCORE CARD
+       ========================================================================== */
+    .checkered-header {
+      position: relative;
+      padding: 13px 16px;
+      background: linear-gradient(90deg, #dc2626 0%, #991b1b 48%, #0f172a 100%);
+      border-bottom: 2px solid var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .checkered-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background-image: repeating-linear-gradient(90deg, #ffffff 0 10px, #0b0f19 10px 20px);
+      opacity: 0.92;
+    }
+
+    .finish-title {
+      font-size: clamp(16px, 4.5vw, 20px);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+      margin-top: 3px;
+    }
+
+    .sector-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: rgba(250, 204, 21, 0.18);
+      border: 1px solid rgba(250, 204, 21, 0.55);
+      color: #fde047;
+      white-space: nowrap;
+      margin-top: 3px;
+    }
+
+    .finish-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Showcase Row: Rank Shield + SVG Speedometer Arc */
+    .finish-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .rank-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .rank-badge {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: 900;
+      font-style: italic;
+      border: 3px solid #fde047;
+      background: radial-gradient(circle at 35% 30%, #facc15 0%, #ea580c 60%, #7c2d12 100%);
+      color: #ffffff;
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 24px rgba(250, 204, 21, 0.55);
+      animation: rankPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .rank-badge.rank-A {
+      border-color: #38bdf8;
+      background: radial-gradient(circle at 35% 30%, #38bdf8 0%, #0284c7 60%, #0c4a6e 100%);
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.5);
+    }
+
+    .rank-badge.rank-B {
+      border-color: #4ade80;
+      background: radial-gradient(circle at 35% 30%, #4ade80 0%, #16a34a 60%, #14532d 100%);
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.45);
+    }
+
+    .rank-badge.rank-C {
+      border-color: #cbd5e1;
+      background: radial-gradient(circle at 35% 30%, #94a3b8 0%, #475569 65%, #1e293b 100%);
+      box-shadow: 0 0 14px rgba(148, 163, 184, 0.35);
+    }
+
+    @keyframes rankPop {
+      0% { transform: scale(0.4) rotate(-18deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .rank-lbl {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .record-ribbon {
+      display: none;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f59e0b, #fde047, #f59e0b);
+      color: #2e1002;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-align: center;
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.7);
+      animation: recordPulse 1.2s ease-in-out infinite;
+    }
+
+    .record-ribbon.show { display: inline-block; }
+
+    @keyframes recordPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.06); }
+    }
+
+    /* SVG Speedometer Panel */
+    .tacho-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .tacho-svg {
+      width: 126px;
+      height: 78px;
+      overflow: visible;
+    }
+
+    .tacho-needle {
+      transform-origin: 65px 66px;
+      transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .tacho-readout {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-top: -2px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .tacho-peak {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fde047;
+    }
+
+    .tacho-dist {
+      font-size: 12px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    /* 2x2 Telemetry Pods Grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .tele-pod {
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-left: 3.5px solid var(--pod-accent, #facc15);
+      border-radius: 12px;
+      padding: 9px 11px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tele-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tele-val {
+      font-size: clamp(17px, 4.6vw, 22px);
+      font-weight: 900;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tele-sub {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #4ade80;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 3-Stat Breakdown Strip */
+    .breakdown-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .mini-stat {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 6px 5px;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .mini-stat .ms-val {
+      font-size: 14px;
+      font-weight: 900;
+      color: #f8fafc;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mini-stat .ms-lbl {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Finish CTAs */
+    .finish-cta-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .cta-secondary-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-carbon {
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      background: rgba(30, 41, 59, 0.85);
+      color: #f8fafc;
+      font-family: var(--font-ui);
+      font-size: clamp(12.5px, 3.3vw, 14px);
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.08s ease, border-color 0.15s ease;
+    }
+
+    .btn-carbon:hover { border-color: var(--accent-gold); }
+    .btn-carbon:active { transform: scale(0.96); }
+
+    .btn-carbon.gold-trim {
+      border-color: rgba(250, 204, 21, 0.65);
+      color: #fde047;
+    }
+
+    /* ==========================================================================
+       AUTO GARAGE & PAUSE/SETTINGS MODALS
+       ========================================================================== */
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: #fde047;
+      text-transform: uppercase;
+    }
+
+    .coin-bank-chip {
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.16);
+      border: 1px solid rgba(250, 204, 21, 0.55);
+      color: #fde047;
+      font-size: 13px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .panel-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sec-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    /* Upgrade Rows */
+    .upgrade-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .upgrade-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 13px;
+      padding: 10px 11px;
+    }
+
+    .upg-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .upg-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .upg-pips {
+      display: flex;
+      gap: 4px;
+    }
+
+    .upg-pip {
+      height: 5px;
+      flex: 1;
+      max-width: 24px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .upg-pip.filled {
+      background: linear-gradient(90deg, #f59e0b, #fde047);
+      box-shadow: 0 0 6px rgba(250, 204, 21, 0.55);
+    }
+
+    .upg-buy-btn {
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1.5px solid #fde047;
+      background: linear-gradient(180deg, #f59e0b, #b45309);
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      min-width: 78px;
+      text-align: center;
+    }
+
+    .upg-buy-btn:disabled {
+      opacity: 0.45;
+      border-color: rgba(255,255,255,0.2);
+      background: #334155;
+      cursor: not-allowed;
+    }
+
+    /* Paint Skin Swatches */
+    .skin-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .skin-card {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.72);
+      color: #f8fafc;
+      cursor: pointer;
+      text-align: left;
+      min-width: 0;
+      transition: border-color 0.15s ease, transform 0.08s ease;
+    }
+
+    .skin-card:active { transform: scale(0.97); }
+    .skin-card.equipped {
+      border-color: #4ade80;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.25);
+    }
+
+    .skin-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid #ffffff;
+    }
+
+    .skin-meta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .skin-name {
+      font-size: 11.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .skin-status {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #fde047;
+    }
+
+    .skin-card.equipped .skin-status { color: #4ade80; }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      z-index: 80;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(11, 15, 25, 0.92);
+      color: #fde047;
+      border: 1.5px solid rgba(250, 204, 21, 0.7);
+      font-size: 12.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="state-title">
+
+  <!-- ========================================================================
+       EXTERNALIZED 6-LANGUAGE MULTILINGUAL DICTIONARY (i18n JSON)
+       Edit directly, export via Pause -> Export i18n JSON, or override with ./translations.json
+       ======================================================================== -->
+  <script id="i18n-data" type="application/json">
+  {
+    "en": {
+      "langName": "English",
+      "tagline": "AUTO DRIFT EXPRESS • STREET ARCADE",
+      "raceNow": "RACE NOW",
+      "garage": "GARAGE",
+      "best": "BEST",
+      "kmh": "km/h",
+      "slideHint": "Slide anywhere to steer",
+      "nitro": "NITRO",
+      "horn": "HORN",
+      "pauseTitle": "PIT STOP • PAUSED",
+      "resume": "RESUME RACE",
+      "restart": "RESTART",
+      "titleScreen": "TITLE",
+      "language": "LANGUAGE",
+      "dayTheme": "Sunny Bazaar",
+      "nightTheme": "Festival Night",
+      "soundOn": "Audio On",
+      "soundOff": "Audio Muted",
+      "downloadHtml": "Download HTML",
+      "exportJson": "Export i18n JSON",
+      "finishTitle": "CHECKERED FLAG",
+      "driverRank": "DRIVER RANK",
+      "newRecord": "NEW BEST RECORD!",
+      "score": "SCORE",
+      "bestScore": "BEST SCORE",
+      "coinsEarned": "COINS EARNED",
+      "maxCombo": "MAX COMBO",
+      "bank": "Bank",
+      "closeCalls": "Close Calls",
+      "cowsHonked": "Cows Honked",
+      "nitroBoosts": "Nitro Boosts",
+      "raceAgain": "RACE AGAIN",
+      "garageTitle": "AUTO GARAGE",
+      "upgrades": "PERFORMANCE UPGRADES",
+      "paintSkins": "AUTO PAINT SKINS",
+      "upgTurbo": "Kaapi Turbo",
+      "upgMagnet": "Magnet Pull",
+      "upgSuspension": "Drift Suspension",
+      "maxed": "MAX",
+      "equipped": "EQUIPPED",
+      "equip": "EQUIP",
+      "close": "BACK",
+      "notEnoughCoins": "Need more coins!",
+      "savedHtmlToast": "Downloaded minnal-auto.html!",
+      "savedJsonToast": "Exported translations.json!",
+      "sectors": [
+        "BAZAAR START",
+        "TOWN HALL RUSH",
+        "KOVAI BYPASS",
+        "FESTIVAL EXPRESS",
+        "MINNAL OVERDRIVE"
+      ],
+      "boosters": {
+        "kaapi": "FILTER KAAPI NITRO!",
+        "magnet": "COIN MAGNET ACTIVE!",
+        "shield": "MARIGOLD SHIELD!",
+        "chill": "ELANEER CHILL +1 ❤️"
+      },
+      "events": {
+        "horn": "POM-POM!",
+        "cowMoo": "MOO! LANE CLEAR!",
+        "jump": "SPEED BREAKER AIR!",
+        "shieldSaved": "SHIELD SAVED!",
+        "smash": "TURBO SMASH!",
+        "ouch": "WATCH OUT!"
+      },
+      "callouts": [
+        "CLEAN DRIFT!",
+        "CLOSE CALL!",
+        "LIGHTNING FAST!",
+        "UNSTOPPABLE!",
+        "STREET LEGEND!"
+      ]
+    },
+    "ta": {
+      "langName": "தமிழ்",
+      "tagline": "மின்னல் ஆட்டோ • தெரு டிரிஃப்ட் எக்ஸ்பிரஸ்",
+      "raceNow": "இப்போது ஓட்டு",
+      "garage": "கேரேஜ்",
+      "best": "சிறந்தது",
+      "kmh": "கி.மீ/ம",
+      "slideHint": "திருப்ப விரலை நகர்த்தவும்",
+      "nitro": "நைட்ரோ",
+      "horn": "ஹாரன்",
+      "pauseTitle": "இடைநிறுத்தம்",
+      "resume": "தொடர்ந்து ஓட்டு",
+      "restart": "மீண்டும் ஓட்டு",
+      "titleScreen": "முகப்பு",
+      "language": "மொழி தேர்வு",
+      "dayTheme": "பகல் பஜார்",
+      "nightTheme": "திருவிழா இரவு",
+      "soundOn": "ஒலி உண்டு",
+      "soundOff": "ஒலி நிறுத்து",
+      "downloadHtml": "HTML சேமி",
+      "exportJson": "i18n JSON",
+      "finishTitle": "பயணம் முடிந்தது",
+      "driverRank": "டிரைவர் தரம்",
+      "newRecord": "புதிய சாதனை தலைவா!",
+      "score": "மதிப்பெண்",
+      "bestScore": "சிறந்த மதிப்பெண்",
+      "coinsEarned": "காசுகள்",
+      "maxCombo": "அதிக காம்போ",
+      "bank": "மொத்தம்",
+      "closeCalls": "நெருக்கடி",
+      "cowsHonked": "மாடு ஹாரன்",
+      "nitroBoosts": "நைட்ரோ",
+      "raceAgain": "மீண்டும் ஓட்டு!",
+      "garageTitle": "ஆட்டோ கேரேஜ்",
+      "upgrades": "திறன் மேம்பாடு",
+      "paintSkins": "ஆட்டோ வண்ணங்கள்",
+      "upgTurbo": "காபி டர்போ",
+      "upgMagnet": "காந்த சக்தி",
+      "upgSuspension": "டிரிஃப்ட் பேலன்ஸ்",
+      "maxed": "முழுமை",
+      "equipped": "தேர்வு",
+      "equip": "பயன்படுத்து",
+      "close": "பின்செல்",
+      "notEnoughCoins": "இன்னும் காசு தேவை!",
+      "savedHtmlToast": "minnal-auto.html சேமிக்கப்பட்டது!",
+      "savedJsonToast": "translations.json பதிவிறக்கப்பட்டது!",
+      "sectors": [
+        "பஜார் தொடக்கம்",
+        "டவுன் ஹால் ரஷ்",
+        "கோவை பைபாஸ்",
+        "திருவிழா எக்ஸ்பிரஸ்",
+        "மின்னல் வேகம்!"
+      ],
+      "boosters": {
+        "kaapi": "ஃபில்டர் காபி நைட்ரோ!",
+        "magnet": "காந்த சக்தி!",
+        "shield": "சாமந்தி கவசம்!",
+        "chill": "இளநீர் கூல் +1 ❤️"
+      },
+      "events": {
+        "horn": "போம்-போம்!",
+        "cowMoo": "மாடு வழிவிட்டது!",
+        "jump": "செம்ம ஜம்ப்!",
+        "shieldSaved": "கவசம் காப்பாற்றியது!",
+        "smash": "தூள் கிளப்பு!",
+        "ouch": "அய்யய்யோ!"
+      },
+      "callouts": [
+        "செம்ம டிரிஃப்ட்!",
+        "மாஸ்!",
+        "வேற லெவல்!",
+        "மின்னல் வேகம்!",
+        "தலைவா சூப்பர்!"
+      ]
+    },
+    "hi": {
+      "langName": "हिन्दी",
+      "tagline": "मिन्नल ऑटो • स्ट्रीट ड्रिफ्ट एक्सप्रेस",
+      "raceNow": "रेस शुरू करें",
+      "garage": "गैरेज",
+      "best": "बेस्ट",
+      "kmh": "किमी/घं",
+      "slideHint": "स्टीयर करने के लिए स्लाइड करें",
+      "nitro": "नाइट्रो",
+      "horn": "हॉर्न",
+      "pauseTitle": "पिट स्टॉप • रुका हुआ",
+      "resume": "रेस जारी रखें",
+      "restart": "फिर से",
+      "titleScreen": "मुख्य स्क्रीन",
+      "language": "भाषा",
+      "dayTheme": "धूप बाज़ार",
+      "nightTheme": "त्योहार रात",
+      "soundOn": "आवाज़ चालू",
+      "soundOff": "म्यूट",
+      "downloadHtml": "HTML सेव",
+      "exportJson": "i18n JSON",
+      "finishTitle": "रेस समाप्त",
+      "driverRank": "ड्राइवर रैंक",
+      "newRecord": "नया रिकॉर्ड बॉस!",
+      "score": "स्कोर",
+      "bestScore": "बेस्ट स्कोर",
+      "coinsEarned": "सिक्के मिले",
+      "maxCombo": "मैक्स कॉम्बो",
+      "bank": "कुल",
+      "closeCalls": "क्लोज़ कॉल",
+      "cowsHonked": "गाय हॉर्न",
+      "nitroBoosts": "नाइट्रो बूस्ट",
+      "raceAgain": "फिर से रेस करें",
+      "garageTitle": "ऑटो गैरेज",
+      "upgrades": "परफॉर्मेंस अपग्रेड",
+      "paintSkins": "ऑटो पेंट स्किन्स",
+      "upgTurbo": "कॉफी टर्बो",
+      "upgMagnet": "मैग्नेट पावर",
+      "upgSuspension": "ड्रिफ्ट सस्पेंशन",
+      "maxed": "मैक्स",
+      "equipped": "लगा है",
+      "equip": "चुनें",
+      "close": "वापस",
+      "notEnoughCoins": "और सिक्के चाहिए!",
+      "savedHtmlToast": "minnal-auto.html सेव हो गया!",
+      "savedJsonToast": "translations.json एक्सपोर्ट हो गया!",
+      "sectors": [
+        "बाज़ार स्टार्ट",
+        "टाउन हॉल रश",
+        "कोवई बायपास",
+        "फेस्टिवल एक्सप्रेस",
+        "मिन्नल ओवरड्राइव"
+      ],
+      "boosters": {
+        "kaapi": "फिल्टर कॉफी नाइट्रो!",
+        "magnet": "कॉइन मैग्नेट!",
+        "shield": "गेंदा शील्ड!",
+        "chill": "नारियल कूल +1 ❤️"
+      },
+      "events": {
+        "horn": "पों-पों!",
+        "cowMoo": "गाय ने रास्ता दिया!",
+        "jump": "जबरदस्त जंप!",
+        "shieldSaved": "शील्ड ने बचाया!",
+        "smash": "टर्बो धमाका!",
+        "ouch": "अरे बाप रे!"
+      },
+      "callouts": [
+        "मस्त ड्रिफ्ट!",
+        "ज़बरदस्त!",
+        "एकदम झक्कास!",
+        "तूफानी रफ्तार!",
+        "रोड किंग!"
+      ]
+    },
+    "ml": {
+      "langName": "മലയാളം",
+      "tagline": "മിന്നൽ ഓട്ടോ • സ്ട്രീറ്റ് ഡ്രിഫ്റ്റ് എക്സ്പ്രസ്",
+      "raceNow": "റേസ് തുടങ്ങാം",
+      "garage": "ഗാരേജ്",
+      "best": "മികച്ചത്",
+      "kmh": "കി.മീ/മ",
+      "slideHint": "തിരിക്കാൻ വിരൽ നീക്കുക",
+      "nitro": "നൈട്രോ",
+      "horn": "ഹോൺ",
+      "pauseTitle": "താൽക്കാലിക വിരാമം",
+      "resume": "തുടരുക",
+      "restart": "വീണ്ടും",
+      "titleScreen": "ഹോം",
+      "language": "ഭാഷ",
+      "dayTheme": "പകൽ ബസാർ",
+      "nightTheme": "ഉത്സവ രാത്രി",
+      "soundOn": "ശബ്ദം ഓൺ",
+      "soundOff": "മ്യൂട്ട്",
+      "downloadHtml": "HTML സേവ്",
+      "exportJson": "i18n JSON",
+      "finishTitle": "റേസ് പൂർത്തിയായി",
+      "driverRank": "ഡ്രൈവർ റാങ്ക്",
+      "newRecord": "പുതിയ റെക്കോർഡ്!",
+      "score": "സ്കോർ",
+      "bestScore": "മികച്ച സ്കോർ",
+      "coinsEarned": "നാണയങ്ങൾ",
+      "maxCombo": "മാക്സ് കോംബോ",
+      "bank": "ആകെ",
+      "closeCalls": "ക്ലോസ് കോൾ",
+      "cowsHonked": "ഹോൺ മാസ്റ്റർ",
+      "nitroBoosts": "നൈട്രോ",
+      "raceAgain": "വീണ്ടും ഓടിക്കാം",
+      "garageTitle": "ഓട്ടോ ഗാരേജ്",
+      "upgrades": "അപ്‌ഗ്രേഡുകൾ",
+      "paintSkins": "ഓട്ടോ നിറങ്ങൾ",
+      "upgTurbo": "കാപ്പി ടർബോ",
+      "upgMagnet": "മാഗ്നറ്റ് പവർ",
+      "upgSuspension": "ഡ്രിഫ്റ്റ് ബാലൻസ്",
+      "maxed": "മാക്സ്",
+      "equipped": "തിരഞ്ഞെടുത്തു",
+      "equip": "ഉപയോഗിക്കുക",
+      "close": "തിരികെ",
+      "notEnoughCoins": "കൂടുതൽ നാണയങ്ങൾ വേണം!",
+      "savedHtmlToast": "minnal-auto.html സേവ് ചെയ്തു!",
+      "savedJsonToast": "translations.json എക്സ്പോർട്ട് ചെയ്തു!",
+      "sectors": [
+        "ബസാർ സ്റ്റാർട്ട്",
+        "ടൗൺ ഹാൾ റഷ്",
+        "കോവൈ ബൈപാസ്",
+        "ഫെസ്റ്റിവൽ എക്സ്പ്രസ്",
+        "മിന്നൽ ഓവർഡ്രൈവ്"
+      ],
+      "boosters": {
+        "kaapi": "ഫിൽട്ടർ കാപ്പി നൈട്രോ!",
+        "magnet": "കോയിൻ മാഗ്നറ്റ്!",
+        "shield": "ചെണ്ടുമല്ലി കവചം!",
+        "chill": "ഇളനീർ കൂൾ +1 ❤️"
+      },
+      "events": {
+        "horn": "പീപ്പ്-പീപ്പ്!",
+        "cowMoo": "പശു വഴിമാറി!",
+        "jump": "കിടിലൻ ചാട്ടം!",
+        "shieldSaved": "കവചം രക്ഷിച്ചു!",
+        "smash": "തകർത്തു!",
+        "ouch": "അയ്യോ!"
+      },
+      "callouts": [
+        "പൊളി ഡ്രിഫ്റ്റ്!",
+        "മാസ്സ്!",
+        "വേറെ ലെവൽ!",
+        "അടിപൊളി!",
+        "മിന്നൽ വേഗം!"
+      ]
+    },
+    "te": {
+      "langName": "తెలుగు",
+      "tagline": "మిన్నల్ ఆటో • స్ట్రీట్ డ్రిఫ్ట్ ఎక్స్‌ప్రెస్",
+      "raceNow": "రేస్ స్టార్ట్",
+      "garage": "గ్యారేజ్",
+      "best": "బెస్ట్",
+      "kmh": "కి.మీ/గం",
+      "slideHint": "తిప్పడానికి స్లైడ్ చేయండి",
+      "nitro": "నైట్రో",
+      "horn": "హారన్",
+      "pauseTitle": "విరామం",
+      "resume": "కొనసాగించు",
+      "restart": "మళ్ళీ స్టార్ట్",
+      "titleScreen": "హోమ్",
+      "language": "భాష",
+      "dayTheme": "పగటి బజార్",
+      "nightTheme": "పండుగ రాత్రి",
+      "soundOn": "సౌండ్ ఆన్",
+      "soundOff": "మ్యూట్",
+      "downloadHtml": "HTML సేవ్",
+      "exportJson": "i18n JSON",
+      "finishTitle": "రేస్ ముగిసింది",
+      "driverRank": "డ్రైవర్ ర్యాంక్",
+      "newRecord": "కొత్త రికార్డు!",
+      "score": "స్కోరు",
+      "bestScore": "బెస్ట్ స్కోరు",
+      "coinsEarned": "నాణేలు",
+      "maxCombo": "మ్యాక్స్ కాంబో",
+      "bank": "మొత్తం",
+      "closeCalls": "క్లోజ్ కాల్స్",
+      "cowsHonked": "ఆవు హారన్",
+      "nitroBoosts": "నైట్రో",
+      "raceAgain": "మళ్ళీ రేస్!",
+      "garageTitle": "ఆటో గ్యారేజ్",
+      "upgrades": "అప్‌గ్రేడ్‌లు",
+      "paintSkins": "ఆటో రంగులు",
+      "upgTurbo": "కాఫీ టర్బో",
+      "upgMagnet": "మాగ్నెట్ పవర్",
+      "upgSuspension": "డ్రిఫ్ట్ సస్పెన్షన్",
+      "maxed": "మ్యాక్స్",
+      "equipped": "ఎంచుకున్నది",
+      "equip": "వాడు",
+      "close": "వెనక్కి",
+      "notEnoughCoins": "మరిన్ని నాణేలు కావాలి!",
+      "savedHtmlToast": "minnal-auto.html సేవ్ అయింది!",
+      "savedJsonToast": "translations.json డౌన్‌లోడ్ అయింది!",
+      "sectors": [
+        "బజార్ స్టార్ట్",
+        "టౌన్ హాల్ రష్",
+        "కోవై బైపాస్",
+        "ఫెస్టివల్ ఎక్స్‌ప్రెస్",
+        "మిన్నల్ ఓవర్‌డ్రైవ్"
+      ],
+      "boosters": {
+        "kaapi": "ఫిల్టర్ కాఫీ నైట్రో!",
+        "magnet": "కాయిన్ మాగ్నెట్!",
+        "shield": "బంతిపూల షీల్డ్!",
+        "chill": "కొబ్బరి కూల్ +1 ❤️"
+      },
+      "events": {
+        "horn": "పామ్-పామ్!",
+        "cowMoo": "ఆవు దారి ఇచ్చింది!",
+        "jump": "సూపర్ జంప్!",
+        "shieldSaved": "షీల్డ్ కాపాడింది!",
+        "smash": "దుమ్మురేపావ్!",
+        "ouch": "అయ్యో!"
+      },
+      "callouts": [
+        "అద్దిరిపోయింది!",
+        "మాస్ డ్రిఫ్ట్!",
+        "తగ్గేదే లే!",
+        "సూపర్ స్పీడ్!",
+        "రచ్చ రంబోలా!"
+      ]
+    },
+    "kn": {
+      "langName": "ಕನ್ನಡ",
+      "tagline": "ಮಿನ್ನಲ್ ಆಟೋ • ಸ್ಟ್ರೀಟ್ ಡ್ರಿಫ್ಟ್ ಎಕ್ಸ್‌ಪ್ರೆಸ್",
+      "raceNow": "ರೇಸ್ ಶುರು",
+      "garage": "ಗ್ಯಾರೇಜ್",
+      "best": "ಬೆಸ್ಟ್",
+      "kmh": "ಕಿ.ಮೀ/ಗಂ",
+      "slideHint": "ತಿರುಗಿಸಲು ಸ್ಲೈಡ್ ಮಾಡಿ",
+      "nitro": "ನೈಟ್ರೋ",
+      "horn": "ಹಾರ್ನ್",
+      "pauseTitle": "ವಿರಾಮ",
+      "resume": "ಮುಂದುವರಿಸಿ",
+      "restart": "ಮತ್ತೆ ಶುರು",
+      "titleScreen": "ಮುಖಪುಟ",
+      "language": "ಭಾಷೆ",
+      "dayTheme": "ಬಿಸಿಲು ಬಜಾರ್",
+      "nightTheme": "ಹಬ್ಬದ ರಾತ್ರಿ",
+      "soundOn": "ಧ್ವನಿ ಆನ್",
+      "soundOff": "ಮ್ಯೂಟ್",
+      "downloadHtml": "HTML ಸೇವ್",
+      "exportJson": "i18n JSON",
+      "finishTitle": "ರೇಸ್ ಮುಗಿಯಿತು",
+      "driverRank": "ಡ್ರೈವರ್ ರ‍್ಯಾಂಕ್",
+      "newRecord": "ಹೊಸ ದಾಖಲೆ ಬಾಸ್!",
+      "score": "ಸ್ಕೋರ್",
+      "bestScore": "ಬೆಸ್ಟ್ ಸ್ಕೋರ್",
+      "coinsEarned": "ನಾಣ್ಯಗಳು",
+      "maxCombo": "ಮ್ಯಾಕ್ಸ್ ಕಾಂಬೋ",
+      "bank": "ಒಟ್ಟು",
+      "closeCalls": "ಕ್ಲೋಸ್ ಕಾಲ್",
+      "cowsHonked": "ಹಸು ಹಾರ್ನ್",
+      "nitroBoosts": "ನೈಟ್ರೋ",
+      "raceAgain": "ಮತ್ತೆ ರೇಸ್!",
+      "garageTitle": "ಆಟೋ ಗ್ಯಾರೇಜ್",
+      "upgrades": "ಅಪ್‌ಗ್ರೇಡ್‌ಗಳು",
+      "paintSkins": "ಆಟೋ ಬಣ್ಣಗಳು",
+      "upgTurbo": "ಕಾಫಿ ಟರ್ಬೋ",
+      "upgMagnet": "ಮ್ಯಾಗ್ನೆಟ್ ಪವರ್",
+      "upgSuspension": "ಡ್ರಿಫ್ಟ್ ಸಸ್ಪೆನ್ಷನ್",
+      "maxed": "ಮ್ಯಾಕ್ಸ್",
+      "equipped": "ಆಯ್ಕೆ",
+      "equip": "ಬಳಸಿ",
+      "close": "ಹಿಂದಕ್ಕೆ",
+      "notEnoughCoins": "ಇನ್ನೂ ನಾಣ್ಯಗಳು ಬೇಕು!",
+      "savedHtmlToast": "minnal-auto.html ಸೇವ್ ಆಯಿತು!",
+      "savedJsonToast": "translations.json ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಆಯಿತು!",
+      "sectors": [
+        "ಬಜಾರ್ ಸ್ಟಾರ್ಟ್",
+        "ಟೌನ್ ಹಾಲ್ ರಶ್",
+        "ಕೋವೈ ಬೈಪಾಸ್",
+        "ಫೆಸ್ಟಿವಲ್ ಎಕ್ಸ್‌ಪ್ರೆಸ್",
+        "ಮಿನ್ನಲ್ ಓವರ್‌ಡ್ರೈವ್"
+      ],
+      "boosters": {
+        "kaapi": "ಫಿಲ್ಟರ್ ಕಾಫಿ ನೈಟ್ರೋ!",
+        "magnet": "ಕಾಯಿನ್ ಮ್ಯಾಗ್ನೆಟ್!",
+        "shield": "ಚೆಂಡು ಹೂವು ಶೀಲ್ಡ್!",
+        "chill": "ಎಳನೀರು ಕೂಲ್ +1 ❤️"
+      },
+      "events": {
+        "horn": "ಪಾಮ್-ಪಾಮ್!",
+        "cowMoo": "ಹಸು ದಾರಿ ಬಿಟ್ಟಿತು!",
+        "jump": "ಸೂಪರ್ ಜಂಪ್!",
+        "shieldSaved": "ಶೀಲ್ಡ್ ಕಾಪಾಡಿತು!",
+        "smash": "ಧಮಾಕಾ!",
+        "ouch": "ಅಯ್ಯೋ!"
+      },
+      "callouts": [
+        "ಸಕ್ಕತ್ ಡ್ರಿಫ್ಟ್!",
+        "ಮಾಸ್!",
+        "ಬೊಂಬಾಟ್!",
+        "ಮಿಂಚಿನ ವೇಗ!",
+        "ರೋಡ್ ಕಿಂಗ್!"
+      ]
+    }
+  }
+  </script>
+
+  <!-- 0.8s Sleek Boot Splash Screen -->
+  <div id="boot-splash" aria-hidden="true">
+    <div class="boot-logo-wrap">
+      <img id="boot-logo-img" src="1000064433_2.png" alt="MINNAL AUTO" />
+    </div>
+    <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+  </div>
+
+  <!-- Hidden File Input for 1-Tap Custom PNG Logo Upload -->
+  <input id="logo-file-input" type="file" accept="image/*" style="display:none;" />
+
+  <!-- Full-Screen 3D Boulevard Canvas -->
+  <canvas id="game-canvas" aria-label="MINNAL AUTO 3D Street Racer"></canvas>
+
+  <!-- STRICTLY TOP-RIGHT UTILITY CONTROLS (Sound, Day/Night, Pause/Settings) -->
+  <div id="top-right-utils">
+    <button id="btn-util-sound" class="util-btn" title="Toggle Sound (M)" aria-label="Toggle Sound">&#128266;</button>
+    <button id="btn-util-theme" class="util-btn" title="Sunny Bazaar / Festival Night" aria-label="Toggle Theme">&#9728;&#65039;</button>
+    <button id="btn-util-menu" class="util-btn accent-ring" title="Pause / Settings (P)" aria-label="Pause or Settings">&#9881;&#65039;</button>
+  </div>
+
+  <!-- CLEAN CINEMATIC TITLE SCREEN -->
+  <section id="title-overlay" aria-label="Title Screen">
+    <div class="hero-logo-stage">
+      <div class="speed-rays" aria-hidden="true"></div>
+      <div class="logo-frame">
+        <img id="brand-logo" src="1000064433_2.png" alt="MINNAL AUTO" />
+        <!-- High-Craft Vector Emblem matching the MINNAL AUTO artwork (shown if PNG file is not loaded yet) -->
+        <svg id="brand-logo-fallback" viewBox="0 0 560 285" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MINNAL AUTO">
+          <defs>
+            <linearGradient id="fbSky" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="55%" stop-color="#0284c7"/>
+              <stop offset="100%" stop-color="#1e3a8a"/>
+            </linearGradient>
+            <linearGradient id="fbAutoYel" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="50%" stop-color="#facc15"/>
+              <stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+            <linearGradient id="fbWind" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#bae6fd"/>
+              <stop offset="45%" stop-color="#0284c7"/>
+              <stop offset="100%" stop-color="#1e3a8a"/>
+            </linearGradient>
+            <linearGradient id="fbGold" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fffbeb"/>
+              <stop offset="35%" stop-color="#fde047"/>
+              <stop offset="78%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#dc2626"/>
+            </linearGradient>
+            <linearGradient id="fbSilver" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#cbd5e1"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+            <radialGradient id="fbLight" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#fde047"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </radialGradient>
+            <pattern id="fbCheck" width="20" height="20" patternUnits="userSpaceOnUse">
+              <rect width="10" height="10" fill="#f8fafc"/>
+              <rect x="10" width="10" height="10" fill="#0f172a"/>
+              <rect y="10" width="10" height="10" fill="#0f172a"/>
+              <rect x="10" y="10" width="10" height="10" fill="#f8fafc"/>
+            </pattern>
+          </defs>
+
+          <!-- Speed Streaks Aura -->
+          <path d="M95 140 L265 44 L455 96 L435 162 L90 164 Z" fill="url(#fbSky)" opacity="0.9"/>
+          <path d="M115 112 L255 58 M102 132 L265 78" stroke="#fde047" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+
+          <!-- Right Speedometer Dial -->
+          <g transform="translate(418,118)">
+            <circle r="70" fill="#0f172a" stroke="#0284c7" stroke-width="7"/>
+            <circle r="63" fill="#0c264a" stroke="#facc15" stroke-width="2.5"/>
+            <path d="M-48 8 A49 49 0 0 1 -28 -40" fill="none" stroke="#22c55e" stroke-width="14"/>
+            <path d="M-25 -42 A49 49 0 0 1 12 -47" fill="none" stroke="#facc15" stroke-width="14"/>
+            <path d="M15 -46 A49 49 0 0 1 48 -4" fill="none" stroke="#f97316" stroke-width="14"/>
+            <path d="M48 -1 A49 49 0 0 1 44 26" fill="none" stroke="#ef4444" stroke-width="14"/>
+            <line x1="-8" y1="8" x2="36" y2="-16" stroke="#ef4444" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="-8" cy="8" r="8" fill="#dc2626" stroke="#fde047" stroke-width="2.5"/>
+          </g>
+
+          <!-- Left Waving Checkered Flag -->
+          <g transform="translate(22,74) rotate(-20)">
+            <path d="M0 14 Q36 -2 72 14 L78 72 Q42 56 6 72 Z" fill="url(#fbCheck)" stroke="#0f172a" stroke-width="4.5"/>
+            <line x1="78" y1="4" x2="90" y2="96" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="77" cy="4" r="6" fill="#facc15" stroke="#78350f" stroke-width="2"/>
+          </g>
+
+          <!-- Right Waving Checkered Flag -->
+          <g transform="translate(462,82) rotate(24)">
+            <path d="M8 10 Q42 -4 76 14 L68 72 Q34 56 0 70 Z" fill="url(#fbCheck)" stroke="#0f172a" stroke-width="4.5"/>
+            <line x1="8" y1="2" x2="-4" y2="96" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="8" cy="2" r="6" fill="#facc15" stroke="#78350f" stroke-width="2"/>
+          </g>
+
+          <!-- 3/4 Perspective Yellow & Black Indian Auto-Rickshaw -->
+          <g transform="translate(158,10)">
+            <!-- Tire Dust Cloud -->
+            <ellipse cx="32" cy="128" rx="44" ry="15" fill="#fde68a" opacity="0.65"/>
+            <!-- Rear Yellow Body & Canopy -->
+            <path d="M18 46 Q24 22 60 12 L116 4 Q148 6 168 28 L184 72 L180 116 Q142 132 70 132 L14 114 Z" fill="url(#fbAutoYel)" stroke="#0f172a" stroke-width="4.5"/>
+            <!-- Dark Lower Chassis Skirt -->
+            <path d="M18 82 L88 86 L98 48 L178 60 L182 114 Q140 132 76 132 L16 114 Z" fill="#1c1917" stroke="#0f172a" stroke-width="3.5"/>
+            <!-- Side Cabin Opening & Classic Green Seat -->
+            <path d="M28 52 L92 32 L86 98 L24 94 Z" fill="#090d16" stroke="#facc15" stroke-width="3"/>
+            <rect x="44" y="64" width="40" height="24" rx="5" fill="#16a34a" stroke="#052e16" stroke-width="2.5"/>
+            <rect x="48" y="84" width="38" height="12" rx="4" fill="#22c55e" stroke="#052e16" stroke-width="2"/>
+            <!-- Glossy Front Windshield + Wiper -->
+            <path d="M104 18 Q138 14 166 30 L178 66 Q140 58 100 54 Z" fill="url(#fbWind)" stroke="#0f172a" stroke-width="4"/>
+            <path d="M118 20 L132 54" stroke="#ffffff" stroke-width="5" opacity="0.55" stroke-linecap="round"/>
+            <line x1="160" y1="58" x2="148" y2="26" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+            <!-- TN Number Plate -->
+            <rect x="148" y="60" width="24" height="16" rx="3" fill="#fde047" stroke="#0f172a" stroke-width="2.2"/>
+            <text x="160" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="11" fill="#0f172a">TN</text>
+            <!-- Glowing Twin Headlights -->
+            <circle cx="122" cy="79" r="12" fill="url(#fbLight)" stroke="#78350f" stroke-width="3"/>
+            <circle cx="184" cy="92" r="10.5" fill="url(#fbLight)" stroke="#78350f" stroke-width="3"/>
+            <!-- Front Fender & Wheel -->
+            <path d="M126 106 Q156 90 184 108 Z" fill="url(#fbAutoYel)" stroke="#0f172a" stroke-width="3"/>
+            <ellipse cx="152" cy="126" rx="16" ry="20" fill="#18181b" stroke="#94a3b8" stroke-width="3"/>
+            <ellipse cx="152" cy="126" rx="8" ry="11" fill="#cbd5e1"/>
+          </g>
+
+          <!-- Bold 3D Racing Badge Backdrop -->
+          <path d="M14 202 L104 164 L486 138 L496 196 L466 254 L152 276 L170 226 L44 242 L76 212 Z" fill="#0c1938" stroke="#0284c7" stroke-width="5" stroke-linejoin="round"/>
+          <!-- Lightning Flame Tail Left -->
+          <path d="M8 206 L96 172 L76 196 L112 192 L44 236 L68 208 Z" fill="#facc15" stroke="#dc2626" stroke-width="3.5" stroke-linejoin="round"/>
+
+          <!-- MINNAL Bold 3D Typography -->
+          <g transform="skewX(-12) rotate(-5 280 185)">
+            <text x="302" y="198" text-anchor="middle" font-family="system-ui,Impact,sans-serif" font-weight="900" font-size="82" letter-spacing="1" fill="#7c2d12" stroke="#0f172a" stroke-width="11" stroke-linejoin="round">MiNNAL</text>
+            <text x="298" y="192" text-anchor="middle" font-family="system-ui,Impact,sans-serif" font-weight="900" font-size="82" letter-spacing="1" fill="url(#fbGold)" stroke="#b45309" stroke-width="3">MiNNAL</text>
+          </g>
+
+          <!-- AUTO Bold Metallic Typography + Alloy Wheel 'O' -->
+          <g transform="skewX(-14) rotate(-5 330 245)">
+            <text x="322" y="256" text-anchor="middle" font-family="system-ui,Impact,sans-serif" font-weight="900" font-size="56" letter-spacing="3" fill="#0f172a" stroke="#0f172a" stroke-width="10" stroke-linejoin="round">AUT</text>
+            <text x="319" y="252" text-anchor="middle" font-family="system-ui,Impact,sans-serif" font-weight="900" font-size="56" letter-spacing="3" fill="url(#fbSilver)" stroke="#1e3a8a" stroke-width="2">AUT</text>
+          </g>
+          <!-- Spinning Racing Wheel as the 'O' -->
+          <g transform="translate(425,222)">
+            <circle r="27" fill="#0f172a" stroke="#e2e8f0" stroke-width="5"/>
+            <circle r="19" fill="#1e293b" stroke="#94a3b8" stroke-width="2.5"/>
+            <g stroke="#cbd5e1" stroke-width="2.2">
+              <line x1="0" y1="-18" x2="0" y2="18"/><line x1="-18" y1="0" x2="18" y2="0"/>
+              <line x1="-13" y1="-13" x2="13" y2="13"/><line x1="-13" y1="13" x2="13" y2="-13"/>
+            </g>
+            <circle r="5" fill="#facc15" stroke="#0f172a" stroke-width="1.5"/>
+            <!-- Motion Streaks Right -->
+            <path d="M29 -10 L76 -14 M31 0 L84 -2 M29 10 L72 10" stroke="#e0f2fe" stroke-width="3.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="logo-glint" aria-hidden="true"></div>
+      </div>
+      <div id="ui-tagline" class="tagline-pill">AUTO DRIFT EXPRESS &bull; STREET ARCADE</div>
+      <button id="btn-load-logo" class="btn-load-logo" type="button">&#128444;&#65039; <span>Use Your PNG Logo</span></button>
+    </div>
+
+    <div class="title-dock">
+      <div id="title-lang-grid" class="lang-grid" role="group" aria-label="Language"></div>
+      <div class="title-cta-stack">
+        <button id="btn-race-now" class="btn-race-primary">&#9654; <span id="ui-race-now">RACE NOW</span></button>
+        <div class="title-sub-row">
+          <button id="btn-title-garage" class="btn-garage-pill">&#128295; <span id="ui-title-garage">GARAGE</span> &bull; &#129689;<span id="ui-title-coins">0</span></button>
+          <div class="best-badge-pill">&#127942; <span id="ui-title-best-lbl">BEST</span>: <strong id="ui-title-best">0</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIM MOBILE-SAFE RACING TELEMETRY HUD -->
+  <header id="racing-hud" aria-label="Racing Telemetry">
+    <div class="hud-left">
+      <span id="hud-score" class="hud-score">0</span>
+      <span class="hud-coins">&#129689;<span id="hud-coins">0</span></span>
+      <span id="hud-hearts" class="hud-hearts">&#10084;&#65039;&#10084;&#65039;&#10084;&#65039;</span>
+    </div>
+    <div class="hud-right">
+      <div class="hud-boost-icons">
+        <span id="pip-shield" class="boost-pip pip-shield" title="Marigold Shield">&#127804;</span>
+        <span id="pip-magnet" class="boost-pip pip-magnet" title="Coin Magnet">&#129522;</span>
+        <span id="pip-chill" class="boost-pip pip-chill" title="Elaneer Chill">&#129381;</span>
+      </div>
+      <div class="hud-nitro-wrap">
+        <span style="font-size:12px;">&#9749;</span>
+        <div class="hud-nitro-track"><div id="hud-nitro-fill" class="hud-nitro-fill"></div></div>
+      </div>
+      <span id="hud-speed" class="hud-speed">42 km/h</span>
+    </div>
+  </header>
+
+  <!-- SINGLE UPPER-SKY CALLOUT (NO STACKING) -->
+  <div id="sky-callout" aria-live="polite"></div>
+
+  <!-- FIRST-RUN GESTURE HINT -->
+  <div id="gesture-hint">&#8596; Slide anywhere to steer</div>
+
+  <!-- CONTEXT-AWARE MOBILE ACTION BUTTONS (LOWER-RIGHT ONLY) -->
+  <div id="mobile-action-dock">
+    <button id="btn-touch-horn" class="ctx-action-btn" aria-label="Honk Horn">&#128239; <span id="ui-horn-btn">HORN</span></button>
+    <button id="btn-touch-nitro" class="ctx-action-btn" aria-label="Activate Kaapi Nitro">&#9749; <span id="ui-nitro-btn">NITRO</span></button>
+  </div>
+
+  <!-- AAA ARCADE RACING FINISH / TELEMETRY SCORE CARD -->
+  <div id="modal-finish" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-chassis carbon-surface">
+      <div class="checkered-header">
+        <h2 id="ui-finish-title" class="finish-title">CHECKERED FLAG</h2>
+        <span id="fin-sector-tag" class="sector-tag">BAZAAR START</span>
+      </div>
+      <div class="finish-body">
+        <div class="finish-showcase">
+          <div class="rank-panel">
+            <span id="ui-driver-rank" class="rank-lbl">DRIVER RANK</span>
+            <div id="fin-rank-badge" class="rank-badge">S</div>
+            <div id="fin-record-ribbon" class="record-ribbon">&#127942; NEW BEST RECORD!</div>
+          </div>
+          <div class="tacho-panel">
+            <svg class="tacho-svg" viewBox="0 0 130 82" aria-label="Peak Speedometer">
+              <path d="M 15 66 A 50 50 0 0 1 115 66" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="10" stroke-linecap="round"/>
+              <path d="M 15 66 A 50 50 0 0 1 54 17" fill="none" stroke="#22c55e" stroke-width="10" stroke-linecap="round"/>
+              <path d="M 56 17 A 50 50 0 0 1 92 24" fill="none" stroke="#facc15" stroke-width="10"/>
+              <path d="M 94 26 A 50 50 0 0 1 115 66" fill="none" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/>
+              <g id="fin-tacho-needle" class="tacho-needle" style="transform: rotate(-88deg);">
+                <polygon points="65,20 69,66 61,66" fill="#facc15" stroke="#0f172a" stroke-width="1"/>
+                <circle cx="65" cy="66" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+              </g>
+            </svg>
+            <div class="tacho-readout">
+              <span id="fin-peak-speed" class="tacho-peak">0 km/h</span>
+              <span id="fin-distance" class="tacho-dist">0 m</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="telemetry-grid">
+          <div class="tele-pod" style="--pod-accent:#facc15;">
+            <span id="ui-fin-score-lbl" class="tele-lbl">SCORE</span>
+            <span id="fin-score" class="tele-val" style="color:#fde047;">0</span>
+          </div>
+          <div class="tele-pod" style="--pod-accent:#22c55e;">
+            <span id="ui-fin-best-lbl" class="tele-lbl">BEST SCORE</span>
+            <span id="fin-best" class="tele-val">0</span>
+            <span id="fin-best-delta" class="tele-sub"></span>
+          </div>
+          <div class="tele-pod" style="--pod-accent:#f59e0b;">
+            <span id="ui-fin-coins-lbl" class="tele-lbl">COINS EARNED</span>
+            <span id="fin-coins" class="tele-val">&#129689; 0</span>
+            <span id="fin-bank" class="tele-sub" style="color:#fde047;"></span>
+          </div>
+          <div class="tele-pod" style="--pod-accent:#38bdf8;">
+            <span id="ui-fin-combo-lbl" class="tele-lbl">MAX COMBO</span>
+            <span id="fin-combo" class="tele-val" style="color:#38bdf8;">x1</span>
+          </div>
+        </div>
+
+        <div class="breakdown-strip">
+          <div class="mini-stat">
+            <div id="fin-close-calls" class="ms-val">0</div>
+            <div id="ui-fin-cc-lbl" class="ms-lbl">Close Calls</div>
+          </div>
+          <div class="mini-stat">
+            <div id="fin-cows" class="ms-val">0</div>
+            <div id="ui-fin-cows-lbl" class="ms-lbl">Cows Honked</div>
+          </div>
+          <div class="mini-stat">
+            <div id="fin-nitros" class="ms-val">0</div>
+            <div id="ui-fin-nitros-lbl" class="ms-lbl">Nitro Boosts</div>
+          </div>
+        </div>
+
+        <div class="finish-cta-col">
+          <button id="btn-fin-retry" class="btn-race-primary">&#8635; <span id="ui-fin-retry">RACE AGAIN</span></button>
+          <div class="cta-secondary-row">
+            <button id="btn-fin-garage" class="btn-carbon gold-trim">&#128295; <span id="ui-fin-garage">GARAGE</span></button>
+            <button id="btn-fin-title" class="btn-carbon">&#127968; <span id="ui-fin-title">TITLE</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTO GARAGE MODAL (UPGRADES & PAINT SKINS) -->
+  <div id="modal-garage" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-chassis carbon-surface">
+      <div class="panel-header">
+        <h2 id="ui-garage-title" class="panel-title">&#128295; AUTO GARAGE</h2>
+        <span class="coin-bank-chip">&#129689; <span id="garage-coin-bank">0</span></span>
+      </div>
+      <div class="panel-body">
+        <div id="ui-upg-sec" class="sec-lbl">PERFORMANCE UPGRADES</div>
+        <div id="garage-upgrades" class="upgrade-list"></div>
+
+        <div id="ui-skin-sec" class="sec-lbl">AUTO PAINT SKINS</div>
+        <div id="garage-skins" class="skin-grid"></div>
+
+        <button id="btn-garage-close" class="btn-carbon gold-trim" style="width:100%; margin-top:4px;">&#8592; <span id="ui-garage-close">BACK</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE / SETTINGS MODAL -->
+  <div id="modal-pause" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-chassis carbon-surface">
+      <div class="panel-header">
+        <h2 id="ui-pause-title" class="panel-title">PIT STOP &bull; PAUSED</h2>
+      </div>
+      <div class="panel-body">
+        <div id="ui-pause-lang-lbl" class="sec-lbl">LANGUAGE</div>
+        <div id="pause-lang-grid" class="lang-grid"></div>
+
+        <button id="btn-pause-resume" class="btn-race-primary" style="padding:12px;">&#9654; <span id="ui-pause-resume">RESUME RACE</span></button>
+        <div class="cta-secondary-row">
+          <button id="btn-pause-restart" class="btn-carbon gold-trim">&#8635; <span id="ui-pause-restart">RESTART</span></button>
+          <button id="btn-pause-title" class="btn-carbon">&#127968; <span id="ui-pause-title-btn">TITLE</span></button>
+        </div>
+        <div class="cta-secondary-row">
+          <button id="btn-pause-theme" class="btn-carbon">&#9728;&#65039; Sunny Bazaar</button>
+          <button id="btn-pause-sound" class="btn-carbon">&#128266; Audio On</button>
+        </div>
+        <div class="cta-secondary-row">
+          <button id="btn-pause-html" class="btn-carbon gold-trim">&#11015;&#65039; <span id="ui-dl-html">Download HTML</span></button>
+          <button id="btn-pause-json" class="btn-carbon">&#128196; <span id="ui-dl-json">Export i18n JSON</span></button>
+        </div>
+        <button id="btn-pause-logo" class="btn-carbon" style="width:100%;">&#128444;&#65039; <span>Load / Change Logo PNG</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ==========================================================================
+       CLEAN STANDALONE HTML SNAPSHOT (Captured before runtime DOM edits)
+       ========================================================================== */
+    const CLEAN_SOURCE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+    (() => {
+      'use strict';
+
+      /* ========================================================================
+         1. UPLOADED LOGO LOADER + FALLBACK + OFFLINE BASE64 DATA-URI CONVERTER
+         ======================================================================== */
+      const elBrandLogo = document.getElementById('brand-logo');
+      const elBrandFallback = document.getElementById('brand-logo-fallback');
+      const elBootLogo = document.getElementById('boot-logo-img');
+      const elBootSplash = document.getElementById('boot-splash');
+      const elLogoInput = document.getElementById('logo-file-input');
+      const elBtnLoadLogo = document.getElementById('btn-load-logo');
+
+      let logoLoadedOk = false;
+      let triedAltFilename = false;
+
+      function applyCustomLogoDataUrl(dataUrl) {
+        if (!dataUrl) return;
+        logoLoadedOk = true;
+        elBrandLogo.src = dataUrl;
+        elBrandLogo.style.display = 'block';
+        elBrandFallback.style.display = 'none';
+        elBtnLoadLogo.classList.remove('visible');
+
+        elBootLogo.src = dataUrl;
+        elBootLogo.style.display = 'block';
+        const prevClone = elBootLogo.parentNode.querySelector('svg');
+        if (prevClone) prevClone.remove();
+      }
+
+      elBrandLogo.addEventListener('load', () => {
+        logoLoadedOk = true;
+        elBrandLogo.style.display = 'block';
+        elBrandFallback.style.display = 'none';
+        elBtnLoadLogo.classList.remove('visible');
+      });
+
+      elBrandLogo.addEventListener('error', () => {
+        if (!triedAltFilename && !elBrandLogo.src.startsWith('data:')) {
+          triedAltFilename = true;
+          elBrandLogo.src = '1000064433.png';
+          return;
+        }
+        logoLoadedOk = false;
+        elBrandLogo.style.display = 'none';
+        elBrandFallback.style.display = 'block';
+        elBtnLoadLogo.classList.add('visible');
+      });
+
+      elBootLogo.addEventListener('error', () => {
+        if (elBootLogo.getAttribute('src') === '1000064433_2.png') {
+          elBootLogo.src = '1000064433.png';
+          return;
+        }
+        elBootLogo.style.display = 'none';
+        if (!elBootLogo.parentNode.querySelector('svg')) {
+          const clone = elBrandFallback.cloneNode(true);
+          clone.removeAttribute('id');
+          clone.style.display = 'block';
+          elBootLogo.parentNode.appendChild(clone);
+        }
+      });
+
+      /**
+       * Converts the loaded #brand-logo PNG into an inline data:image/png;base64,... URI
+       * so downloaded standalone HTML files remain 100% self-contained offline!
+       */
+      function getInlineLogoDataURI() {
+        if (save && save.customLogo) return save.customLogo;
+        try {
+          if (!logoLoadedOk || !elBrandLogo.complete || elBrandLogo.naturalWidth === 0) return null;
+          const off = document.createElement('canvas');
+          const maxW = 900;
+          const ratio = Math.min(1, maxW / elBrandLogo.naturalWidth);
+          off.width = Math.round(elBrandLogo.naturalWidth * ratio);
+          off.height = Math.round(elBrandLogo.naturalHeight * ratio);
+          const octx = off.getContext('2d');
+          octx.drawImage(elBrandLogo, 0, 0, off.width, off.height);
+          return off.toDataURL('image/png');
+        } catch (err) {
+          return null;
+        }
+      }
+
+      // 1-Tap PNG Logo File Picker (Works inside Mobile/Desktop Preview & Saves Locally)
+      function triggerLogoUpload() {
+        elLogoInput.value = '';
+        elLogoInput.click();
+      }
+
+      elLogoInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const off = document.createElement('canvas');
+              const maxW = 860;
+              const ratio = Math.min(1, maxW / img.width);
+              off.width = Math.round(img.width * ratio);
+              off.height = Math.round(img.height * ratio);
+              off.getContext('2d').drawImage(img, 0, 0, off.width, off.height);
+              const dataUrl = off.toDataURL('image/png');
+              applyCustomLogoDataUrl(dataUrl);
+              save.customLogo = dataUrl;
+              persistSave();
+              showToast('Custom Logo Loaded! Ready for HTML Export');
+            } catch (err) {
+              applyCustomLogoDataUrl(reader.result);
+              showToast('Custom Logo Loaded!');
+            }
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      /* ========================================================================
+         2. EXTERNALIZED 6-LANGUAGE MULTILINGUAL SYSTEM (i18n)
+         ======================================================================== */
+      const STORAGE_KEY = 'minnal_auto_aaa_v3';
+      const LANG_ORDER = ['en', 'ta', 'hi', 'ml', 'te', 'kn'];
+
+      let I18N = {};
+      try {
+        I18N = JSON.parse(document.getElementById('i18n-data').textContent);
+      } catch (e) {
+        console.error('i18n JSON parse error:', e);
+      }
+
+      // Optional silent external translations.json override when hosted on HTTP(S)
+      if (window.location && /^https?:$/i.test(window.location.protocol)) {
+        fetch('./translations.json', { cache: 'no-store' })
+          .then(r => (r.ok ? r.json() : null))
+          .then(ext => {
+            if (ext && typeof ext === 'object') {
+              Object.assign(I18N, ext);
+              applyTranslations();
+            }
+          })
+          .catch(() => {});
+      }
+
+      const PAINT_SKINS = [
+        { id: 'classic', name: 'Classic TN Yellow', cost: 0,    top: '#fef08a', mid: '#facc15', bot: '#d97706', stripe: '#dc2626', roof: '#1e293b', swatch: 'linear-gradient(135deg,#facc15,#1e293b)' },
+        { id: 'kovai',   name: 'Kovai Royal Blue',  cost: 150,  top: '#bae6fd', mid: '#0ea5e9', bot: '#0369a1', stripe: '#facc15', roof: '#0f172a', swatch: 'linear-gradient(135deg,#38bdf8,#0369a1)' },
+        { id: 'crimson', name: 'Turbo Crimson',     cost: 320,  top: '#fda4af', mid: '#ef4444', bot: '#991b1b', stripe: '#fef08a', roof: '#18181b', swatch: 'linear-gradient(135deg,#fb7185,#991b1b)' },
+        { id: 'gold',    name: 'Minnal Gold Ed.',   cost: 600,  top: '#fffbeb', mid: '#fbbf24', bot: '#b45309', stripe: '#7c3aed', roof: '#451a03', swatch: 'linear-gradient(135deg,#fffbeb,#d97706)' }
+      ];
+
+      function loadSave() {
+        const defaults = {
+          highScore: 0,
+          coinsBank: 0,
+          theme: 'sunny',
+          muted: false,
+          lang: 'en',
+          seenHint: false,
+          customLogo: null,
+          upgrades: { turbo: 1, magnet: 1, suspension: 1 },
+          unlockedSkins: ['classic'],
+          equippedSkin: 'classic'
+        };
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return defaults;
+          const p = JSON.parse(raw);
+          return {
+            ...defaults,
+            ...p,
+            upgrades: { ...defaults.upgrades, ...(p.upgrades || {}) },
+            unlockedSkins: Array.isArray(p.unlockedSkins) ? p.unlockedSkins : ['classic']
+          };
+        } catch (e) {
+          return defaults;
+        }
+      }
+
+      function persistSave() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); } catch (e) {}
+      }
+
+      const save = loadSave();
+      let currentLang = I18N[save.lang] ? save.lang : 'en';
+
+      function t(path) {
+        const parts = path.split('.');
+        let cur = I18N[currentLang] || I18N.en;
+        for (const p of parts) {
+          if (cur && cur[p] !== undefined) cur = cur[p];
+          else { cur = null; break; }
+        }
+        if (cur !== null) return cur;
+        cur = I18N.en;
+        for (const p of parts) cur = cur ? cur[p] : '';
+        return cur || '';
+      }
+
+      function setLanguage(code) {
+        if (!I18N[code]) return;
+        currentLang = code;
+        save.lang = code;
+        persistSave();
+        document.documentElement.lang = code;
+        applyTranslations();
+      }
+
+      function applyTranslations() {
+        document.getElementById('ui-tagline').textContent = t('tagline');
+        document.getElementById('ui-race-now').textContent = t('raceNow');
+        document.getElementById('ui-title-garage').textContent = t('garage');
+        document.getElementById('ui-title-best-lbl').textContent = t('best');
+        document.getElementById('gesture-hint').innerHTML = `&#8596; ${t('slideHint')}`;
+        document.getElementById('ui-nitro-btn').textContent = t('nitro');
+        document.getElementById('ui-horn-btn').textContent = t('horn');
+
+        // Pause Modal
+        document.getElementById('ui-pause-title').textContent = t('pauseTitle');
+        document.getElementById('ui-pause-lang-lbl').textContent = t('language');
+        document.getElementById('ui-pause-resume').textContent = t('resume');
+        document.getElementById('ui-pause-restart').textContent = t('restart');
+        document.getElementById('ui-pause-title-btn').textContent = t('titleScreen');
+        document.getElementById('ui-dl-html').textContent = t('downloadHtml');
+        document.getElementById('ui-dl-json').textContent = t('exportJson');
+
+        // Finish Telemetry Card
+        document.getElementById('ui-finish-title').textContent = t('finishTitle');
+        document.getElementById('ui-driver-rank').textContent = t('driverRank');
+        document.getElementById('fin-record-ribbon').textContent = '🏆 ' + t('newRecord');
+        document.getElementById('ui-fin-score-lbl').textContent = t('score');
+        document.getElementById('ui-fin-best-lbl').textContent = t('bestScore');
+        document.getElementById('ui-fin-coins-lbl').textContent = t('coinsEarned');
+        document.getElementById('ui-fin-combo-lbl').textContent = t('maxCombo');
+        document.getElementById('ui-fin-cc-lbl').textContent = t('closeCalls');
+        document.getElementById('ui-fin-cows-lbl').textContent = t('cowsHonked');
+        document.getElementById('ui-fin-nitros-lbl').textContent = t('nitroBoosts');
+        document.getElementById('ui-fin-retry').textContent = t('raceAgain');
+        document.getElementById('ui-fin-garage').textContent = t('garage');
+        document.getElementById('ui-fin-title').textContent = t('titleScreen');
+
+        // Garage Modal
+        document.getElementById('ui-garage-title').innerHTML = `&#128295; ${t('garageTitle')}`;
+        document.getElementById('ui-upg-sec').textContent = t('upgrades');
+        document.getElementById('ui-skin-sec').textContent = t('paintSkins');
+        document.getElementById('ui-garage-close').textContent = t('close');
+
+        renderLanguageGrids();
+        syncThemeUI();
+        syncSoundUI();
+        if (document.getElementById('modal-garage').classList.contains('open')) renderGarageContent();
+      }
+
+      function renderLanguageGrids() {
+        const titleGrid = document.getElementById('title-lang-grid');
+        const pauseGrid = document.getElementById('pause-lang-grid');
+        titleGrid.innerHTML = '';
+        pauseGrid.innerHTML = '';
+
+        LANG_ORDER.forEach(code => {
+          if (!I18N[code]) return;
+          const label = I18N[code].langName;
+          [titleGrid, pauseGrid].forEach(container => {
+            const btn = document.createElement('button');
+            btn.className = 'lang-pill' + (code === currentLang ? ' active' : '');
+            btn.textContent = label;
+            btn.addEventListener('click', () => {
+              audio.unlock();
+              audio.playTick();
+              setLanguage(code);
+            });
+            container.appendChild(btn);
+          });
+        });
+      }
+
+      /* ========================================================================
+         3. PROCEDURAL WEB AUDIO ENGINE (Zero External Audio Files)
+         ======================================================================== */
+      class ArcadeAudio {
+        constructor() {
+          this.ctx = null;
+          this.muted = !!save.muted;
+          this.engOsc = null;
+          this.engLfo = null;
+          this.engGain = null;
+          this.lastScreech = 0;
+        }
+
+        unlock() {
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            this.initEngine();
+          } catch (e) {}
+        }
+
+        initEngine() {
+          if (!this.ctx || this.engOsc) return;
+          try {
+            const osc = this.ctx.createOscillator();
+            const lfo = this.ctx.createOscillator();
+            const lfoGain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.value = 50;
+            filter.type = 'lowpass';
+            filter.frequency.value = 215;
+
+            lfo.type = 'square';
+            lfo.frequency.value = 12;
+            lfoGain.gain.value = 0.01;
+
+            gain.gain.value = 0.0001;
+            lfo.connect(lfoGain);
+            lfoGain.connect(gain.gain);
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start();
+            lfo.start();
+            this.engOsc = osc;
+            this.engLfo = lfo;
+            this.engGain = gain;
+          } catch (e) {}
+        }
+
+        updateEngine(kmh, active, nitroOn) {
+          if (!this.ctx || !this.engOsc || !this.engGain) return;
+          try {
+            const now = this.ctx.currentTime;
+            if (this.muted || !active) {
+              this.engGain.gain.setTargetAtTime(0.0001, now, 0.08);
+              return;
+            }
+            const r = Math.max(0, Math.min(1.5, (kmh - 36) / 110));
+            this.engOsc.frequency.setTargetAtTime(48 + r * 62 + (nitroOn ? 24 : 0), now, 0.06);
+            this.engLfo.frequency.setTargetAtTime(11 + r * 22, now, 0.06);
+            this.engGain.gain.setTargetAtTime(0.022 + r * 0.011, now, 0.08);
+          } catch (e) {}
+        }
+
+        tone(freq, dur = 0.13, type = 'triangle', vol = 0.12, endFreq = null, delay = 0) {
+          if (this.muted || !this.ctx) return;
+          try {
+            const t0 = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, t0);
+            if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), t0 + dur);
+            gain.gain.setValueAtTime(0.0001, t0);
+            gain.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + dur + 0.02);
+          } catch (e) {}
+        }
+
+        playTick() { this.tone(680, 0.05, 'sine', 0.08, 920); }
+        playBuy() {
+          [523.25, 659.25, 1046.5].forEach((f, i) => this.tone(f, 0.15, 'triangle', 0.12, null, i * 0.05));
+        }
+
+        // Authentic Dual-Tone Indian Auto Horn (Pom-Pom!)
+        playHorn() {
+          if (this.muted || !this.ctx) return;
+          [0, 0.13].forEach(d => {
+            this.tone(440, 0.095, 'sawtooth', 0.08, null, d);
+            this.tone(554.37, 0.095, 'square', 0.055, null, d);
+          });
+        }
+
+        playMoo() {
+          this.tone(182, 0.34, 'sawtooth', 0.085, 126, 0.02);
+          this.tone(270, 0.30, 'triangle', 0.045, 188, 0.02);
+        }
+
+        playCoin(streak = 0) {
+          const pent = [783.99, 880, 987.77, 1174.66, 1318.51, 1567.98];
+          const f = pent[streak % pent.length];
+          this.tone(f, 0.08, 'sine', 0.10);
+          this.tone(f * 1.33, 0.13, 'triangle', 0.09, null, 0.045);
+        }
+
+        playBoing() {
+          this.tone(185, 0.14, 'sine', 0.15, 490);
+          this.tone(360, 0.13, 'triangle', 0.08, 250, 0.08);
+        }
+
+        playBooster() {
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, 0.15, 'sine', 0.10, null, i * 0.04));
+        }
+
+        playNitro() {
+          this.tone(240, 0.30, 'sawtooth', 0.10, 860);
+          this.tone(523.25, 0.25, 'triangle', 0.11, 1046.5, 0.04);
+        }
+
+        playChill() {
+          [880, 659.25, 523.25].forEach((f, i) => this.tone(f, 0.22, 'sine', 0.10, f * 0.9, i * 0.05));
+        }
+
+        playCombo(lvl) {
+          const scale = [523.25, 659.25, 783.99, 1046.5, 1318.51];
+          const b = scale[Math.min(scale.length - 1, lvl % scale.length)];
+          this.tone(b, 0.11, 'triangle', 0.11);
+          this.tone(b * 1.25, 0.15, 'sine', 0.09, null, 0.04);
+        }
+
+        playShieldBreak() {
+          this.tone(640, 0.18, 'triangle', 0.14, 240);
+          this.tone(960, 0.16, 'sine', 0.10, 420, 0.03);
+        }
+
+        playScreech() {
+          if (this.muted || !this.ctx) return;
+          const now = performance.now();
+          if (now - this.lastScreech < 210) return;
+          this.lastScreech = now;
+          try {
+            const len = Math.floor(this.ctx.sampleRate * 0.09);
+            const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+            const src = this.ctx.createBufferSource();
+            src.buffer = buf;
+            const flt = this.ctx.createBiquadFilter();
+            flt.type = 'bandpass'; flt.frequency.value = 1850; flt.Q.value = 5;
+            const g = this.ctx.createGain(); g.gain.value = 0.042;
+            src.connect(flt); flt.connect(g); g.connect(this.ctx.destination);
+            src.start();
+          } catch (e) {}
+        }
+
+        playCrash() {
+          this.tone(145, 0.22, 'sawtooth', 0.16, 48);
+          this.tone(95, 0.24, 'square', 0.12, 40, 0.03);
+        }
+
+        playFinishSting() {
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, 0.26, 'triangle', 0.12, null, i * 0.08));
+        }
+      }
+
+      const audio = new ArcadeAudio();
+
+      /* ========================================================================
+         4. PSEUDO-3D CURVED BOULEVARD ROAD ENGINE
+         ======================================================================== */
+      const SEGMENT_LENGTH = 200;
+      const ROAD_WIDTH = 2000;
+      const CAMERA_HEIGHT = 1040;
+      const DRAW_DISTANCE = 115;
+      const BASE_FOV = 100;
+      const TOTAL_SEGMENTS = 1800;
+      const SPEED_PER_KMH = 66;
+      const UNITS_PER_METER = 180;
+
+      const SHOP_SIGNS = [
+        { text: 'KAAPI',   bg: '#fef08a', fg: '#78350f', awning: '#dc2626' },
+        { text: 'FLOWERS', bg: '#fce7f3', fg: '#9d174d', awning: '#f59e0b' },
+        { text: 'SILKS',   bg: '#ede9fe', fg: '#5b21b6', awning: '#ec4899' },
+        { text: 'TEA',     bg: '#dcfce7', fg: '#166534', awning: '#0284c7' },
+        { text: 'SWEETS',  bg: '#ffedd5', fg: '#9a3412', awning: '#16a34a' },
+        { text: 'KOVAI',   bg: '#e0f2fe', fg: '#075985', awning: '#ea580c' }
+      ];
+
+      let segments = [];
+      let trackLength = 0;
+
+      function buildRoad() {
+        segments = [];
+        for (let i = 0; i < TOTAL_SEGMENTS; i++) {
+          // Smooth curved arcade sections (gentle early, sweeping S-bends deeper in!)
+          let curve = 0;
+          if (i > 40) {
+            curve = Math.sin(i * 0.0125) * 2.1 + Math.cos(i * 0.0058) * 1.25;
+          }
+          const y1 = Math.sin(i * 0.021) * 220 + Math.cos(i * 0.009) * 115;
+          const y2 = Math.sin((i + 1) * 0.021) * 220 + Math.cos((i + 1) * 0.009) * 115;
+
+          const props = [];
+          if (i % 7 === 0) props.push({ kind: 'palm', side: -1, offset: -1.42 - (i % 3) * 0.14, scale: 0.92 + ((i * 13) % 5) * 0.05 });
+          if (i % 9 === 3) props.push({ kind: 'palm', side: 1,  offset:  1.42 + (i % 3) * 0.14, scale: 0.92 + ((i * 17) % 5) * 0.05 });
+          if (i % 12 === 2) props.push({ kind: 'shop', side: -1, offset: -1.72, sign: SHOP_SIGNS[i % SHOP_SIGNS.length] });
+          if (i % 12 === 8) props.push({ kind: 'shop', side: 1,  offset:  1.72, sign: SHOP_SIGNS[(i + 3) % SHOP_SIGNS.length] });
+
+          segments.push({
+            index: i,
+            p1: { world: { x: 0, y: y1, z: i * SEGMENT_LENGTH }, camera: {}, screen: {} },
+            p2: { world: { x: 0, y: y2, z: (i + 1) * SEGMENT_LENGTH }, camera: {}, screen: {} },
+            curve,
+            hasGarland: i > 14 && i % 26 === 0,
+            props,
+            skidMarks: []
+          });
+        }
+        trackLength = TOTAL_SEGMENTS * SEGMENT_LENGTH;
+      }
+
+      function findSegment(z) {
+        const idx = Math.floor(((z % trackLength) + trackLength) % trackLength / SEGMENT_LENGTH);
+        return segments[idx];
+      }
+
+      /* ========================================================================
+         5. GAME STATE, TELEMETRY STATS & FLOATING MARIGOLD PETALS
+         ======================================================================== */
+      const titlePetals = Array.from({ length: 24 }, () => ({
+        x: Math.random(), y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.04, vy: 0.03 + Math.random() * 0.05,
+        size: 4 + Math.random() * 5, rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 2.4,
+        color: Math.random() < 0.5 ? '#f97316' : (Math.random() < 0.7 ? '#facc15' : '#fde047')
+      }));
+
+      const state = {
+        mode: 'title', // 'title' | 'playing' | 'paused' | 'finish'
+        garageReturnTo: 'title',
+        clock: 0,
+        runTime: 0,
+        position: 0,
+        totalDistUnits: 0,
+        sectorIndex: 0,
+        kmh: 42,
+        peakKmh: 42,
+        speed: 42 * SPEED_PER_KMH,
+        fov: BASE_FOV,
+        skyOffset: 0,
+
+        // 100% Manual Player Auto Physics
+        playerX: 0,
+        playerVx: 0,
+        playerY: 0,
+        playerVy: 0,
+        leanAngle: 0,
+        leanVel: 0,
+        isDrifting: false,
+
+        // Score, Telemetry & Boosters
+        score: 0,
+        coins: 0,
+        coinStreak: 0,
+        hearts: 3,
+        combo: 1,
+        maxCombo: 1,
+        comboTimer: 0,
+        closeCalls: 0,
+        cowsHonked: 0,
+        nitroBoosts: 0,
+
+        nitro: 25,
+        nitroTimer: 0,
+        magnetTimer: 0,
+        hasShield: false,
+        chillTimer: 0,
+        invulnTimer: 0,
+        slowMoTimer: 0,
+        hornWaveTimer: 0,
+        cowApproaching: false,
+
+        shakeTime: 0,
+        shakeMag: 0,
+
+        entities: [],
+        nextSpawnZ: 5600,
+        sparks: [],
+        puffs: [],
+
+        keys: { left: false, right: false },
+        dragActive: false,
+        dragStartX: 0,
+        dragStartPlayerX: 0,
+        isTouchDevice: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0)
+      };
+
+      if (state.isTouchDevice) document.body.classList.add('is-touch');
+
+      function getEquippedSkin() {
+        return PAINT_SKINS.find(s => s.id === save.equippedSkin) || PAINT_SKINS[0];
+      }
+
+      /* ========================================================================
+         6. FAIR 3-LANE OBSTACLE & BOOSTER SPAWNER (ALWAYS >= 1 CLEAR LANE)
+         ======================================================================== */
+      const LANES = [-0.66, 0, 0.66];
+
+      function spawnWave(zPos) {
+        const diff = Math.min(1, state.runTime / 90);
+        const roll = Math.random();
+
+        // Painted Full-Width Speed Breaker with aerial coin arc
+        if (roll < 0.14) {
+          const lane = LANES[Math.floor(Math.random() * 3)];
+          state.entities.push({ id: Math.random(), kind: 'breaker', x: 0, z: zPos, width: 1.0, hit: false });
+          for (let c = 1; c <= 3; c++) {
+            state.entities.push({
+              id: Math.random(), kind: 'coin', x: lane,
+              z: zPos + c * 520, yOff: 105 + (c === 2 ? 78 : 0), width: 0.27, collected: false
+            });
+          }
+          return;
+        }
+
+        // 1 obstacle early, gradually scaling to 2 obstacles (ALWAYS leaving >= 1 fair clear lane)
+        const numObs = (state.runTime > 12 && Math.random() < 0.24 + diff * 0.44) ? 2 : 1;
+        const shuffled = [...LANES].sort(() => Math.random() - 0.5);
+        const obsTypes = ['cow', 'scooter', 'cart', 'barricade'];
+
+        for (let i = 0; i < numObs; i++) {
+          const lane = shuffled[i];
+          const kind = obsTypes[Math.floor(Math.random() * obsTypes.length)];
+          state.entities.push({
+            id: Math.random(),
+            kind,
+            x: lane,
+            z: zPos + i * 280,
+            // Moving Delivery Scooter travels forward slower than player!
+            speedZ: kind === 'scooter' ? (22 + Math.random() * 14) * SPEED_PER_KMH : 0,
+            width: kind === 'cow' ? 0.36 : (kind === 'cart' ? 0.38 : 0.30),
+            colorIdx: Math.floor(Math.random() * 4),
+            mooed: false,
+            wiggle: 0,
+            flung: false,
+            vx: 0,
+            vy: 0,
+            yOff: 0,
+            passed: false,
+            hit: false
+          });
+        }
+
+        // Place Booster or Coin Line in the guaranteed open lane
+        const freeLane = shuffled[numObs];
+        const bRoll = Math.random();
+        if (bRoll < 0.11) {
+          state.entities.push({ id: Math.random(), kind: 'kaapi', x: freeLane, z: zPos + 110, yOff: 0, width: 0.29, collected: false });
+        } else if (bRoll < 0.18) {
+          state.entities.push({ id: Math.random(), kind: 'magnet', x: freeLane, z: zPos + 110, yOff: 0, width: 0.29, collected: false });
+        } else if (bRoll < 0.25 && !state.hasShield) {
+          state.entities.push({ id: Math.random(), kind: 'shield', x: freeLane, z: zPos + 110, yOff: 0, width: 0.29, collected: false });
+        } else if (bRoll < 0.32 && (state.hearts < 3 || state.runTime > 18)) {
+          state.entities.push({ id: Math.random(), kind: 'chill', x: freeLane, z: zPos + 110, yOff: 0, width: 0.29, collected: false });
+        } else {
+          for (let c = 0; c < 4; c++) {
+            state.entities.push({
+              id: Math.random(), kind: 'coin', x: freeLane,
+              z: zPos - 280 + c * 420, yOff: 0, width: 0.27, collected: false
+            });
+          }
+        }
+      }
+
+      /* ========================================================================
+         7. SINGLE UPPER-SKY CALLOUT & TOAST
+         ======================================================================== */
+      const elSkyCallout = document.getElementById('sky-callout');
+      const elToast = document.getElementById('toast');
+      let calloutTimer = null;
+      let toastTimer = null;
+
+      function showSkyCallout(text, color = '#fef08a') {
+        if (!text) return;
+        elSkyCallout.textContent = text;
+        elSkyCallout.style.color = color;
+        elSkyCallout.style.borderColor = color;
+        elSkyCallout.classList.remove('show');
+        void elSkyCallout.offsetWidth;
+        elSkyCallout.classList.add('show');
+        clearTimeout(calloutTimer);
+        calloutTimer = setTimeout(() => elSkyCallout.classList.remove('show'), 950);
+      }
+
+      function showToast(msg) {
+        elToast.textContent = msg;
+        elToast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => elToast.classList.remove('show'), 2200);
+      }
+
+      /* ========================================================================
+         8. CANVAS & RESPONSIVE SCALING
+         ======================================================================== */
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const view = { w: window.innerWidth, h: window.innerHeight, dpr: 1 };
+
+      function resizeCanvas() {
+        view.w = window.innerWidth;
+        view.h = window.innerHeight;
+        view.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(view.w * view.dpr);
+        canvas.height = Math.floor(view.h * view.dpr);
+      }
+
+      /* ========================================================================
+         9. GAME STATE TRANSITIONS, FINISH TELEMETRY CARD & AUTO GARAGE
+         ======================================================================== */
+      function setBodyState(mode) {
+        document.body.classList.remove('state-title', 'state-playing', 'state-paused', 'state-finish');
+        document.body.classList.add(`state-${mode}`);
+      }
+
+      function closeAllModals() {
+        ['modal-pause', 'modal-finish', 'modal-garage'].forEach(id => {
+          const el = document.getElementById(id);
+          el.classList.remove('open');
+          el.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      function showTitleScreen() {
+        closeAllModals();
+        state.mode = 'title';
+        setBodyState('title');
+        document.getElementById('ui-title-best').textContent = save.highScore.toLocaleString();
+        document.getElementById('ui-title-coins').textContent = save.coinsBank.toLocaleString();
+        document.getElementById('btn-util-menu').innerHTML = '&#9881;&#65039;';
+        state.entities = [];
+        state.sparks = [];
+        state.puffs = [];
+        audio.updateEngine(0, false, false);
+      }
+
+      function startGame() {
+        audio.unlock();
+        audio.playHorn();
+        closeAllModals();
+        state.mode = 'playing';
+        setBodyState('playing');
+        document.getElementById('btn-util-menu').innerHTML = '&#10074;&#10074;';
+
+        state.runTime = 0;
+        state.position = 0;
+        state.totalDistUnits = 0;
+        state.sectorIndex = 0;
+        state.kmh = 42;
+        state.peakKmh = 42;
+        state.speed = 42 * SPEED_PER_KMH;
+        state.fov = BASE_FOV;
+
+        state.playerX = 0;
+        state.playerVx = 0;
+        state.playerY = 0;
+        state.playerVy = 0;
+        state.leanAngle = 0;
+        state.leanVel = 0;
+        state.isDrifting = false;
+
+        state.score = 0;
+        state.coins = 0;
+        state.coinStreak = 0;
+        state.hearts = 3;
+        state.combo = 1;
+        state.maxCombo = 1;
+        state.comboTimer = 0;
+        state.closeCalls = 0;
+        state.cowsHonked = 0;
+        state.nitroBoosts = 0;
+
+        state.nitro = 25;
+        state.nitroTimer = 0;
+        state.magnetTimer = 0;
+        state.hasShield = false;
+        state.chillTimer = 0;
+        state.invulnTimer = 0;
+        state.slowMoTimer = 0;
+        state.cowApproaching = false;
+
+        state.entities = [];
+        state.sparks = [];
+        state.puffs = [];
+        state.nextSpawnZ = 5600;
+        for (const seg of segments) seg.skidMarks = [];
+
+        // Announce Sector 1
+        const sectors = t('sectors');
+        if (Array.isArray(sectors) && sectors[0]) showSkyCallout(`🏁 ${sectors[0]}`, '#38bdf8');
+
+        if (!save.seenHint) {
+          save.seenHint = true;
+          persistSave();
+          const h = document.getElementById('gesture-hint');
+          h.classList.add('show');
+          setTimeout(() => h.classList.remove('show'), 2200);
+        }
+
+        updateHUD();
+      }
+
+      function openPauseSettings() {
+        if (state.mode === 'playing') {
+          state.mode = 'paused';
+          setBodyState('paused');
+          audio.updateEngine(0, false, false);
+        }
+        const m = document.getElementById('modal-pause');
+        document.getElementById('btn-pause-resume').style.display = state.mode === 'paused' ? 'inline-flex' : 'none';
+        document.getElementById('btn-pause-restart').style.display = state.mode === 'paused' ? 'inline-flex' : 'none';
+        m.classList.add('open');
+        m.setAttribute('aria-hidden', 'false');
+      }
+
+      function resumeGame() {
+        closeAllModals();
+        if (state.mode === 'paused') {
+          state.mode = 'playing';
+          setBodyState('playing');
+          lastTime = performance.now();
+        }
+      }
+
+      function openGarage(returnTo) {
+        state.garageReturnTo = returnTo;
+        closeAllModals();
+        renderGarageContent();
+        const m = document.getElementById('modal-garage');
+        m.classList.add('open');
+        m.setAttribute('aria-hidden', 'false');
+      }
+
+      function renderGarageContent() {
+        document.getElementById('garage-coin-bank').textContent = save.coinsBank.toLocaleString();
+        const upgWrap = document.getElementById('garage-upgrades');
+        upgWrap.innerHTML = '';
+
+        const upgDefs = [
+          { key: 'turbo',      label: `☕ ${t('upgTurbo')}`,      baseCost: 80 },
+          { key: 'magnet',     label: `🧲 ${t('upgMagnet')}`,     baseCost: 70 },
+          { key: 'suspension', label: `🛞 ${t('upgSuspension')}`, baseCost: 75 }
+        ];
+
+        upgDefs.forEach(u => {
+          const lvl = save.upgrades[u.key] || 1;
+          const isMax = lvl >= 5;
+          const cost = u.baseCost * lvl;
+
+          const row = document.createElement('div');
+          row.className = 'upgrade-row';
+          let pipsHtml = '';
+          for (let i = 1; i <= 5; i++) pipsHtml += `<span class="upg-pip ${i <= lvl ? 'filled' : ''}"></span>`;
+
+          row.innerHTML = `
+            <div class="upg-info">
+              <div class="upg-name">${u.label} <span style="color:#fde047; font-size:11px;">Lv.${lvl}</span></div>
+              <div class="upg-pips">${pipsHtml}</div>
+            </div>
+            <button class="upg-buy-btn" ${isMax ? 'disabled' : ''}>${isMax ? t('maxed') : '🪙 ' + cost}</button>
+          `;
+
+          const btn = row.querySelector('button');
+          if (!isMax) {
+            btn.addEventListener('click', () => {
+              audio.unlock();
+              if (save.coinsBank >= cost) {
+                save.coinsBank -= cost;
+                save.upgrades[u.key] = lvl + 1;
+                persistSave();
+                audio.playBuy();
+                renderGarageContent();
+              } else {
+                audio.playCrash();
+                showToast(t('notEnoughCoins'));
+              }
+            });
+          }
+          upgWrap.appendChild(row);
+        });
+
+        const skinWrap = document.getElementById('garage-skins');
+        skinWrap.innerHTML = '';
+        PAINT_SKINS.forEach(sk => {
+          const owned = save.unlockedSkins.includes(sk.id);
+          const eq = save.equippedSkin === sk.id;
+          const card = document.createElement('button');
+          card.className = 'skin-card' + (eq ? ' equipped' : '');
+          card.innerHTML = `
+            <span class="skin-swatch" style="background:${sk.swatch};"></span>
+            <span class="skin-meta">
+              <span class="skin-name">${sk.name}</span>
+              <span class="skin-status">${eq ? t('equipped') : (owned ? t('equip') : '🪙 ' + sk.cost)}</span>
+            </span>
+          `;
+          card.addEventListener('click', () => {
+            audio.unlock();
+            if (owned) {
+              save.equippedSkin = sk.id;
+              persistSave();
+              audio.playTick();
+              renderGarageContent();
+            } else if (save.coinsBank >= sk.cost) {
+              save.coinsBank -= sk.cost;
+              save.unlockedSkins.push(sk.id);
+              save.equippedSkin = sk.id;
+              persistSave();
+              audio.playBuy();
+              renderGarageContent();
+            } else {
+              audio.playCrash();
+              showToast(t('notEnoughCoins'));
+            }
+          });
+          skinWrap.appendChild(card);
+        });
+      }
+
+      /* Animated Count-Up Helper for AAA Telemetry Finish Card */
+      function animateNumber(el, target, prefix = '', suffix = '', dur = 680) {
+        const start = performance.now();
+        function step(now) {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = `${prefix}${Math.round(target * eased).toLocaleString()}${suffix}`;
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function triggerFinishCard() {
+        state.mode = 'finish';
+        setBodyState('finish');
+        audio.playFinishSting();
+        audio.updateEngine(0, false, false);
+        document.getElementById('btn-util-menu').innerHTML = '&#9881;&#65039;';
+
+        const finalScore = Math.floor(state.score);
+        const prevBest = save.highScore;
+        const isRecord = finalScore > prevBest && finalScore > 0;
+        if (isRecord) save.highScore = finalScore;
+        save.coinsBank += state.coins;
+        persistSave();
+
+        // Compute Driver Rank (S / A / B / C)
+        let rank = 'C';
+        if (finalScore >= 22000) rank = 'S';
+        else if (finalScore >= 11000) rank = 'A';
+        else if (finalScore >= 4500) rank = 'B';
+
+        const rankEl = document.getElementById('fin-rank-badge');
+        rankEl.textContent = rank;
+        rankEl.className = `rank-badge rank-${rank}`;
+
+        const recRibbon = document.getElementById('fin-record-ribbon');
+        recRibbon.classList.toggle('show', isRecord);
+
+        // Sector Tag
+        const sectors = t('sectors');
+        const secName = Array.isArray(sectors) ? (sectors[state.sectorIndex] || sectors[0]) : 'BAZAAR';
+        document.getElementById('fin-sector-tag').textContent = secName;
+
+        // Animated Count-Up Telemetry
+        animateNumber(document.getElementById('fin-score'), finalScore);
+        document.getElementById('fin-best').textContent = save.highScore.toLocaleString();
+        document.getElementById('fin-best-delta').textContent = isRecord ? `+${(finalScore - prevBest).toLocaleString()} NEW` : '';
+        animateNumber(document.getElementById('fin-coins'), state.coins, '🪙 ');
+        document.getElementById('fin-bank').textContent = `${t('bank')}: 🪙 ${save.coinsBank.toLocaleString()}`;
+        document.getElementById('fin-combo').textContent = `x${state.maxCombo}`;
+
+        document.getElementById('fin-close-calls').textContent = String(state.closeCalls);
+        document.getElementById('fin-cows').textContent = String(state.cowsHonked);
+        document.getElementById('fin-nitros').textContent = String(state.nitroBoosts);
+
+        // Speedometer Peak & Distance
+        const distMeters = Math.floor(state.totalDistUnits / UNITS_PER_METER);
+        const distStr = distMeters >= 1000 ? `${(distMeters / 1000).toFixed(2)} km` : `${distMeters} m`;
+        document.getElementById('fin-peak-speed').textContent = `${Math.round(state.peakKmh)} ${t('kmh')}`;
+        document.getElementById('fin-distance').textContent = distStr;
+
+        const needle = document.getElementById('fin-tacho-needle');
+        needle.style.transform = 'rotate(-88deg)';
+        const pct = Math.max(0, Math.min(1, (state.peakKmh - 35) / 155));
+        const targetDeg = -88 + pct * 176;
+        setTimeout(() => { needle.style.transform = `rotate(${targetDeg.toFixed(1)}deg)`; }, 120);
+
+        const m = document.getElementById('modal-finish');
+        m.classList.add('open');
+        m.setAttribute('aria-hidden', 'false');
+      }
+
+      /* ========================================================================
+         10. ACTIONS (HORN, KAAPI NITRO, SPARKS)
+         ======================================================================== */
+      function spawnSparks(x, y, count = 6, color = '#fde047') {
+        for (let i = 0; i < count; i++) {
+          state.sparks.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 230,
+            vy: -45 - Math.random() * 140,
+            size: 2.2 + Math.random() * 3,
+            color,
+            life: 0.42 + Math.random() * 0.24
+          });
+        }
+      }
+
+      function triggerHorn() {
+        if (state.mode !== 'playing') return;
+        audio.unlock();
+        audio.playHorn();
+        state.hornWaveTimer = 0.42;
+
+        const playerWorldZ = state.position + getPlayerZ();
+        let mooed = false;
+        for (const e of state.entities) {
+          if (e.kind === 'cow' && !e.mooed && !e.flung) {
+            const dz = e.z - playerWorldZ;
+            if (dz > -100 && dz < 7600) {
+              e.mooed = true;
+              e.wiggle = 1.0;
+              e.x += (e.x >= state.playerX ? 0.40 : -0.40);
+              e.x = Math.max(-0.92, Math.min(0.92, e.x));
+              state.cowsHonked++;
+              state.score += 90 * state.combo;
+              mooed = true;
+            }
+          }
+        }
+        if (mooed) {
+          audio.playMoo();
+          showSkyCallout(t('events.cowMoo'), '#fef08a');
+        } else {
+          showSkyCallout(t('events.horn'), '#38bdf8');
+        }
+      }
+
+      function triggerNitro() {
+        if (state.mode !== 'playing' || state.nitroTimer > 0) return;
+        if (state.nitro < 40) return;
+        audio.unlock();
+        audio.playNitro();
+        const turboBonus = (save.upgrades.turbo - 1) * 0.55;
+        state.nitroTimer = 3.0 + (state.nitro / 100) * 1.6 + turboBonus;
+        state.nitro = 0;
+        state.nitroBoosts++;
+        state.shakeTime = 0.2;
+        state.shakeMag = 5.5;
+        showSkyCallout(t('boosters.kaapi'), '#fb923c');
+      }
+
+      function getCameraDepth() {
+        return 1 / Math.tan((state.fov / 2) * Math.PI / 180);
+      }
+
+      function getPlayerZ() {
+        return CAMERA_HEIGHT * getCameraDepth();
+      }
+
+      /* ========================================================================
+         11. 60FPS PHYSICS & GAMEPLAY UPDATE LOOP
+         ======================================================================== */
+      function update(rawDt) {
+        state.clock += rawDt;
+
+        // Title Screen Scenic Cruise (NO gameplay obstacles or HUD)
+        if (state.mode === 'title') {
+          for (const p of titlePetals) {
+            p.x += p.vx * rawDt; p.y += p.vy * rawDt; p.rot += p.vRot * rawDt;
+            if (p.y > 1.05) { p.y = -0.05; p.x = Math.random(); }
+            if (p.x < -0.05) p.x = 1.05;
+            if (p.x > 1.05) p.x = -0.05;
+          }
+          const titleSeg = findSegment(state.position);
+          state.position = (state.position + 28 * SPEED_PER_KMH * rawDt) % trackLength;
+          state.skyOffset += titleSeg.curve * 12 * rawDt;
+          state.playerX = Math.sin(state.clock * 0.45) * 0.22;
+          state.leanAngle = Math.cos(state.clock * 0.45) * 0.05;
+          return;
+        }
+
+        if (state.mode !== 'playing') return;
+
+        // Brief dramatic slow-mo on Marigold Shield shatter
+        let dt = rawDt;
+        if (state.slowMoTimer > 0) {
+          state.slowMoTimer = Math.max(0, state.slowMoTimer - rawDt);
+          dt = rawDt * 0.35;
+        }
+
+        state.runTime += dt;
+        if (state.shakeTime > 0) state.shakeTime = Math.max(0, state.shakeTime - rawDt);
+        if (state.hornWaveTimer > 0) state.hornWaveTimer = Math.max(0, state.hornWaveTimer - rawDt);
+
+        // Gradual Speed Progression: 42 km/h -> ~68 km/h (30s) -> ~98 km/h (75s) -> ~132 km/h max base
+        let targetKmh = 42 + 90 * (1 - Math.exp(-state.runTime / 82));
+        if (state.nitroTimer > 0) targetKmh = Math.min(185, targetKmh + 48);
+        if (state.chillTimer > 0) targetKmh *= 0.72;
+
+        state.kmh += (targetKmh - state.kmh) * Math.min(1, dt * 3.4);
+        if (state.kmh > state.peakKmh) state.peakKmh = state.kmh;
+        state.speed = state.kmh * SPEED_PER_KMH;
+
+        // Dynamic FOV Zoom during Kaapi Nitro
+        const targetFov = state.nitroTimer > 0 ? 114 : BASE_FOV;
+        state.fov += (targetFov - state.fov) * Math.min(1, dt * 5.5);
+
+        const moveZ = state.speed * dt;
+        state.position += moveZ;
+        state.totalDistUnits += moveZ;
+
+        // Street Sector Progression every 400m
+        const distMeters = Math.floor(state.totalDistUnits / UNITS_PER_METER);
+        const newSector = Math.min(4, Math.floor(distMeters / 400));
+        if (newSector > state.sectorIndex) {
+          state.sectorIndex = newSector;
+          const sectors = t('sectors');
+          if (Array.isArray(sectors) && sectors[newSector]) {
+            audio.playBooster();
+            showSkyCallout(`🏁 ${sectors[newSector]}`, '#38bdf8');
+          }
+        }
+
+        const playerWorldZ = state.position + getPlayerZ();
+        const playerSeg = findSegment(playerWorldZ);
+        state.skyOffset += playerSeg.curve * (state.kmh / 60) * 18 * dt;
+
+        // Timers
+        if (state.nitroTimer > 0) state.nitroTimer = Math.max(0, state.nitroTimer - dt);
+        if (state.magnetTimer > 0) state.magnetTimer = Math.max(0, state.magnetTimer - dt);
+        if (state.chillTimer > 0) state.chillTimer = Math.max(0, state.chillTimer - dt);
+        if (state.invulnTimer > 0) state.invulnTimer = Math.max(0, state.invulnTimer - dt);
+        if (state.comboTimer > 0) {
+          state.comboTimer -= dt;
+          if (state.comboTimer <= 0) state.combo = 1;
+        }
+
+        // 100% Manual Player Steering (Zero Auto-Steer)
+        const handlingMult = 1 + (save.upgrades.suspension - 1) * 0.08;
+        let steerInput = 0;
+        if (state.keys.left) steerInput -= 1;
+        if (state.keys.right) steerInput += 1;
+
+        if (!state.dragActive) {
+          if (steerInput !== 0) {
+            state.playerVx += steerInput * 12.2 * handlingMult * dt;
+          } else {
+            state.playerVx *= Math.pow(0.0007, dt);
+          }
+          // Subtle centrifugal pull on sharp bends (tactical drift feel, easily countered)
+          state.playerVx -= playerSeg.curve * (state.kmh / 115) * 0.20 * dt;
+          state.playerVx = Math.max(-2.45, Math.min(2.45, state.playerVx));
+          state.playerX += state.playerVx * dt;
+        } else {
+          state.playerVx *= Math.pow(0.015, dt);
+        }
+
+        if (state.playerX < -0.98) { state.playerX = -0.98; state.playerVx *= -0.15; }
+        if (state.playerX > 0.98)  { state.playerX =  0.98; state.playerVx *= -0.15; }
+
+        // 2-Wheel Drift Lean & Spark Physics
+        state.isDrifting = Math.abs(state.playerVx) > 1.05 && state.playerY < 10;
+        const targetLean = Math.max(-0.36, Math.min(0.36, state.playerVx * 0.16 + playerSeg.curve * 0.018));
+        const springAcc = (targetLean - state.leanAngle) * 74 - state.leanVel * 9.8;
+        state.leanVel += springAcc * dt;
+        state.leanAngle += state.leanVel * dt;
+
+        const turboChargeMult = 1 + (save.upgrades.turbo - 1) * 0.15;
+        if (state.isDrifting) {
+          state.nitro = Math.min(100, state.nitro + 14 * turboChargeMult * dt);
+          state.score += 15 * state.combo * dt;
+          audio.playScreech();
+          if (playerSeg.skidMarks.length < 5) playerSeg.skidMarks.push(state.playerX);
+          if (Math.random() < 0.65) {
+            spawnSparks(view.w / 2 + (state.leanAngle > 0 ? -32 : 32), view.h * 0.85, 2, '#fde047');
+          }
+        }
+
+        // Speed-Breaker Jump Physics
+        if (state.playerY > 0 || state.playerVy > 0) {
+          state.playerY += state.playerVy * dt;
+          state.playerVy -= 2350 * dt;
+          if (state.playerY <= 0) {
+            state.playerY = 0; state.playerVy = 0;
+            state.leanVel += (Math.random() - 0.5) * 2.1;
+            spawnSparks(view.w / 2, view.h * 0.87, 6, '#fef08a');
+          }
+        }
+
+        // Exhaust Puffs / Twin Turbo Flames
+        if (Math.random() < (state.nitroTimer > 0 ? 0.9 : 0.28)) {
+          state.puffs.push({
+            x: view.w / 2 - 22 + (Math.random() - 0.5) * 8,
+            y: view.h * 0.86 - state.playerY * 0.18,
+            vx: -state.playerVx * 22 + (Math.random() - 0.5) * 20,
+            vy: 34 + Math.random() * 20,
+            r: state.nitroTimer > 0 ? 10 : 6,
+            flame: state.nitroTimer > 0,
+            life: 0.42
+          });
+        }
+
+        // Distance Score
+        state.score += (state.kmh * 0.46) * state.combo * dt;
+
+        // Spawn Waves Ahead
+        while (state.nextSpawnZ < playerWorldZ + DRAW_DISTANCE * SEGMENT_LENGTH) {
+          spawnWave(state.nextSpawnZ);
+          const gap = Math.max(2550, 3450 + (state.kmh - 42) * 14);
+          state.nextSpawnZ += gap + Math.random() * 880;
+        }
+
+        // Update Entities & Check Collisions
+        let cowAhead = false;
+        const magnetPullRange = 4600 + (save.upgrades.magnet - 1) * 850;
+        const magnetDur = 7.5 + (save.upgrades.magnet - 1) * 1.4;
+
+        for (const e of state.entities) {
+          if (e.wiggle > 0) e.wiggle = Math.max(0, e.wiggle - dt * 1.4);
+          if (e.flung) {
+            e.x += e.vx * dt; e.yOff += e.vy * dt; e.vy -= 1750 * dt;
+            continue;
+          }
+
+          // Moving Delivery Scooter advances forward smoothly!
+          if (e.speedZ > 0) e.z += e.speedZ * dt;
+
+          const dz = e.z - playerWorldZ;
+          if (e.kind === 'cow' && !e.mooed && dz > 350 && dz < 7200) cowAhead = true;
+
+          // Coin Magnet Pull
+          if (e.kind === 'coin' && !e.collected && state.magnetTimer > 0 && dz > -150 && dz < magnetPullRange) {
+            e.x += (state.playerX - e.x) * Math.min(1, dt * 9.5);
+          }
+
+          // Collectibles & 4 Boosters
+          if ((e.kind === 'coin' || e.kind === 'kaapi' || e.kind === 'magnet' || e.kind === 'shield' || e.kind === 'chill') && !e.collected) {
+            if (Math.abs(dz) < 340 && Math.abs(e.x - state.playerX) < e.width + 0.25) {
+              e.collected = true;
+              if (e.kind === 'coin') {
+                state.coins++;
+                state.coinStreak++;
+                state.score += 45 * state.combo;
+                audio.playCoin(state.coinStreak);
+                spawnSparks(view.w / 2, view.h * 0.78, 5, '#fde047');
+              } else if (e.kind === 'kaapi') {
+                state.nitro = Math.min(100, state.nitro + 48 * turboChargeMult);
+                if (state.nitro >= 98 && state.nitroTimer <= 0) triggerNitro();
+                else {
+                  audio.playBooster();
+                  showSkyCallout(t('boosters.kaapi'), '#fb923c');
+                }
+              } else if (e.kind === 'magnet') {
+                state.magnetTimer = magnetDur;
+                audio.playBooster();
+                showSkyCallout(t('boosters.magnet'), '#c084fc');
+              } else if (e.kind === 'shield') {
+                state.hasShield = true;
+                audio.playBooster();
+                showSkyCallout(t('boosters.shield'), '#fbbf24');
+              } else if (e.kind === 'chill') {
+                state.chillTimer = 5.0;
+                if (state.hearts < 3) state.hearts++;
+                audio.playChill();
+                showSkyCallout(t('boosters.chill'), '#4ade80');
+              }
+            }
+          }
+
+          // Full-Width Painted Speed Breaker Jump
+          if (e.kind === 'breaker' && !e.hit) {
+            if (Math.abs(dz) < 250 && state.playerY < 24) {
+              e.hit = true;
+              state.playerVy = 900;
+              state.score += 110 * state.combo;
+              audio.playBoing();
+              showSkyCallout(t('events.jump'), '#fde047');
+            }
+          }
+
+          // Hazards
+          if (e.kind === 'cow' || e.kind === 'cart' || e.kind === 'scooter' || e.kind === 'barricade') {
+            const latDist = Math.abs(e.x - state.playerX);
+            const hitThr = e.width * 0.62 + 0.14;
+
+            if (!e.hit && Math.abs(dz) < 220 && latDist < hitThr && state.playerY < 120) {
+              e.hit = true;
+              if (state.nitroTimer > 0) {
+                e.flung = true;
+                e.vx = (e.x >= state.playerX ? 1 : -1) * 5.0;
+                e.vy = 1100;
+                state.score += 200 * state.combo;
+                audio.playBoing();
+                state.shakeTime = 0.16; state.shakeMag = 5.5;
+                showSkyCallout(t('events.smash'), '#fb923c');
+              } else if (state.hasShield) {
+                state.hasShield = false;
+                state.invulnTimer = 1.6 + (save.upgrades.suspension - 1) * 0.25;
+                state.slowMoTimer = 0.42;
+                // Fling struck obstacle + clear nearby hazards
+                for (const other of state.entities) {
+                  if ((other.kind === 'cow' || other.kind === 'cart' || other.kind === 'scooter' || other.kind === 'barricade') && Math.abs(other.z - playerWorldZ) < 1600) {
+                    other.hit = true; other.flung = true;
+                    other.vx = (other.x >= state.playerX ? 1 : -1) * 4.6;
+                    other.vy = 960;
+                  }
+                }
+                audio.playShieldBreak();
+                spawnSparks(view.w / 2, view.h * 0.80, 22, '#f97316');
+                showSkyCallout(t('events.shieldSaved'), '#fbbf24');
+              } else if (state.invulnTimer <= 0) {
+                state.hearts--;
+                state.combo = 1;
+                state.kmh = Math.max(40, state.kmh * 0.66);
+                state.invulnTimer = 2.0;
+                state.shakeTime = 0.30; state.shakeMag = 11;
+                state.leanVel += (e.x >= state.playerX ? -4.5 : 4.5);
+                audio.playCrash();
+                spawnSparks(view.w / 2, view.h * 0.80, 15, '#fb7185');
+                showSkyCallout(t('events.ouch'), '#fb7185');
+
+                if (state.hearts <= 0) {
+                  triggerFinishCard();
+                  return;
+                }
+              }
+            } else if (!e.passed && !e.hit && dz < -160) {
+              e.passed = true;
+              if (latDist < hitThr + 0.40) {
+                state.closeCalls++;
+                state.combo = Math.min(12, state.combo + 1);
+                if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+                state.comboTimer = 4.6;
+                const bonus = (state.isDrifting ? 130 : 80) * state.combo;
+                state.score += bonus;
+                state.nitro = Math.min(100, state.nitro + 11 * turboChargeMult);
+                audio.playCombo(state.combo);
+                const list = t('callouts');
+                const phrase = Array.isArray(list) ? list[(state.combo - 2) % list.length] : 'SUPER!';
+                showSkyCallout(`${phrase} +${bonus}`, '#fde047');
+              }
+            }
+          }
+        }
+
+        state.cowApproaching = cowAhead;
+        state.entities = state.entities.filter(e => !e.collected && e.z > playerWorldZ - 1400);
+
+        for (const sp of state.sparks) { sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.vy += 420 * dt; sp.life -= dt; }
+        state.sparks = state.sparks.filter(sp => sp.life > 0);
+
+        for (const pf of state.puffs) { pf.x += pf.vx * dt; pf.y += pf.vy * dt; pf.r += 13 * dt; pf.life -= dt; }
+        state.puffs = state.puffs.filter(pf => pf.life > 0);
+
+        audio.updateEngine(state.kmh, true, state.nitroTimer > 0);
+        updateHUD();
+      }
+
+      /* ========================================================================
+         12. 3D PERSPECTIVE RENDERER (CURVED ROAD, PARALLAX SKYLINE, HERO AUTO)
+         ======================================================================== */
+      function isNight() {
+        return document.documentElement.getAttribute('data-theme') === 'night';
+      }
+
+      function projectPoint(p, camX, camY, camZ, camDepth) {
+        p.camera.x = (p.world.x || 0) - camX;
+        p.camera.y = (p.world.y || 0) - camY;
+        p.camera.z = (p.world.z || 0) - camZ;
+        const z = Math.max(10, p.camera.z);
+        p.screen.scale = camDepth / z;
+        p.screen.x = Math.round((view.w / 2) + (p.screen.scale * p.camera.x * view.w / 2));
+        p.screen.y = Math.round((view.h * 0.45) - (p.screen.scale * p.camera.y * view.h / 2));
+        p.screen.w = Math.round(p.screen.scale * ROAD_WIDTH * view.w / 2);
+      }
+
+      function drawPoly(x1, y1, x2, y2, x3, y3, x4, y4, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x3, y3); ctx.lineTo(x4, y4);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function render() {
+        const night = isNight();
+        const camDepth = getCameraDepth();
+        ctx.save();
+        ctx.scale(view.dpr, view.dpr);
+
+        if (state.shakeTime > 0) {
+          const mag = state.shakeMag * (state.shakeTime / 0.30);
+          ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+        }
+
+        const horizonY = view.h * 0.45;
+
+        // 1. Vibrant Sky Backdrop
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY + 26);
+        if (night) {
+          skyGrad.addColorStop(0, '#050414');
+          skyGrad.addColorStop(0.55, '#1e1b4b');
+          skyGrad.addColorStop(1, '#581c87');
+        } else {
+          skyGrad.addColorStop(0, '#0284c7');
+          skyGrad.addColorStop(0.55, '#38bdf8');
+          skyGrad.addColorStop(0.86, '#fde68a');
+          skyGrad.addColorStop(1, '#fed7aa');
+        }
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, view.w, horizonY + 30);
+
+        // Sun / Moon & Stars
+        if (night) {
+          ctx.fillStyle = '#fef9c3';
+          for (let i = 0; i < 40; i++) {
+            const sx = ((i * 197.3) - state.skyOffset * 0.15 + view.w * 10) % view.w;
+            const sy = (i * 89.7) % (horizonY * 0.78);
+            ctx.globalAlpha = 0.35 + Math.sin(state.clock * 3 + i) * 0.65;
+            ctx.fillRect(sx, sy, 2, 2);
+          }
+          ctx.globalAlpha = 1;
+          ctx.beginPath();
+          ctx.arc(view.w * 0.80, horizonY * 0.32, 23, 0, Math.PI * 2);
+          ctx.fillStyle = '#fef08a';
+          ctx.shadowColor = '#fde047'; ctx.shadowBlur = 24; ctx.fill(); ctx.shadowBlur = 0;
+        } else {
+          ctx.beginPath();
+          ctx.arc(view.w * 0.78, horizonY * 0.36, 30, 0, Math.PI * 2);
+          ctx.fillStyle = '#fef08a';
+          ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 32; ctx.fill(); ctx.shadowBlur = 0;
+        }
+
+        // Parallax Distant Temple Gopuram & Hills
+        drawParallaxSkyline(horizonY, night);
+
+        // Ground Base
+        ctx.fillStyle = night ? '#120f29' : '#65a30d';
+        ctx.fillRect(0, horizonY, view.w, view.h - horizonY);
+
+        // 2. Project 3D Curved Road Segments
+        const baseSeg = findSegment(state.position);
+        const basePct = (state.position % SEGMENT_LENGTH) / SEGMENT_LENGTH;
+        const playerZ = getPlayerZ();
+        const playerSeg = findSegment(state.position + playerZ);
+        const playerPct = ((state.position + playerZ) % SEGMENT_LENGTH) / SEGMENT_LENGTH;
+        const playerRoadY = playerSeg.p1.world.y + (playerSeg.p2.world.y - playerSeg.p1.world.y) * playerPct;
+
+        let x = 0, dx = -(baseSeg.curve * basePct), maxY = view.h;
+        const visibleSegs = [];
+
+        for (let n = 0; n < DRAW_DISTANCE; n++) {
+          const seg = segments[(baseSeg.index + n) % TOTAL_SEGMENTS];
+          const looped = seg.index < baseSeg.index;
+          const camZ = state.position - (looped ? trackLength : 0);
+
+          projectPoint(seg.p1, state.playerX * ROAD_WIDTH - x, playerRoadY + CAMERA_HEIGHT, camZ, camDepth);
+          projectPoint(seg.p2, state.playerX * ROAD_WIDTH - x - dx, playerRoadY + CAMERA_HEIGHT, camZ, camDepth);
+
+          x += dx;
+          dx += seg.curve;
+
+          if (seg.p1.camera.z <= camDepth || seg.p2.screen.y >= seg.p1.screen.y || seg.p2.screen.y >= maxY) continue;
+          visibleSegs.push(seg);
+
+          const alt = Math.floor(seg.index / 2) % 2 === 0;
+          const grassCol = night ? (alt ? '#1b1640' : '#13102e') : (alt ? '#84cc16' : '#65a30d');
+          const rumbleCol = alt ? (state.sectorIndex >= 2 ? '#ef4444' : '#facc15') : (state.sectorIndex >= 2 ? '#ffffff' : '#18181b');
+          const roadCol = night ? (alt ? '#24213d' : '#1f1c34') : (alt ? '#3f4b5e' : '#364152');
+          const laneCol = night ? '#fde047' : '#fef08a';
+          const p1 = seg.p1.screen, p2 = seg.p2.screen;
+
+          ctx.fillStyle = grassCol;
+          ctx.fillRect(0, p2.y, view.w, p1.y - p2.y + 1);
+
+          const r1 = p1.w * 1.13, r2 = p2.w * 1.13;
+          drawPoly(p1.x - r1, p1.y, p1.x - p1.w, p1.y, p2.x - p2.w, p2.y, p2.x - r2, p2.y, rumbleCol);
+          drawPoly(p1.x + p1.w, p1.y, p1.x + r1, p1.y, p2.x + r2, p2.y, p2.x + p2.w, p2.y, rumbleCol);
+          drawPoly(p1.x - p1.w, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x - p2.w, p2.y, roadCol);
+
+          if (alt) {
+            const lw1 = Math.max(1.5, p1.w * 0.022), lw2 = Math.max(1, p2.w * 0.022);
+            [-0.33, 0.33].forEach(lo => {
+              drawPoly(p1.x + p1.w * lo - lw1, p1.y, p1.x + p1.w * lo + lw1, p1.y, p2.x + p2.w * lo + lw2, p2.y, p2.x + p2.w * lo - lw2, p2.y, laneCol);
+            });
+          }
+
+          if (seg.skidMarks.length > 0) {
+            for (const sx of seg.skidMarks) {
+              const mx1 = p1.x + sx * p1.w, mx2 = p2.x + sx * p2.w;
+              const sw1 = Math.max(2, p1.w * 0.048), sw2 = Math.max(1, p2.w * 0.048);
+              drawPoly(mx1 - sw1 * 2, p1.y, mx1 - sw1, p1.y, mx2 - sw2, p2.y, mx2 - sw2 * 2, p2.y, 'rgba(11,15,25,0.45)');
+              drawPoly(mx1 + sw1, p1.y, mx1 + sw1 * 2, p1.y, mx2 + sw2 * 2, p2.y, mx2 + sw2, p2.y, 'rgba(11,15,25,0.45)');
+            }
+          }
+          maxY = p2.y;
+        }
+
+        // 3. Back-to-Front Props, Marigold Arches & Street Entities
+        const entMap = new Map();
+        for (const e of state.entities) {
+          const idx = Math.floor(((e.z % trackLength) + trackLength) % trackLength / SEGMENT_LENGTH);
+          if (!entMap.has(idx)) entMap.set(idx, []);
+          entMap.get(idx).push(e);
+        }
+
+        for (let i = visibleSegs.length - 1; i >= 0; i--) {
+          const seg = visibleSegs[i];
+          const p = seg.p1.screen;
+          if (p.w <= 1) continue;
+
+          for (const prop of seg.props) {
+            const px = p.x + prop.offset * p.w;
+            if (prop.kind === 'palm') drawPalmTree(px, p.y, p.w * 0.44 * prop.scale, prop.side, night);
+            else if (prop.kind === 'shop') drawBazaarShop(px, p.y, p.w * 0.55, prop.sign, night);
+          }
+
+          if (seg.hasGarland) drawOverheadGarland(p.x, p.y, p.w, night);
+
+          const segEnts = entMap.get(seg.index);
+          if (segEnts) {
+            for (const e of segEnts) {
+              const relZ = e.z - state.position;
+              if (relZ < 100 || relZ > DRAW_DISTANCE * SEGMENT_LENGTH) continue;
+              const ex = p.x + e.x * p.w;
+              const ey = p.y - (e.yOff || 0) * p.scale * view.h * 0.45;
+              drawStreetEntity(e, ex, ey, p.w, night);
+            }
+          }
+        }
+
+        // 4. Elaneer Chill Tint & Nitro Radial Speed Lines
+        if (state.chillTimer > 0) {
+          ctx.fillStyle = 'rgba(34, 197, 94, 0.12)';
+          ctx.fillRect(0, 0, view.w, view.h);
+        }
+        if (state.nitroTimer > 0) {
+          ctx.save();
+          for (let i = 0; i < 16; i++) {
+            const ang = (i / 16) * Math.PI * 2 + state.clock * 4;
+            const r1 = Math.min(view.w, view.h) * 0.34;
+            const r2 = Math.max(view.w, view.h) * 0.72;
+            ctx.strokeStyle = i % 2 === 0 ? 'rgba(253, 224, 71, 0.36)' : 'rgba(56, 189, 248, 0.24)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(view.w / 2 + Math.cos(ang) * r1, view.h * 0.52 + Math.sin(ang) * r1);
+            ctx.lineTo(view.w / 2 + Math.cos(ang) * r2, view.h * 0.52 + Math.sin(ang) * r2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 5. Exhaust Puffs & Hero Auto-Rickshaw
+        for (const pf of state.puffs) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, pf.life * 1.4);
+          ctx.fillStyle = pf.flame ? (Math.random() < 0.5 ? '#38bdf8' : '#fde047') : 'rgba(226, 232, 240, 0.72)';
+          ctx.beginPath(); ctx.arc(pf.x, pf.y, pf.r, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+
+        drawHeroAutoRickshaw(night);
+
+        // 6. Sparks
+        for (const sp of state.sparks) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, sp.life * 2);
+          ctx.fillStyle = sp.color;
+          ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+
+        // 7. Title Screen Floating Marigold Petals
+        if (state.mode === 'title') {
+          for (const pt of titlePetals) {
+            ctx.save();
+            ctx.translate(pt.x * view.w, pt.y * view.h);
+            ctx.rotate(pt.rot);
+            ctx.fillStyle = pt.color;
+            ctx.globalAlpha = 0.76;
+            ctx.beginPath(); ctx.ellipse(0, 0, pt.size, pt.size * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        ctx.restore();
+      }
+
+      /* ========================================================================
+         13. SCENERY, ENTITIES & DETAILED HERO AUTO RENDERERS
+         ======================================================================== */
+      function drawParallaxSkyline(hy, night) {
+        ctx.save();
+        const shift = ((state.skyOffset * 0.5) % view.w + view.w) % view.w;
+        ctx.fillStyle = night ? '#0e0b24' : '#b45309';
+        ctx.globalAlpha = night ? 0.92 : 0.24;
+
+        // Distant Temple Gopuram moving with parallax
+        const gx = ((view.w * 0.24 - shift * 0.35) % view.w + view.w) % view.w;
+        ctx.beginPath();
+        ctx.moveTo(gx - 38, hy + 4); ctx.lineTo(gx - 22, hy - 56);
+        ctx.lineTo(gx + 22, hy - 56); ctx.lineTo(gx + 38, hy + 4);
+        ctx.closePath(); ctx.fill();
+        ctx.fillRect(gx - 12, hy - 66, 24, 10);
+
+        for (let i = -1; i < 17; i++) {
+          const hx = (i / 15) * view.w - (shift * 0.25) % (view.w / 15);
+          ctx.beginPath();
+          ctx.arc(hx, hy + 4, 24 + (Math.abs(i) % 3) * 11, Math.PI, 0);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawPalmTree(x, y, size, side, night) {
+        if (size < 8) return;
+        ctx.save();
+        ctx.translate(x, y);
+        const h = size * 1.65, lean = side * size * 0.14;
+        ctx.strokeStyle = night ? '#312e81' : '#78350f';
+        ctx.lineWidth = Math.max(2, size * 0.11);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(lean * 0.6, -h * 0.5, lean, -h); ctx.stroke();
+        ctx.translate(lean, -h);
+        ctx.fillStyle = night ? '#065f46' : '#15803d';
+        for (let i = 0; i < 6; i++) {
+          ctx.save();
+          ctx.rotate((i / 6) * Math.PI * 2 + Math.sin(state.clock * 2 + x) * 0.05);
+          ctx.beginPath(); ctx.ellipse(size * 0.34, 0, size * 0.38, size * 0.10, 0.2, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function drawBazaarShop(x, y, size, sign, night) {
+        if (size < 14) return;
+        const w = size * 1.15, h = size * 0.9, left = x - w / 2, top = y - h;
+        ctx.save();
+        ctx.fillStyle = night ? '#1e1b4b' : '#fff7ed';
+        ctx.strokeStyle = night ? '#6366f1' : '#d97706';
+        ctx.lineWidth = Math.max(1, size * 0.024);
+        ctx.fillRect(left, top, w, h); ctx.strokeRect(left, top, w, h);
+
+        ctx.fillStyle = night ? '#fef08a' : '#78350f';
+        if (night) { ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 10; }
+        ctx.fillRect(left + w * 0.14, top + h * 0.42, w * 0.72, h * 0.48);
+        ctx.shadowBlur = 0;
+
+        for (let s = 0; s < 5; s++) {
+          ctx.fillStyle = s % 2 === 0 ? sign.awning : '#ffffff';
+          ctx.fillRect(left - w * 0.04 + s * (w * 1.08) / 5, top + h * 0.25, (w * 1.08) / 5 + 0.5, h * 0.2);
+        }
+        ctx.fillStyle = sign.bg;
+        ctx.fillRect(left + w * 0.06, top + h * 0.05, w * 0.88, h * 0.18);
+        if (size > 44) {
+          ctx.fillStyle = sign.fg;
+          ctx.font = `900 ${Math.max(8, Math.floor(size * 0.13))}px sans-serif`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(sign.text, x, top + h * 0.145);
+        }
+        ctx.restore();
+      }
+
+      function drawOverheadGarland(cx, y, roadW, night) {
+        if (roadW < 36) return;
+        const poleH = roadW * 0.62, lx = cx - roadW * 1.12, rx = cx + roadW * 1.12, ty = y - poleH;
+        ctx.save();
+        ctx.strokeStyle = night ? '#475569' : '#78350f';
+        ctx.lineWidth = Math.max(1.5, roadW * 0.024);
+        ctx.beginPath(); ctx.moveTo(lx, y); ctx.lineTo(lx, ty); ctx.moveTo(rx, y); ctx.lineTo(rx, ty); ctx.stroke();
+        ctx.strokeStyle = night ? '#fef08a' : '#15803d';
+        ctx.lineWidth = Math.max(1, roadW * 0.013);
+        ctx.beginPath(); ctx.moveTo(lx, ty); ctx.quadraticCurveTo(cx, ty + roadW * 0.18, rx, ty); ctx.stroke();
+
+        for (let i = 1; i < 11; i++) {
+          const t0 = i / 11;
+          const gx = lx + (rx - lx) * t0;
+          const gy = (1 - t0) * (1 - t0) * ty + 2 * (1 - t0) * t0 * (ty + roadW * 0.18) + t0 * t0 * ty;
+          ctx.beginPath(); ctx.arc(gx, gy, Math.max(2, roadW * 0.026), 0, Math.PI * 2);
+          ctx.fillStyle = night ? ['#fde047', '#f472b6', '#38bdf8', '#fb923c'][i % 4] : (i % 2 === 0 ? '#f97316' : '#facc15');
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawStreetEntity(e, x, y, roadW, night) {
+        const s = roadW * 0.24;
+        if (s < 4) return;
+        ctx.save();
+        ctx.translate(x, y);
+
+        if (e.kind === 'coin') {
+          const r = s * 0.35;
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.85, r * 0.26, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.translate(0, -r * 1.3 + Math.sin(state.clock * 5 + e.z) * r * 0.15);
+          ctx.scale(Math.max(0.22, Math.abs(Math.cos(state.clock * 6 + e.z * 0.01))), 1);
+          ctx.fillStyle = '#facc15'; ctx.strokeStyle = '#b45309'; ctx.lineWidth = Math.max(1.4, r * 0.14);
+          ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        } else if (e.kind === 'kaapi') {
+          const r = s * 0.44;
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.85, r * 0.26, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.translate(0, -r * 1.15 + Math.sin(state.clock * 6) * r * 0.14);
+          ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#78350f'; ctx.lineWidth = Math.max(1.5, r * 0.1);
+          ctx.beginPath(); ctx.roundRect(-r * 0.48, -r * 0.65, r * 0.96, r * 1.05, r * 0.14); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath(); ctx.ellipse(0, r * 0.44, r * 0.78, r * 0.26, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fffbeb';
+          ctx.beginPath(); ctx.ellipse(0, -r * 0.62, r * 0.46, r * 0.15, 0, 0, Math.PI * 2); ctx.fill();
+        } else if (e.kind === 'magnet') {
+          const r = s * 0.42;
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.8, r * 0.24, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.translate(0, -r * 1.2 + Math.sin(state.clock * 6) * r * 0.14);
+          ctx.strokeStyle = '#e11d48'; ctx.lineWidth = Math.max(3, r * 0.34);
+          ctx.beginPath(); ctx.arc(0, 0, r * 0.60, Math.PI, 0); ctx.stroke();
+          ctx.fillStyle = '#f1f5f9';
+          ctx.fillRect(-r * 0.78, 0, r * 0.34, r * 0.42); ctx.fillRect(r * 0.44, 0, r * 0.34, r * 0.42);
+        } else if (e.kind === 'shield') {
+          const r = s * 0.44;
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.8, r * 0.24, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.translate(0, -r * 1.2 + Math.sin(state.clock * 6) * r * 0.14);
+          ctx.rotate(state.clock * 2.2);
+          for (let i = 0; i < 8; i++) {
+            const a = (i / 8) * Math.PI * 2;
+            ctx.fillStyle = i % 2 === 0 ? '#f97316' : '#facc15';
+            ctx.beginPath(); ctx.arc(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * 0.32, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.fillStyle = '#fef9c3'; ctx.beginPath(); ctx.arc(0, 0, r * 0.32, 0, Math.PI * 2); ctx.fill();
+        } else if (e.kind === 'chill') {
+          const r = s * 0.45;
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.8, r * 0.24, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.translate(0, -r * 1.15 + Math.sin(state.clock * 5.5) * r * 0.14);
+          ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = Math.max(2, r * 0.14);
+          ctx.beginPath(); ctx.moveTo(0, -r * 0.4); ctx.lineTo(r * 0.42, -r * 1.12); ctx.stroke();
+          ctx.fillStyle = '#22c55e'; ctx.strokeStyle = '#15803d'; ctx.lineWidth = Math.max(1.5, r * 0.1);
+          ctx.beginPath(); ctx.ellipse(0, 0, r * 0.65, r * 0.76, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#dcfce7'; ctx.beginPath(); ctx.ellipse(0, -r * 0.52, r * 0.36, r * 0.14, 0, 0, Math.PI * 2); ctx.fill();
+        } else if (e.kind === 'breaker') {
+          const bw = roadW * 1.96, bh = Math.max(4, s * 0.22);
+          for (let i = 0; i < 12; i++) {
+            ctx.fillStyle = i % 2 === 0 ? '#facc15' : '#18181b';
+            ctx.fillRect(-bw / 2 + i * (bw / 12), -bh, bw / 12 + 0.5, bh);
+          }
+        } else if (e.kind === 'cow') {
+          const w = s * 1.24, h = s * 0.82;
+          ctx.rotate(e.wiggle > 0 ? Math.sin(state.clock * 34) * 0.15 : 0);
+          ctx.fillStyle = 'rgba(0,0,0,0.26)';
+          ctx.beginPath(); ctx.ellipse(0, 2, w * 0.55, h * 0.22, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fafaf9'; ctx.strokeStyle = '#78716c'; ctx.lineWidth = Math.max(1.2, s * 0.04);
+          ctx.beginPath(); ctx.roundRect(-w * 0.5, -h * 0.88, w, h * 0.82, h * 0.35); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#a16207';
+          ctx.beginPath(); ctx.ellipse(-w * 0.18, -h * 0.52, w * 0.16, h * 0.17, 0.3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fef3c7';
+          ctx.beginPath(); ctx.arc(0, -h * 0.78, h * 0.33, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = '#d97706'; ctx.lineWidth = Math.max(1.4, s * 0.055);
+          ctx.beginPath(); ctx.moveTo(-h * 0.22, -h * 1.0); ctx.lineTo(-h * 0.35, -h * 1.2); ctx.moveTo(h * 0.22, -h * 1.0); ctx.lineTo(h * 0.35, -h * 1.2); ctx.stroke();
+          ctx.fillStyle = '#fbcfe8'; ctx.beginPath(); ctx.ellipse(0, -h * 0.68, h * 0.21, h * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#1c1917';
+          ctx.beginPath(); ctx.arc(-h * 0.11, -h * 0.85, Math.max(1, h * 0.05), 0, Math.PI * 2); ctx.arc(h * 0.11, -h * 0.85, Math.max(1, h * 0.05), 0, Math.PI * 2); ctx.fill();
+          // Cute Zzz bubble when snoozing
+          if (!e.mooed && s > 22) {
+            ctx.fillStyle = '#fef08a';
+            ctx.font = `900 ${Math.max(9, Math.floor(s * 0.26))}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Zzz', h * 0.42, -h * 1.15 - Math.sin(state.clock * 4) * 4);
+          }
+        } else if (e.kind === 'cart') {
+          const w = s * 1.28, h = s * 0.96;
+          ctx.fillStyle = 'rgba(0,0,0,0.26)';
+          ctx.beginPath(); ctx.ellipse(0, 2, w * 0.52, h * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#1c1917';
+          ctx.beginPath(); ctx.arc(-w * 0.34, -h * 0.16, h * 0.17, 0, Math.PI * 2); ctx.arc(w * 0.34, -h * 0.16, h * 0.17, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#92400e'; ctx.strokeStyle = '#451a03'; ctx.lineWidth = Math.max(1.2, s * 0.04);
+          ctx.fillRect(-w * 0.5, -h * 0.60, w, h * 0.40); ctx.strokeRect(-w * 0.5, -h * 0.60, w, h * 0.40);
+          ctx.fillStyle = ['#f97316', '#facc15', '#22c55e', '#ec4899'][e.colorIdx % 4];
+          for (let i = -2; i <= 2; i++) {
+            ctx.beginPath(); ctx.arc(i * w * 0.16, -h * 0.70 + Math.abs(i) * h * 0.04, h * 0.18, 0, Math.PI * 2); ctx.fill();
+          }
+        } else if (e.kind === 'scooter') {
+          const w = s * 0.78, h = s * 1.04;
+          ctx.fillStyle = 'rgba(0,0,0,0.26)';
+          ctx.beginPath(); ctx.ellipse(0, 2, w * 0.48, h * 0.16, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#1c1917'; ctx.fillRect(-w * 0.14, -h * 0.34, w * 0.28, h * 0.34);
+          ctx.fillStyle = e.colorIdx % 2 === 0 ? '#0ea5e9' : '#e11d48'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.2, s * 0.04);
+          ctx.beginPath(); ctx.roundRect(-w * 0.38, -h * 0.68, w * 0.76, h * 0.42, w * 0.24); ctx.fill(); ctx.stroke();
+          // Delivery Rider Torso & Helmet
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath(); ctx.roundRect(-w * 0.28, -h * 1.02, w * 0.56, h * 0.36, w * 0.16); ctx.fill();
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath(); ctx.arc(0, -h * 1.14, w * 0.24, 0, Math.PI * 2); ctx.fill();
+          // Glowing red taillight
+          ctx.fillStyle = '#ff2a55';
+          ctx.fillRect(-w * 0.12, -h * 0.50, w * 0.24, h * 0.10);
+        } else if (e.kind === 'barricade') {
+          const w = s * 1.14, h = s * 0.76;
+          ctx.fillStyle = 'rgba(0,0,0,0.24)';
+          ctx.beginPath(); ctx.ellipse(0, 2, w * 0.52, h * 0.16, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#18181b';
+          ctx.fillRect(-w * 0.44, -h * 0.82, w * 0.10, h * 0.82); ctx.fillRect(w * 0.34, -h * 0.82, w * 0.10, h * 0.82);
+          for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = i % 2 === 0 ? '#facc15' : '#18181b';
+            ctx.fillRect(-w * 0.5 + i * (w * 0.25), -h * 0.76, w * 0.25 + 0.5, h * 0.30);
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawHeroAutoRickshaw(night) {
+        const skin = getEquippedSkin();
+        const cx = view.w / 2;
+        const baseY = state.mode === 'title' ? view.h * 0.65 : view.h * 0.86;
+        const scale = Math.max(0.76, Math.min(1.18, view.w / 620));
+        const jumpLift = state.playerY * 0.22;
+        const rumble = Math.sin(state.clock * 34) * Math.min(2.2, state.kmh / 65);
+
+        if (state.invulnTimer > 0 && Math.floor(state.clock * 16) % 2 === 0) return;
+
+        ctx.save();
+
+        // Headlight Beams in Festival Night
+        if (night) {
+          const beam = ctx.createLinearGradient(cx, baseY - 40, cx, view.h * 0.46);
+          beam.addColorStop(0, 'rgba(254, 240, 138, 0.36)');
+          beam.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = beam;
+          ctx.beginPath();
+          ctx.moveTo(cx - 28 * scale, baseY - 35 * scale);
+          ctx.lineTo(cx + 28 * scale, baseY - 35 * scale);
+          ctx.lineTo(cx + 150 * scale + state.leanAngle * 115, view.h * 0.46);
+          ctx.lineTo(cx - 150 * scale + state.leanAngle * 115, view.h * 0.46);
+          ctx.closePath(); ctx.fill();
+        }
+
+        // Grounded Oval Shadow
+        const shSc = Math.max(0.55, 1 - state.playerY / 650);
+        ctx.fillStyle = 'rgba(11, 15, 25, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(cx, baseY + 14 * scale, 64 * scale * shSc, 14 * scale * shSc, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.translate(cx, baseY - jumpLift + rumble);
+        ctx.scale(scale, scale);
+        ctx.rotate(state.leanAngle);
+
+        // Rotating Marigold Shield Aura
+        if (state.hasShield) {
+          ctx.save();
+          ctx.rotate(state.clock * 2.0);
+          ctx.strokeStyle = 'rgba(251, 146, 60, 0.88)';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath(); ctx.arc(0, -52, 76, 0, Math.PI * 2); ctx.stroke();
+          for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2;
+            ctx.fillStyle = i % 2 === 0 ? '#f97316' : '#facc15';
+            ctx.beginPath(); ctx.arc(Math.cos(a) * 76, -52 + Math.sin(a) * 76, 6.2, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Golden Coin Magnet Aura
+        if (state.magnetTimer > 0) {
+          ctx.save();
+          ctx.strokeStyle = `rgba(192, 132, 252, ${0.4 + Math.sin(state.clock * 8) * 0.3})`;
+          ctx.lineWidth = 3;
+          ctx.setLineDash([8, 8]);
+          ctx.beginPath(); ctx.arc(0, -52, 68, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        }
+
+        // Horn Soundwave Rings
+        if (state.hornWaveTimer > 0) {
+          const p = 1 - state.hornWaveTimer / 0.42;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${1 - p})`;
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.arc(0, -70, 44 + p * 64, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+        }
+
+        // Rotating Rear Tires
+        const spin = Math.floor(state.clock * 28) % 2;
+        [-44, 44].forEach(tx => {
+          ctx.fillStyle = '#090d16';
+          ctx.beginPath(); ctx.roundRect(tx - 11, -18, 22, 34, 7); ctx.fill();
+          ctx.fillStyle = spin === 0 ? '#334155' : '#1e293b';
+          ctx.fillRect(tx - 7, -10, 14, 6); ctx.fillRect(tx - 7, 2, 14, 6);
+        });
+
+        // Lower Black Chassis Bumper
+        ctx.fillStyle = '#18181b';
+        ctx.beginPath(); ctx.roundRect(-54, -22, 108, 24, 9); ctx.fill();
+
+        // Painted Auto-Rickshaw Body (Equipped Skin!)
+        const bodyGrad = ctx.createLinearGradient(0, -64, 0, -14);
+        bodyGrad.addColorStop(0, skin.top); bodyGrad.addColorStop(0.45, skin.mid); bodyGrad.addColorStop(1, skin.bot);
+        ctx.fillStyle = bodyGrad; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.roundRect(-52, -62, 104, 46, 13); ctx.fill(); ctx.stroke();
+
+        // Racing Stripe
+        ctx.fillStyle = skin.stripe;
+        ctx.fillRect(-50, -34, 100, 7);
+
+        // Canopy Roof with Glossy Highlight
+        const roofGrad = ctx.createLinearGradient(0, -118, 0, -60);
+        roofGrad.addColorStop(0, '#475569'); roofGrad.addColorStop(0.45, skin.roof); roofGrad.addColorStop(1, '#09090b');
+        ctx.fillStyle = roofGrad; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-48, -60); ctx.lineTo(-40, -107); ctx.quadraticCurveTo(0, -122, 40, -107); ctx.lineTo(48, -60);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        // Glossy Roof Top Edge Reflection
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(-30, -109); ctx.quadraticCurveTo(0, -116, 30, -109); ctx.stroke();
+
+        // Rear Windshield showing Classic Green Interior Seat + Swinging Marigold Garland
+        ctx.fillStyle = night ? '#1e1b4b' : '#38bdf8';
+        ctx.beginPath(); ctx.roundRect(-29, -97, 58, 26, 7); ctx.fill();
+        ctx.fillStyle = '#16a34a'; // Green cushioned passenger seat!
+        ctx.beginPath(); ctx.roundRect(-24, -82, 48, 10, 4); ctx.fill();
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.roundRect(-29, -97, 58, 26, 7); ctx.stroke();
+
+        // Pendulum Marigold Garland
+        const sway = -state.leanAngle * 14 + Math.sin(state.clock * 10) * 1.4;
+        ctx.fillStyle = '#f97316';
+        for (let g = -2; g <= 2; g++) {
+          ctx.beginPath();
+          ctx.arc(g * 9 + sway * 0.25, -92 + (2 - Math.abs(g)) * 3.2, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Flaring Brake / Taillights
+        ctx.shadowColor = '#ef4444'; ctx.shadowBlur = state.isDrifting ? 20 : 8;
+        ctx.fillStyle = state.isDrifting ? '#ff2a55' : '#ef4444';
+        ctx.beginPath(); ctx.roundRect(-45, -52, 15, 11, 4); ctx.roundRect(30, -52, 15, 11, 4); ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Crisp TN 38 Plate
+        ctx.fillStyle = '#fef08a'; ctx.strokeStyle = '#18181b'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.roundRect(-27, -23, 54, 16, 4); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#0f172a'; ctx.font = '900 9.5px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('TN 38', 0, -14.5);
+
+        // Twin Blue-Gold Turbo Exhaust Flames during Kaapi Nitro
+        if (state.nitroTimer > 0) {
+          [-16, 16].forEach(fx => {
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath(); ctx.moveTo(fx - 9, 0); ctx.lineTo(fx + 9, 0); ctx.lineTo(fx, 32 + Math.random() * 18); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath(); ctx.moveTo(fx - 5, 0); ctx.lineTo(fx + 5, 0); ctx.lineTo(fx, 18 + Math.random() * 12); ctx.closePath(); ctx.fill();
+          });
+        }
+        ctx.restore();
+      }
+
+      /* ========================================================================
+         14. HUD, THEME, SOUND & SELF-CONTAINED HTML / JSON EXPORTS
+         ======================================================================== */
+      const elHudScore = document.getElementById('hud-score');
+      const elHudCoins = document.getElementById('hud-coins');
+      const elHudHearts = document.getElementById('hud-hearts');
+      const elHudSpeed = document.getElementById('hud-speed');
+      const elHudNitroFill = document.getElementById('hud-nitro-fill');
+      const elPipShield = document.getElementById('pip-shield');
+      const elPipMagnet = document.getElementById('pip-magnet');
+      const elPipChill = document.getElementById('pip-chill');
+      const elTouchHorn = document.getElementById('btn-touch-horn');
+      const elTouchNitro = document.getElementById('btn-touch-nitro');
+
+      function updateHUD() {
+        elHudScore.textContent = Math.floor(state.score).toLocaleString();
+        elHudCoins.textContent = String(state.coins);
+        elHudHearts.textContent = '❤️'.repeat(Math.max(0, state.hearts)) + '🖤'.repeat(Math.max(0, 3 - state.hearts));
+        elHudSpeed.textContent = `${Math.round(state.kmh)} ${t('kmh')}`;
+
+        const nitroPct = state.nitroTimer > 0 ? Math.min(100, (state.nitroTimer / 4.2) * 100) : state.nitro;
+        elHudNitroFill.style.width = `${nitroPct.toFixed(1)}%`;
+
+        elPipShield.classList.toggle('active', state.hasShield);
+        elPipMagnet.classList.toggle('active', state.magnetTimer > 0);
+        elPipChill.classList.toggle('active', state.chillTimer > 0);
+
+        // Context-aware mobile buttons (ONLY appear when needed!)
+        elTouchNitro.classList.toggle('visible', state.nitro >= 40 && state.nitroTimer <= 0);
+        elTouchHorn.classList.toggle('visible', state.cowApproaching);
+      }
+
+      function syncThemeUI() {
+        const n = isNight();
+        document.getElementById('btn-util-theme').innerHTML = n ? '&#127769;' : '&#9728;&#65039;';
+        document.getElementById('btn-pause-theme').innerHTML = n ? `&#127769; ${t('nightTheme')}` : `&#9728;&#65039; ${t('dayTheme')}`;
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        save.theme = theme;
+        persistSave();
+        syncThemeUI();
+      }
+
+      function syncSoundUI() {
+        document.getElementById('btn-util-sound').innerHTML = audio.muted ? '&#128263;' : '&#128266;';
+        document.getElementById('btn-pause-sound').innerHTML = audio.muted ? `&#128263; ${t('soundOff')}` : `&#128266; ${t('soundOn')}`;
+      }
+
+      function toggleSound() {
+        audio.unlock();
+        audio.muted = !audio.muted;
+        save.muted = audio.muted;
+        persistSave();
+        syncSoundUI();
+      }
+
+      function downloadFile(content, filename, mime) {
+        try {
+          const blob = new Blob([content], { type: mime });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function exportStandaloneHTML() {
+        let htmlOut = CLEAN_SOURCE_HTML;
+        // Automatically embed loaded/uploaded logo PNG as inline data URI so downloaded HTML is 100% self-contained!
+        const dataUri = getInlineLogoDataURI();
+        if (dataUri) {
+          htmlOut = htmlOut
+            .replaceAll('src="1000064433_2.png"', `src="${dataUri}"`)
+            .replaceAll('src="1000064433.png"', `src="${dataUri}"`);
+        }
+        if (downloadFile(htmlOut, 'minnal-auto.html', 'text/html;charset=utf-8')) {
+          showToast(t('savedHtmlToast'));
+        }
+      }
+
+      function exportI18nJSON() {
+        if (downloadFile(JSON.stringify(I18N, null, 2), 'translations.json', 'application/json;charset=utf-8')) {
+          showToast(t('savedJsonToast'));
+        }
+      }
+
+      /* ========================================================================
+         15. INPUT HANDLERS (MOBILE SLIDE STEERING + DESKTOP KEYBOARD)
+         ======================================================================== */
+      window.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'arrowleft' || k === 'a') state.keys.left = true;
+        if (k === 'arrowright' || k === 'd') state.keys.right = true;
+        if (k === 'arrowup' || k === 'w' || k === 'shift') triggerNitro();
+        if (k === ' ' || k === 'h') { e.preventDefault(); triggerHorn(); }
+        if (k === 'p' || k === 'escape') {
+          if (state.mode === 'playing') openPauseSettings();
+          else if (state.mode === 'paused') resumeGame();
+        }
+        if (k === 'm') toggleSound();
+      });
+
+      window.addEventListener('keyup', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'arrowleft' || k === 'a') state.keys.left = false;
+        if (k === 'arrowright' || k === 'd') state.keys.right = false;
+      });
+
+      // Responsive Touch & Mouse Drag Steering (Lower 75% of screen on touch)
+      canvas.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') {
+          state.isTouchDevice = true;
+          document.body.classList.add('is-touch');
+          if (e.clientY < view.h * 0.20) return;
+        }
+        if (state.mode !== 'playing') return;
+        audio.unlock();
+        canvas.setPointerCapture(e.pointerId);
+        state.dragActive = true;
+        state.dragStartX = e.clientX;
+        state.dragStartPlayerX = state.playerX;
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!state.dragActive || state.mode !== 'playing') return;
+        const sens = Math.max(130, view.w * 0.36);
+        const targetX = Math.max(-0.98, Math.min(0.98, state.dragStartPlayerX + (e.clientX - state.dragStartX) / sens));
+        state.playerVx = Math.max(-2.6, Math.min(2.6, (targetX - state.playerX) * 20));
+        state.playerX = targetX;
+      });
+
+      function endDrag() { state.dragActive = false; }
+      canvas.addEventListener('pointerup', endDrag);
+      canvas.addEventListener('pointercancel', endDrag);
+
+      // Context-Aware Touch Controls
+      elTouchHorn.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); triggerHorn(); });
+      elTouchNitro.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); triggerNitro(); });
+
+      // Top-Right Utility Buttons
+      document.getElementById('btn-util-sound').addEventListener('click', toggleSound);
+      document.getElementById('btn-util-theme').addEventListener('click', () => applyTheme(isNight() ? 'sunny' : 'night'));
+      document.getElementById('btn-util-menu').addEventListener('click', () => {
+        if (document.getElementById('modal-pause').classList.contains('open')) resumeGame();
+        else openPauseSettings();
+      });
+
+      // Title, Finish, Garage & Pause Buttons
+      document.getElementById('btn-race-now').addEventListener('click', startGame);
+      document.getElementById('btn-title-garage').addEventListener('click', () => openGarage('title'));
+
+      document.getElementById('btn-fin-retry').addEventListener('click', startGame);
+      document.getElementById('btn-fin-garage').addEventListener('click', () => openGarage('finish'));
+      document.getElementById('btn-fin-title').addEventListener('click', showTitleScreen);
+
+      document.getElementById('btn-garage-close').addEventListener('click', () => {
+        closeAllModals();
+        if (state.garageReturnTo === 'finish') {
+          const m = document.getElementById('modal-finish');
+          m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
+        } else {
+          showTitleScreen();
+        }
+      });
+
+      document.getElementById('btn-pause-resume').addEventListener('click', resumeGame);
+      document.getElementById('btn-pause-restart').addEventListener('click', startGame);
+      document.getElementById('btn-pause-title').addEventListener('click', showTitleScreen);
+      document.getElementById('btn-pause-theme').addEventListener('click', () => applyTheme(isNight() ? 'sunny' : 'night'));
+      document.getElementById('btn-pause-sound').addEventListener('click', toggleSound);
+      document.getElementById('btn-pause-html').addEventListener('click', exportStandaloneHTML);
+      document.getElementById('btn-pause-json').addEventListener('click', exportI18nJSON);
+      document.getElementById('btn-load-logo').addEventListener('click', triggerLogoUpload);
+      document.getElementById('btn-pause-logo').addEventListener('click', triggerLogoUpload);
+
+      /* ========================================================================
+         16. MAIN 60FPS ANIMATION LOOP & BOOT TRANSITION
+         ======================================================================== */
+      let lastTime = performance.now();
+
+      function loop(now) {
+        const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
+        lastTime = now;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      window.onload = function () {
+        if (save.customLogo) applyCustomLogoDataUrl(save.customLogo);
+        buildRoad();
+        applyTheme(save.theme || 'sunny');
+        applyTranslations();
+        resizeCanvas();
+        showTitleScreen();
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+
+        // Smooth 0.8s Boot Splash Fade-Out
+        setTimeout(() => {
+          elBootSplash.classList.add('done');
+          setTimeout(() => { elBootSplash.style.display = 'none'; }, 480);
+        }, 780);
+      };
+    })();
+  </script>
+</body>
+</html>
