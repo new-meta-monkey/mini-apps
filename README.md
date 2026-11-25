@@ -12,6 +12,7 @@ https://new-meta-monkey.github.io/mini-apps/
 | ShopPulse | `shop-pulse/` | Offline shop manager: POS billing, stock, sales, expenses, customers, reports, multi-shop |
 | PolyPrism 3D | `polyprism-3d/` | Colorful geometric physics game: launch rainbow marbles, bounce off trampolines, pop the blocks, levels + endless mode |
 | Minnal Auto | `minnal-auto/` | AAA Indian street drift racer: slide the auto, chain drifts, build combos, best score |
+| Aadu Puli Aattam | `aadu-puli-aattam/` | Classic Tamil strategy board game: 3 tigers vs 15 goats, play vs computer, English + Tamil rules |
 
 Each app is its own installable PWA (own `manifest.json` + `sw.js`, scoped to its
 folder), so it installs separately on a phone with its own icon and works offline.

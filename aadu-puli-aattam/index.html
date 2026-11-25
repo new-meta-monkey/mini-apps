@@ -1,0 +1,3208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sunlit">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>AADU PULI AATTAM — ஆடுபுலி ஆட்டம்</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS — SUNLIT TAMIL THINNAI & EVENING LAMP (DEEPAM) THEMES
+       ========================================================================== */
+    :root, [data-theme="sunlit"] {
+      --bg-outer: radial-gradient(circle at 50% 32%, #f5d6a7 0%, #d89b60 48%, #8f4725 100%);
+      --panel-bg: rgba(48, 22, 12, 0.88);
+      --panel-solid: #2b140b;
+      --panel-soft: rgba(255, 244, 222, 0.08);
+      --border-brass: rgba(245, 198, 79, 0.52);
+      --border-soft: rgba(255, 240, 210, 0.16);
+      --text-main: #fff8eb;
+      --text-muted: #e6cdb2;
+      --brass-1: #fef08a;
+      --brass-2: #eab308;
+      --brass-3: #a16207;
+      --emerald-1: #4ade80;
+      --emerald-2: #15803d;
+      --amber-1: #fb923c;
+      --amber-2: #c2410c;
+      --ruby-1: #fb7185;
+      --ruby-2: #be123c;
+      --shadow-card: 0 18px 46px rgba(34, 12, 4, 0.56);
+      --safe-top: max(10px, env(safe-area-inset-top));
+      --safe-bottom: max(10px, env(safe-area-inset-bottom));
+      --safe-left: max(10px, env(safe-area-inset-left));
+      --safe-right: max(10px, env(safe-area-inset-right));
+      --font-ui: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans Tamil", sans-serif;
+    }
+
+    [data-theme="deepam"] {
+      --bg-outer: radial-gradient(circle at 50% 34%, #3c1f14 0%, #1b0e0a 56%, #0b0605 100%);
+      --panel-bg: rgba(20, 10, 8, 0.90);
+      --panel-solid: #160b08;
+      --panel-soft: rgba(254, 215, 145, 0.07);
+      --border-brass: rgba(251, 191, 36, 0.58);
+      --border-soft: rgba(254, 215, 145, 0.14);
+      --text-main: #fff7e6;
+      --text-muted: #cbb49e;
+      --shadow-card: 0 22px 54px rgba(0, 0, 0, 0.78);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg-outer);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      user-select: none;
+      -webkit-user-select: none;
+      overscroll-behavior: none;
+      touch-action: none;
+    }
+
+    /* Full-Viewport High-DPI Canvas */
+    #game-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: block;
+      touch-action: none;
+    }
+
+    /* ==========================================================================
+       TOP GAMEPLAY HUD BAR (CLEAN, SINGLE BAR, ZERO OVERLAP ON 360px+)
+       ========================================================================== */
+    #hud-bar {
+      position: fixed;
+      top: var(--safe-top);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 16px), 660px);
+      z-index: 25;
+      height: 46px;
+      padding: 0 8px;
+      border-radius: 15px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1.5px solid var(--border-brass);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    body.screen-playing #hud-bar,
+    body.screen-gameover #hud-bar {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .turn-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: clamp(11px, 3vw, 13px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      border: 1.5px solid transparent;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .turn-badge.turn-G {
+      background: rgba(22, 163, 74, 0.24);
+      border-color: #4ade80;
+      color: #dcfce7;
+    }
+
+    .turn-badge.turn-T {
+      background: rgba(234, 88, 12, 0.28);
+      border-color: #fb923c;
+      color: #ffedd5;
+    }
+
+    .hud-counters {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .stat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 7px;
+      border-radius: 9px;
+      background: rgba(255, 248, 235, 0.08);
+      border: 1px solid var(--border-soft);
+      font-size: clamp(11px, 2.9vw, 12.5px);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .stat-chip.danger {
+      border-color: rgba(251, 113, 133, 0.5);
+      color: #fecdd3;
+    }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-soft);
+      background: rgba(255, 248, 235, 0.08);
+      color: var(--text-main);
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      border-color: var(--brass-1);
+      background: rgba(234, 179, 8, 0.2);
+    }
+
+    .icon-btn:active:not(:disabled) { transform: scale(0.9); }
+
+    .icon-btn:disabled {
+      opacity: 0.34;
+      cursor: not-allowed;
+    }
+
+    /* ==========================================================================
+       BOTTOM STATUS STRIP + LIVE P2P QUICK TAUNT BAR
+       ========================================================================== */
+    #bottom-tray {
+      position: fixed;
+      bottom: var(--safe-bottom);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 16px), 560px);
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    body.screen-playing #bottom-tray {
+      opacity: 1;
+    }
+
+    .status-strip {
+      pointer-events: none;
+      max-width: 100%;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-brass);
+      color: var(--brass-1);
+      font-size: clamp(11.5px, 3vw, 13px);
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.36);
+    }
+
+    .taunt-bar {
+      display: none;
+      pointer-events: auto;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-brass);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42);
+    }
+
+    body.screen-playing.is-p2p .taunt-bar {
+      display: inline-flex;
+    }
+
+    .p2p-live-tag {
+      font-size: 10.5px;
+      font-weight: 900;
+      color: #4ade80;
+      padding-right: 4px;
+      border-right: 1px solid var(--border-soft);
+      white-space: nowrap;
+    }
+
+    .taunt-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .taunt-btn:hover { background: rgba(234, 179, 8, 0.28); transform: scale(1.12); }
+    .taunt-btn:active { transform: scale(0.9); }
+
+    /* Floating Taunt Bubble */
+    #taunt-popup {
+      position: fixed;
+      top: calc(var(--safe-top) + 58px);
+      right: 14px;
+      z-index: 35;
+      pointer-events: none;
+      padding: 6px 13px;
+      border-radius: 16px;
+      background: var(--panel-solid);
+      border: 2px solid var(--brass-2);
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      transform: scale(0.5) translateY(8px);
+      transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #taunt-popup.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* ==========================================================================
+       MINIMAL ELEGANT TITLE OVERLAY OVER LIVE RENDERED BOARD
+       ========================================================================== */
+    #title-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: radial-gradient(circle at 50% 42%, rgba(36, 15, 7, 0.36) 0%, rgba(16, 7, 4, 0.84) 82%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    body.screen-title #title-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .title-top-row {
+      width: min(94vw, 440px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: var(--panel-bg);
+      border: 1.5px solid var(--border-brass);
+      gap: 3px;
+    }
+
+    .lang-btn {
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .lang-btn.active {
+      background: linear-gradient(180deg, #fde047, #ca8a04);
+      color: #240f05;
+    }
+
+    .title-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      margin: auto 0;
+      padding: 6px 0;
+    }
+
+    .hero-emblems {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+
+    .emblem-disc {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+      animation: floatDisc 3.2s ease-in-out infinite;
+    }
+
+    .emblem-disc.tiger {
+      background: radial-gradient(circle at 35% 30%, #fde68a, #d97706 60%, #78350f);
+      border: 2.5px solid #fef08a;
+    }
+
+    .emblem-disc.goat {
+      background: radial-gradient(circle at 35% 30%, #ffffff, #e7e5e4 62%, #a8a29e);
+      border: 2.5px solid #4ade80;
+      animation-delay: -1.6s;
+    }
+
+    @keyframes floatDisc {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 8.2vw, 48px);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      line-height: 1.05;
+      background: linear-gradient(180deg, #fffbeb 0%, #fde047 45%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 3px 0 #3f1808) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
+    }
+
+    .hero-tamil {
+      font-size: clamp(16px, 4.4vw, 22px);
+      font-weight: 900;
+      color: #fde68a;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+    }
+
+    .hero-sub {
+      font-size: clamp(11px, 3vw, 13px);
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Title Action Dock */
+    .title-dock {
+      width: min(94vw, 420px);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .solo-config-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      padding: 8px;
+      border-radius: 15px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-brass);
+    }
+
+    .seg-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .seg-lbl {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--brass-1);
+      text-align: center;
+    }
+
+    .seg-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.34);
+      padding: 3px;
+      border-radius: 10px;
+    }
+
+    .seg-btn {
+      padding: 6px 4px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .seg-btn.active {
+      background: linear-gradient(180deg, #eab308, #a16207);
+      color: #1f0c04;
+    }
+
+    .mode-btn {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 15px;
+      border: 1.5px solid var(--border-brass);
+      background: linear-gradient(180deg, rgba(64, 30, 15, 0.94), rgba(32, 15, 8, 0.96));
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: clamp(14px, 3.8vw, 16px);
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 0 #180a04, 0 10px 22px rgba(0, 0, 0, 0.42);
+      transition: transform 0.08s ease, filter 0.15s ease;
+    }
+
+    .mode-btn:hover { filter: brightness(1.08); }
+    .mode-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #180a04; }
+
+    .mode-btn.primary {
+      border-color: #86efac;
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 55%, #064e3b 100%);
+      box-shadow: 0 4px 0 #052e16, 0 10px 24px rgba(22, 163, 74, 0.38);
+    }
+
+    .mode-btn.p2p {
+      border-color: #fde047;
+      background: linear-gradient(135deg, #c2410c 0%, #9a3412 52%, #431407 100%);
+      box-shadow: 0 4px 0 #431407, 0 10px 24px rgba(234, 88, 12, 0.36);
+    }
+
+    .mode-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mode-btn-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .title-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding-top: 2px;
+    }
+
+    .link-btn {
+      border: none;
+      background: transparent;
+      color: var(--brass-1);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      opacity: 0.9;
+    }
+
+    .link-btn:hover { opacity: 1; }
+
+    /* ==========================================================================
+       MODALS (P2P LOBBY, MENU/DOWNLOAD, RULES, VICTORY)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(10, 5, 3, 0.76);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--safe-top) + 14px) 12px var(--safe-bottom);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: min(95vw, 440px);
+      max-height: 88dvh;
+      overflow-y: auto;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #32180c 0%, #1a0c06 100%);
+      border: 2px solid var(--border-brass);
+      box-shadow: var(--shadow-card);
+      color: var(--text-main);
+      transform: scale(0.93) translateY(10px);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-head {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(234, 179, 8, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: linear-gradient(90deg, rgba(217, 119, 6, 0.2), transparent);
+    }
+
+    .modal-title {
+      font-size: clamp(15px, 4.2vw, 18px);
+      font-weight: 900;
+      color: var(--brass-1);
+      letter-spacing: 0.03em;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      font-size: 18px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .tabs-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.34);
+      border: 1px solid var(--border-soft);
+    }
+
+    .tab-btn {
+      padding: 8px 6px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(180deg, #eab308, #a16207);
+      color: #1f0c04;
+    }
+
+    .p2p-pane { display: none; flex-direction: column; gap: 9px; }
+    .p2p-pane.active { display: flex; }
+
+    .field-lbl {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--brass-1);
+    }
+
+    .hint-copy {
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 7px;
+      align-items: stretch;
+    }
+
+    .code-input, .code-area {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-brass);
+      background: rgba(12, 6, 4, 0.78);
+      color: #fef08a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .code-input { text-transform: uppercase; letter-spacing: 0.08em; }
+    .code-area { min-height: 58px; resize: none; font-size: 11px; word-break: break-all; }
+
+    .btn-brass, .btn-emerald, .btn-wood {
+      padding: 11px 13px;
+      border-radius: 12px;
+      font-family: var(--font-ui);
+      font-size: 13.5px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: transform 0.08s ease, filter 0.15s ease;
+    }
+
+    .btn-brass {
+      border: 1.5px solid #fef08a;
+      background: linear-gradient(180deg, #eab308, #a16207);
+      color: #1f0c04;
+    }
+
+    .btn-emerald {
+      border: 1.5px solid #86efac;
+      background: linear-gradient(180deg, #22c55e, #15803d);
+      color: #ffffff;
+      box-shadow: 0 3px 0 #14532d;
+    }
+
+    .btn-wood {
+      border: 1.5px solid var(--border-soft);
+      background: rgba(255, 248, 235, 0.08);
+      color: var(--text-main);
+    }
+
+    .btn-brass:active, .btn-emerald:active, .btn-wood:active { transform: scale(0.96); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .status-pill {
+      padding: 8px 11px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.36);
+      border: 1px solid var(--border-soft);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brass-1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .s-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex-shrink: 0;
+    }
+
+    .s-dot.wait { background: #facc15; animation: dotPulse 1s infinite; }
+    .s-dot.ok   { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+    .s-dot.err  { background: #ef4444; }
+
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.25); opacity: 0.6; }
+    }
+
+    /* Victory Modal */
+    .win-banner {
+      padding: 18px 16px 14px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(180, 83, 9, 0.42), rgba(26, 12, 6, 0.8));
+      border-bottom: 1.5px solid var(--border-brass);
+    }
+
+    .win-emoji { font-size: 42px; line-height: 1.1; margin-bottom: 4px; }
+    .win-title { font-size: 22px; font-weight: 900; color: var(--brass-1); }
+    .win-sub   { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; font-weight: 700; }
+
+    .win-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .w-cell {
+      padding: 9px 6px;
+      border-radius: 11px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid var(--border-soft);
+      text-align: center;
+    }
+
+    .w-cell .wv { font-size: 16px; font-weight: 900; color: var(--brass-1); font-variant-numeric: tabular-nums; }
+    .w-cell .wl { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+
+    /* Rule Items */
+    .rule-row {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 9px 10px;
+      border-radius: 11px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--border-soft);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .rule-row strong { color: var(--brass-1); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: max(60px, calc(var(--safe-bottom) + 46px));
+      left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      z-index: 80;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--panel-solid);
+      color: var(--brass-1);
+      border: 1.5px solid var(--brass-2);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 400px) {
+      #hud-bar { padding: 0 6px; gap: 4px; }
+      .icon-btn { width: 31px; height: 31px; font-size: 14px; }
+      .turn-badge { padding: 4px 7px; max-width: 112px; }
+      .stat-chip { padding: 3px 5px; }
+    }
+  </style>
+</head>
+<body class="screen-title">
+
+  <!-- ========================================================================
+       EXTERNALIZED i18n DICTIONARY (English + Natural Tamil, Easy to Extend)
+       ======================================================================== -->
+  <script id="i18n-data" type="application/json">
+  {
+    "en": {
+      "subtitle": "TAMIL VILLAGE STRATEGY • 3 TIGERS vs 15 GOATS",
+      "playAs": "Play As",
+      "goats": "Goats",
+      "tigers": "Tigers",
+      "aiLevel": "AI Level",
+      "classic": "Classic",
+      "smart": "Smart",
+      "btnSolo": "Solo vs AI",
+      "btnPass": "Pass & Play (2P)",
+      "btnP2P": "Live P2P (No Server)",
+      "rulesLink": "How to Play",
+      "downloadLink": "Download HTML",
+      "goatTurn": "Goat's Turn",
+      "tigerTurn": "Tiger's Turn",
+      "aiThinking": "AI thinking...",
+      "waitRival": "Waiting for rival...",
+      "hintPlace": "Tap any empty brass point to place a Goat",
+      "hintMoveG": "Tap a Goat, then tap a glowing emerald point",
+      "hintMoveT": "Tap a Tiger, then an emerald move or amber jump",
+      "hintSelectDst": "Tap a glowing ring to move (or tap piece to cancel)",
+      "capturedToast": "Tiger captured a Goat!",
+      "tigersWin": "Tigers Win!",
+      "goatsWin": "Goats Win!",
+      "tigersWinSub": "5 Goats were captured across the board.",
+      "goatsWinSub": "All 3 Tigers are completely trapped!",
+      "statTurns": "Turns",
+      "statCaptured": "Captured",
+      "statPlaced": "Goats Placed",
+      "playAgain": "Play Again",
+      "rematch": "Rematch (Swap Roles)",
+      "rematchWait": "Waiting for rival...",
+      "rematchAsk": "Rival wants Rematch! Tap",
+      "mainMenu": "Main Menu",
+      "menuTitle": "GAME MENU",
+      "restart": "Restart Match",
+      "themeSunlit": "Theme: Sunlit Thinnai",
+      "themeDeepam": "Theme: Evening Deepam",
+      "soundOn": "Sound: On",
+      "soundOff": "Sound: Muted",
+      "downloadBtn": "Download Standalone HTML",
+      "p2pTitle": "LIVE P2P (NO SERVER)",
+      "tabRtc": "Offline WebRTC",
+      "tabBc": "2-Tab Sync",
+      "rtcHint": "100% zero-server WebRTC! Share the short Invite/Reply code over WhatsApp or Wi-Fi. Host starts as Goats, Guest as Tigers.",
+      "bcHint": "Open this HTML in a 2nd browser tab and enter the same room code for instant 1ms Web Event play!",
+      "hostRole": "Host (Goats)",
+      "guestRole": "Guest (Tigers)",
+      "createInvite": "1. Create Invite Code",
+      "pasteReplyLbl": "2. PASTE GUEST REPLY CODE",
+      "connectPlay": "Connect & Play",
+      "pasteInvLbl": "1. PASTE HOST INVITE CODE",
+      "genReply": "Generate Reply Code",
+      "roomLbl": "ROOM CODE",
+      "joinTab": "Create / Join Room",
+      "statusReady": "Ready to connect",
+      "statusWait": "Waiting for opponent...",
+      "statusLinked": "Connected! Starting match...",
+      "copied": "Copied to clipboard!",
+      "savedHtml": "Saved aadu-puli-aattam.html!",
+      "rulesTitle": "HOW TO PLAY",
+      "r1": "<strong>3 Tigers vs 15 Goats:</strong> Tigers begin on nodes 0, 3, and 4. Goats start in reserve and always move first.",
+      "r2": "<strong>Phase 1 (Placement):</strong> On Goat's turn, tap any empty brass socket to place 1 goat until all 15 are placed. Tigers can already move and capture!",
+      "r3": "<strong>Phase 2 (Movement):</strong> Once all 15 goats are on the board, slide any Goat 1 step along a line to an empty adjacent point.",
+      "r4": "<strong>Tiger Capture & Win:</strong> Tigers move 1 step OR leap straight over an adjacent Goat to an empty point behind it to capture. Tigers win at <strong>5 captures</strong>; Goats win by <strong>trapping all 3 Tigers</strong>!"
+    },
+    "ta": {
+      "subtitle": "தமிழ் பாரம்பரிய விளையாட்டு • 3 புலி vs 15 ஆடு",
+      "playAs": "உங்கள் பக்கம்",
+      "goats": "ஆடுகள்",
+      "tigers": "புலிகள்",
+      "aiLevel": "AI திறன்",
+      "classic": "சாதாரணம்",
+      "smart": "புத்திசாலி",
+      "btnSolo": "தனி ஆட்டம் (vs AI)",
+      "btnPass": "இருவர் ஆட்டம் (2P)",
+      "btnP2P": "நேரடி P2P (சர்வர் இல்லை)",
+      "rulesLink": "விதிகள்",
+      "downloadLink": "HTML பதிவிறக்கு",
+      "goatTurn": "ஆடு முறை",
+      "tigerTurn": "புலி முறை",
+      "aiThinking": "AI யோசிக்கிறது...",
+      "waitRival": "எதிராளிக்காக காத்திருக்கிறது...",
+      "hintPlace": "ஆட்டை வைக்க காலியான பித்தளை புள்ளியைத் தட்டவும்",
+      "hintMoveG": "ஒரு ஆட்டைத் தேர்வு செய்து பச்சை வளையத்தைத் தட்டவும்",
+      "hintMoveT": "புலியைத் தேர்வு செய்து நகரவும் அல்லது தாவவும்",
+      "hintSelectDst": "ஒளிரும் வளையத்தைத் தட்டி நகர்த்தவும்",
+      "capturedToast": "புலி ஒரு ஆட்டைப் பிடித்தது!",
+      "tigersWin": "புலிகள் வெற்றி!",
+      "goatsWin": "ஆடுகள் வெற்றி!",
+      "tigersWinSub": "5 ஆடுகள் பிடிக்கப்பட்டன!",
+      "goatsWinSub": "3 புலிகளும் முழுமையாக சிக்கிக்கொண்டன!",
+      "statTurns": "நகர்வுகள்",
+      "statCaptured": "பிடித்தவை",
+      "statPlaced": "வைத்த ஆடுகள்",
+      "playAgain": "மீண்டும் ஆடு",
+      "rematch": "மீண்டும் போட்டி (பக்கம் மாற்று)",
+      "rematchWait": "எதிராளிக்காக காத்திருக்கிறது...",
+      "rematchAsk": "எதிராளி மீண்டும் ஆட அழைக்கிறார்!",
+      "mainMenu": "முகப்பு",
+      "menuTitle": "ஆட்ட மெனு",
+      "restart": "மீண்டும் தொடங்கு",
+      "themeSunlit": "தீம்: பகல் திண்ணை",
+      "themeDeepam": "தீம்: மாலை தீபம்",
+      "soundOn": "ஒலி: உண்டு",
+      "soundOff": "ஒலி: நிறுத்து",
+      "downloadBtn": "ஆஃப்லைன் HTML பதிவிறக்கு",
+      "p2pTitle": "நேரடி P2P (சர்வர் இல்லை)",
+      "tabRtc": "ஆஃப்லைன் WebRTC",
+      "tabBc": "2-டேப் சிங்க்",
+      "rtcHint": "சர்வர் இல்லா WebRTC! Invite கோடை வாட்ஸ்அப்பில் பகிர்ந்து ஆடுங்கள். ஹோஸ்ட்: ஆடுகள், நண்பர்: புலிகள்.",
+      "bcHint": "இரண்டாவது டேப்பில் திறந்து ஒரே கோடை இட்டால் உடனே நேரடியாக ஆடலாம்!",
+      "hostRole": "ஹோஸ்ட் (ஆடுகள்)",
+      "guestRole": "நண்பர் (புலிகள்)",
+      "createInvite": "1. அழைப்பு கோடு உருவாக்கு",
+      "pasteReplyLbl": "2. நண்பரின் பதில் கோடை ஒட்டவும்",
+      "connectPlay": "இணைந்து ஆடு",
+      "pasteInvLbl": "1. ஹோஸ்ட் அழைப்பு கோடை ஒட்டவும்",
+      "genReply": "பதில் கோடு உருவாக்கு",
+      "roomLbl": "ரூம் கோடு",
+      "joinTab": "ரூம் தொடங்கு / இணை",
+      "statusReady": "இணைய தயார்",
+      "statusWait": "நண்பருக்காக காத்திருக்கிறது...",
+      "statusLinked": "இணைந்தது! ஆட்டம் தொடக்கம்...",
+      "copied": "நகலெடுக்கப்பட்டது!",
+      "savedHtml": "aadu-puli-aattam.html சேமிக்கப்பட்டது!",
+      "rulesTitle": "ஆட்ட விதிகள்",
+      "r1": "<strong>3 புலிகள் vs 15 ஆடுகள்:</strong> புலிகள் 0, 3, 4 புள்ளிகளில் தொடங்கும். ஆடுகள் முதலில் நகரும்.",
+      "r2": "<strong>கட்டம் 1 (வைத்தல்):</strong> 15 ஆடுகளும் முடியும் வரை ஆடு முறையில் காலியான புள்ளியில் ஒரு ஆட்டை வைக்கவும். புலிகள் அப்போதே நகரலாம், தாவலாம்!",
+      "r3": "<strong>கட்டம் 2 (நகர்த்தல்):</strong> 15 ஆடுகளும் வைத்த பின், எந்த ஆட்டையும் கோட்டின் வழியே அடுத்த காலியான புள்ளிக்கு நகர்த்தலாம்.",
+      "r4": "<strong>வெற்றி விதி:</strong> புலி ஒரு ஆட்டின் மேல் நேராகத் தாவி அதைப் பிடிக்கலாம். <strong>5 ஆடுகள்</strong> பிடித்தால் புலிகள் வெற்றி; <strong>3 புலிகளையும்</strong> நகர விடாமல் தடுத்தால் ஆடுகள் வெற்றி!"
+    }
+  }
+  </script>
+
+  <!-- Full-Viewport 2.5D Carved Teakwood Board Canvas -->
+  <canvas id="game-canvas" aria-label="Aadu Puli Aattam Board"></canvas>
+
+  <!-- CLEAN TOP GAMEPLAY HUD BAR -->
+  <header id="hud-bar" aria-label="Game Status">
+    <div class="hud-left">
+      <div id="hud-turn" class="turn-badge turn-G">
+        <span id="hud-turn-ico">&#128016;</span>
+        <span id="hud-turn-text">Goat's Turn</span>
+      </div>
+      <div class="hud-counters">
+        <span class="stat-chip" title="Goats Left in Reserve">&#128016; <span id="hud-pool">15</span></span>
+        <span class="stat-chip danger" title="Captured Goats">&#128062; <span id="hud-cap">0/5</span></span>
+      </div>
+    </div>
+
+    <div class="hud-actions">
+      <button id="btn-undo" class="icon-btn" title="Undo Move" aria-label="Undo">&#8617;&#65039;</button>
+      <button id="btn-sound" class="icon-btn" title="Toggle Sound" aria-label="Sound">&#128266;</button>
+      <button id="btn-theme" class="icon-btn" title="Sunlit Thinnai / Evening Deepam" aria-label="Theme">&#9728;&#65039;</button>
+      <button id="btn-menu" class="icon-btn" title="Menu &amp; Download" aria-label="Menu">&#9776;</button>
+    </div>
+  </header>
+
+  <!-- FLOATING P2P TAUNT POPUP -->
+  <div id="taunt-popup" aria-hidden="true">&#128293;</div>
+
+  <!-- COMPACT BOTTOM STATUS STRIP + P2P TAUNT BAR -->
+  <div id="bottom-tray">
+    <div class="taunt-bar" role="group" aria-label="Quick Reactions">
+      <span id="p2p-live-tag" class="p2p-live-tag">&#9679; P2P LIVE</span>
+      <button class="taunt-btn" data-em="🔥">🔥</button>
+      <button class="taunt-btn" data-em="🐯">🐯</button>
+      <button class="taunt-btn" data-em="🐐">🐐</button>
+      <button class="taunt-btn" data-em="👏">👏</button>
+      <button class="taunt-btn" data-em="😱">😱</button>
+    </div>
+    <div id="status-strip" class="status-strip">Tap any empty brass point to place a Goat</div>
+  </div>
+
+  <!-- MINIMAL TITLE OVERLAY OVER LIVE RENDERED BOARD -->
+  <section id="title-overlay" aria-label="Title Screen">
+    <div class="title-top-row">
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button id="lang-en" class="lang-btn active">English</button>
+        <button id="lang-ta" class="lang-btn">தமிழ்</button>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button id="btn-title-theme" class="icon-btn" title="Toggle Sunlit / Deepam Theme">&#9728;&#65039;</button>
+        <button id="btn-title-sound" class="icon-btn" title="Toggle Sound">&#128266;</button>
+      </div>
+    </div>
+
+    <div class="title-hero">
+      <div class="hero-emblems" aria-hidden="true">
+        <div class="emblem-disc goat">&#128016;</div>
+        <div class="emblem-disc tiger">&#128047;</div>
+      </div>
+      <h1 class="hero-title">AADU PULI AATTAM</h1>
+      <div class="hero-tamil">ஆடுபுலி ஆட்டம்</div>
+      <div id="ui-subtitle" class="hero-sub">TAMIL VILLAGE STRATEGY &bull; 3 TIGERS vs 15 GOATS</div>
+    </div>
+
+    <div class="title-dock">
+      <div class="solo-config-card">
+        <div class="seg-group">
+          <span id="ui-play-as" class="seg-lbl">Play As</span>
+          <div class="seg-pills">
+            <button id="role-G" class="seg-btn active">&#128016; <span id="ui-role-g">Goats</span></button>
+            <button id="role-T" class="seg-btn">&#128047; <span id="ui-role-t">Tigers</span></button>
+          </div>
+        </div>
+        <div class="seg-group">
+          <span id="ui-ai-lvl" class="seg-lbl">AI Level</span>
+          <div class="seg-pills">
+            <button id="diff-classic" class="seg-btn"><span id="ui-diff-c">Classic</span></button>
+            <button id="diff-smart" class="seg-btn active"><span id="ui-diff-s">Smart</span></button>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-start-solo" class="mode-btn primary">
+        <span class="mode-btn-left"><span>&#9889;</span><span id="ui-btn-solo" class="mode-btn-label">Solo vs AI</span></span>
+        <span>&#10140;</span>
+      </button>
+
+      <button id="btn-start-pass" class="mode-btn">
+        <span class="mode-btn-left"><span>&#129309;</span><span id="ui-btn-pass" class="mode-btn-label">Pass &amp; Play (2P)</span></span>
+        <span>&#10140;</span>
+      </button>
+
+      <button id="btn-open-p2p" class="mode-btn p2p">
+        <span class="mode-btn-left"><span>&#127760;</span><span id="ui-btn-p2p" class="mode-btn-label">Live P2P (No Server)</span></span>
+        <span>&#10140;</span>
+      </button>
+
+      <div class="title-footer">
+        <button id="btn-title-rules" class="link-btn">&#128214; <span id="ui-rules-link">How to Play</span></button>
+        <button id="btn-title-dl" class="link-btn">&#11015;&#65039; <span id="ui-dl-link">Download HTML</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVERLESS LIVE P2P MODAL (OFFLINE WEBRTC + 2-TAB BROADCASTCHANNEL) -->
+  <div id="modal-p2p" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="ui-p2p-title" class="modal-title">&#127760; LIVE P2P (NO SERVER)</h2>
+        <button id="btn-close-p2p" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="tabs-2">
+          <button id="tab-rtc" class="tab-btn active">Offline WebRTC</button>
+          <button id="tab-bc" class="tab-btn">2-Tab Sync</button>
+        </div>
+
+        <!-- TAB 1: OFFLINE WEBRTC (COPY / PASTE INVITE & REPLY) -->
+        <div id="pane-rtc" class="p2p-pane active">
+          <p id="ui-rtc-hint" class="hint-copy">100% zero-server WebRTC! Share the short Invite/Reply code over WhatsApp or Wi-Fi. Host starts as Goats, Guest as Tigers.</p>
+          <div class="grid-2">
+            <button id="btn-rtc-host-tab" class="btn-brass">Host (Goats)</button>
+            <button id="btn-rtc-guest-tab" class="btn-wood">Guest (Tigers)</button>
+          </div>
+
+          <div id="rtc-host-box" style="display:flex; flex-direction:column; gap:8px;">
+            <button id="btn-make-offer" class="btn-emerald">1. Create Invite Code</button>
+            <div class="input-row">
+              <textarea id="txt-offer-out" class="code-area" readonly placeholder="APA1:... Invite code appears here"></textarea>
+              <button id="btn-copy-offer" class="btn-wood" title="Copy">&#128203;</button>
+            </div>
+            <div id="ui-paste-reply-lbl" class="field-lbl">2. PASTE GUEST REPLY CODE</div>
+            <textarea id="txt-answer-in" class="code-area" placeholder="Paste Guest's APA1:... Reply code here"></textarea>
+            <button id="btn-accept-answer" class="btn-brass">Connect &amp; Play</button>
+          </div>
+
+          <div id="rtc-guest-box" style="display:none; flex-direction:column; gap:8px;">
+            <div id="ui-paste-inv-lbl" class="field-lbl">1. PASTE HOST INVITE CODE</div>
+            <textarea id="txt-offer-in" class="code-area" placeholder="Paste Host's APA1:... Invite code here"></textarea>
+            <button id="btn-make-answer" class="btn-emerald">Generate Reply Code</button>
+            <div class="input-row">
+              <textarea id="txt-answer-out" class="code-area" readonly placeholder="APA1:... Reply code appears here"></textarea>
+              <button id="btn-copy-answer" class="btn-wood" title="Copy">&#128203;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: 2-TAB INSTANT SYNC (BROADCASTCHANNEL WEB EVENTS) -->
+        <div id="pane-bc" class="p2p-pane">
+          <p id="ui-bc-hint" class="hint-copy">Open this HTML in a 2nd browser tab and enter the same room code for instant 1ms Web Event play!</p>
+          <div id="ui-room-lbl" class="field-lbl">ROOM CODE</div>
+          <div class="input-row">
+            <input id="inp-bc-room" class="code-input" type="text" maxlength="16" value="KOVAI" />
+            <button id="btn-copy-bc" class="btn-wood" title="Copy">&#128203;</button>
+          </div>
+          <button id="btn-connect-bc" class="btn-emerald">&#9889; <span id="ui-join-tab">Create / Join Room</span></button>
+        </div>
+
+        <div class="status-pill">
+          <span id="p2p-dot" class="s-dot"></span>
+          <span id="p2p-status">Ready to connect</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME MENU & DOWNLOAD MODAL -->
+  <div id="modal-menu" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="ui-menu-title" class="modal-title">&#9776; GAME MENU</h2>
+        <button id="btn-close-menu" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <button id="btn-m-restart" class="btn-emerald">&#8635; <span id="ui-m-restart">Restart Match</span></button>
+          <button id="btn-m-rules" class="btn-wood">&#128214; <span id="ui-m-rules">How to Play</span></button>
+        </div>
+        <div class="grid-2">
+          <button id="btn-m-theme" class="btn-wood">&#9728;&#65039; Sunlit Thinnai</button>
+          <button id="btn-m-sound" class="btn-wood">&#128266; Sound: On</button>
+        </div>
+        <button id="btn-m-download" class="btn-brass">&#11015;&#65039; <span id="ui-m-dl">Download Standalone HTML</span></button>
+        <button id="btn-m-title" class="btn-wood">&#127968; <span id="ui-m-title">Main Menu</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RULES MODAL -->
+  <div id="modal-rules" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="ui-rules-title" class="modal-title">&#128214; HOW TO PLAY</h2>
+        <button id="btn-close-rules" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="rule-row"><span>&#128047;</span><div id="ui-r1"></div></div>
+        <div class="rule-row"><span>&#128016;</span><div id="ui-r2"></div></div>
+        <div class="rule-row"><span>&#127919;</span><div id="ui-r3"></div></div>
+        <div class="rule-row"><span>&#127942;</span><div id="ui-r4"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY MODAL -->
+  <div id="modal-win" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <div class="win-banner">
+        <div id="win-emoji" class="win-emoji">&#127942;</div>
+        <h2 id="win-title" class="win-title">Goats Win!</h2>
+        <div id="win-sub" class="win-sub">All 3 Tigers are completely trapped!</div>
+      </div>
+      <div class="modal-body">
+        <div class="win-stats">
+          <div class="w-cell">
+            <div id="ws-turns" class="wv">0</div>
+            <div id="ui-ws-turns" class="wl">Turns</div>
+          </div>
+          <div class="w-cell">
+            <div id="ws-cap" class="wv">0/5</div>
+            <div id="ui-ws-cap" class="wl">Captured</div>
+          </div>
+          <div class="w-cell">
+            <div id="ws-placed" class="wv">0/15</div>
+            <div id="ui-ws-placed" class="wl">Goats Placed</div>
+          </div>
+        </div>
+        <button id="btn-win-again" class="btn-emerald">&#8635; <span id="ui-win-again">Play Again</span></button>
+        <button id="btn-win-menu" class="btn-wood">&#127968; <span id="ui-win-menu">Main Menu</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Banner -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ==========================================================================
+       CLEAN STANDALONE HTML SNAPSHOT (Captured before any runtime DOM mutations)
+       ========================================================================== */
+    const CLEAN_SOURCE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+    (() => {
+      'use strict';
+
+      /* ========================================================================
+         1. EXACT 23-NODE GEOMETRY & 10 STRAIGHT LINES OF AADU PULI AATTAM
+         ======================================================================== */
+      const LOGICAL = 1000;
+      const Y0 = 0.08, Y1 = 0.33, Y2 = 0.55, Y3 = 0.77, Y4 = 0.92;
+      const RAY_END_X = [0.14, 0.38, 0.62, 0.86]; // Collinear bottom ends (19..22)
+
+      function rayX(rayIdx, y) {
+        const t = (y - Y0) / (Y4 - Y0);
+        return 0.5 + (RAY_END_X[rayIdx] - 0.5) * t;
+      }
+
+      // 23 Intersections (0..22) in normalized [0..1] board space
+      const NODES_NORM = [
+        { x: 0.50, y: Y0 },                            // 0: Top Apex
+        { x: 0.09, y: Y1 },                            // 1: Row 1 Far Left
+        { x: rayX(0, Y1), y: Y1 },                     // 2: Row 1 Ray 1
+        { x: rayX(1, Y1), y: Y1 },                     // 3: Row 1 Ray 2
+        { x: rayX(2, Y1), y: Y1 },                     // 4: Row 1 Ray 3
+        { x: rayX(3, Y1), y: Y1 },                     // 5: Row 1 Ray 4
+        { x: 0.91, y: Y1 },                            // 6: Row 1 Far Right
+        { x: 0.09, y: Y2 },                            // 7: Row 2 Far Left
+        { x: rayX(0, Y2), y: Y2 },                     // 8: Row 2 Ray 1
+        { x: rayX(1, Y2), y: Y2 },                     // 9: Row 2 Ray 2
+        { x: rayX(2, Y2), y: Y2 },                     // 10: Row 2 Ray 3
+        { x: rayX(3, Y2), y: Y2 },                     // 11: Row 2 Ray 4
+        { x: 0.91, y: Y2 },                            // 12: Row 2 Far Right
+        { x: 0.09, y: Y3 },                            // 13: Row 3 Far Left
+        { x: rayX(0, Y3), y: Y3 },                     // 14: Row 3 Ray 1
+        { x: rayX(1, Y3), y: Y3 },                     // 15: Row 3 Ray 2
+        { x: rayX(2, Y3), y: Y3 },                     // 16: Row 3 Ray 3
+        { x: rayX(3, Y3), y: Y3 },                     // 17: Row 3 Ray 4
+        { x: 0.91, y: Y3 },                            // 18: Row 3 Far Right
+        { x: RAY_END_X[0], y: Y4 },                    // 19: Base Ray 1
+        { x: RAY_END_X[1], y: Y4 },                    // 20: Base Ray 2
+        { x: RAY_END_X[2], y: Y4 },                    // 21: Base Ray 3
+        { x: RAY_END_X[3], y: Y4 }                     // 22: Base Ray 4
+      ];
+
+      // Convert normalized coords to 1000x1000 carved board logical space (with wood border inset)
+      const PAD_X = 76, PAD_Y = 74;
+      const NODES = NODES_NORM.map((n, id) => ({
+        id,
+        x: PAD_X + n.x * (LOGICAL - PAD_X * 2),
+        y: PAD_Y + n.y * (LOGICAL - PAD_Y * 2)
+      }));
+
+      // Exact 10 Straight Lines
+      const LINES = [
+        [0, 2, 8, 14, 19],        // 1. Ray 1
+        [0, 3, 9, 15, 20],        // 2. Ray 2
+        [0, 4, 10, 16, 21],       // 3. Ray 3
+        [0, 5, 11, 17, 22],       // 4. Ray 4
+        [1, 2, 3, 4, 5, 6],       // 5. Horizontal 1
+        [7, 8, 9, 10, 11, 12],    // 6. Horizontal 2
+        [13, 14, 15, 16, 17, 18], // 7. Horizontal 3
+        [19, 20, 21, 22],         // 8. Horizontal Base
+        [1, 7, 13],               // 9. Left Vertical
+        [6, 12, 18]               // 10. Right Vertical
+      ];
+
+      // Derive exact adjacency & jump lookup tables strictly from the 10 straight lines
+      const ADJ = Array.from({ length: 23 }, () => []);
+      const JUMPS = Array.from({ length: 23 }, () => []);
+
+      for (const line of LINES) {
+        for (let i = 0; i < line.length; i++) {
+          const u = line[i];
+          if (i + 1 < line.length) {
+            const v = line[i + 1];
+            if (!ADJ[u].includes(v)) ADJ[u].push(v);
+            if (!ADJ[v].includes(u)) ADJ[v].push(u);
+          }
+          if (i + 2 < line.length) {
+            const over = line[i + 1];
+            const to = line[i + 2];
+            JUMPS[u].push({ over, to });
+            JUMPS[to].push({ over, to: u });
+          }
+        }
+      }
+
+      const PIECE_R = 25.5;
+      const STORAGE_KEY = 'aadu_puli_aattam_v1';
+
+      /* ========================================================================
+         2. EXTERNALIZED i18n, PERSISTENCE & SAFE CLIPBOARD
+         ======================================================================== */
+      let I18N = {};
+      try {
+        I18N = JSON.parse(document.getElementById('i18n-data').textContent);
+      } catch (e) {
+        console.error('i18n JSON error:', e);
+      }
+
+      function loadSave() {
+        const def = { lang: 'en', theme: 'sunlit', muted: false, soloRole: 'G', aiDiff: 'smart' };
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? { ...def, ...JSON.parse(raw) } : def;
+        } catch (e) { return def; }
+      }
+      const save = loadSave();
+      function persistSave() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); } catch (e) {}
+      }
+
+      function t(key) {
+        return (I18N[save.lang] && I18N[save.lang][key]) || (I18N.en && I18N.en[key]) || key;
+      }
+
+      function copySafe(text) {
+        if (!text) return false;
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return ok;
+        } catch (e) { return false; }
+      }
+
+      /* ========================================================================
+         3. PROCEDURAL WEB AUDIO (WOOD CLACK, THUMP, TABLA/THAVIL, CHIME)
+         ======================================================================== */
+      class ThinnaiAudio {
+        constructor() {
+          this.ctx = null;
+          this.muted = !!save.muted;
+        }
+
+        unlock() {
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          } catch (e) {}
+        }
+
+        tone(freq, dur = 0.12, type = 'triangle', vol = 0.14, endFreq = null, delay = 0) {
+          if (this.muted || !this.ctx) return;
+          try {
+            const t0 = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, t0);
+            if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), t0 + dur);
+            g.gain.setValueAtTime(0.0001, t0);
+            g.gain.linearRampToValueAtTime(vol, t0 + 0.006);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+            osc.connect(g); g.connect(this.ctx.destination);
+            osc.start(t0); osc.stop(t0 + dur + 0.02);
+          } catch (e) {}
+        }
+
+        // Warm carved wooden clack for Goat placement / slide
+        playGoatStep() {
+          this.tone(760, 0.055, 'triangle', 0.16, 360);
+          this.tone(1180, 0.032, 'sine', 0.08, 620, 0.004);
+        }
+
+        // Deeper hollow wood thump for Tiger step
+        playTigerStep() {
+          this.tone(240, 0.095, 'sine', 0.20, 95);
+          this.tone(440, 0.055, 'triangle', 0.10, 180, 0.005);
+        }
+
+        // Percussive Tabla / Thavil accent on Tiger capture
+        playCapture() {
+          this.tone(195, 0.16, 'sine', 0.24, 78);
+          this.tone(390, 0.13, 'triangle', 0.15, 250, 0.015);
+          this.tone(587.33, 0.18, 'triangle', 0.12, 440, 0.085);
+          this.tone(150, 0.20, 'sine', 0.18, 64, 0.09);
+        }
+
+        playSelect() { this.tone(620, 0.045, 'sine', 0.08, 780); }
+        playTaunt()  { this.tone(587.33, 0.08, 'sine', 0.10, 880); this.tone(880, 0.11, 'triangle', 0.09, 1046, 0.05); }
+
+        playWin() {
+          [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f, i) => {
+            this.tone(f, 0.30, 'triangle', 0.13, null, i * 0.085);
+          });
+        }
+      }
+
+      const audio = new ThinnaiAudio();
+
+      /* ========================================================================
+         4. ZERO-SERVER P2P MULTIPLAYER (NATIVE WEBRTC + BROADCASTCHANNEL)
+         ======================================================================== */
+      async function compressSDP(obj) {
+        const json = JSON.stringify(obj);
+        if (typeof CompressionStream === 'function') {
+          try {
+            const bytes = new TextEncoder().encode(json);
+            const cs = new CompressionStream('deflate-raw');
+            const w = cs.writable.getWriter();
+            w.write(bytes); w.close();
+            const out = new Uint8Array(await new Response(cs.readable).arrayBuffer());
+            let bin = '';
+            for (let i = 0; i < out.length; i++) bin += String.fromCharCode(out[i]);
+            return 'APA1:' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          } catch (e) {}
+        }
+        return 'APA0:' + btoa(unescape(encodeURIComponent(json)));
+      }
+
+      async function decompressSDP(code) {
+        const clean = code.trim();
+        if (clean.startsWith('APA1:')) {
+          const b64 = clean.slice(5).replace(/-/g, '+').replace(/_/g, '/');
+          const bin = atob(b64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          const ds = new DecompressionStream('deflate-raw');
+          const w = ds.writable.getWriter();
+          w.write(bytes); w.close();
+          return JSON.parse(await new Response(ds.readable).text());
+        }
+        if (clean.startsWith('APA0:')) {
+          return JSON.parse(decodeURIComponent(escape(atob(clean.slice(5)))));
+        }
+        return JSON.parse(clean);
+      }
+
+      function waitIce(pc, ms = 2400) {
+        return new Promise(resolve => {
+          if (pc.iceGatheringState === 'complete') { resolve(); return; }
+          const done = () => { clearTimeout(tm); pc.removeEventListener('icegatheringstatechange', fn); resolve(); };
+          const fn = () => { if (pc.iceGatheringState === 'complete') done(); };
+          const tm = setTimeout(done, ms);
+          pc.addEventListener('icegatheringstatechange', fn);
+        });
+      }
+
+      class ServerlessP2P {
+        constructor() {
+          this.type = null; // 'rtc' | 'bc'
+          this.connected = false;
+          this.clientId = Math.random().toString(36).slice(2, 10);
+          this.joinedAt = 0;
+          this.myRole = 'G'; // Host starts as 'G', Guest as 'T'
+          this.pc = null;
+          this.dc = null;
+          this.bc = null;
+          this.helloTimer = null;
+          this.onStatus = null;
+          this.onConnected = null;
+          this.onMessage = null;
+          this.onDisconnected = null;
+        }
+
+        status(kind, text) { if (this.onStatus) this.onStatus(kind, text); }
+
+        disconnect() {
+          clearInterval(this.helloTimer);
+          this.helloTimer = null;
+          this.connected = false;
+          try { if (this.dc) this.dc.close(); } catch (e) {}
+          try { if (this.pc) this.pc.close(); } catch (e) {}
+          try { if (this.bc) this.bc.close(); } catch (e) {}
+          this.dc = null; this.pc = null; this.bc = null; this.type = null;
+        }
+
+        send(msg) {
+          const pkt = { ...msg, _from: this.clientId };
+          try {
+            if (this.type === 'rtc' && this.dc && this.dc.readyState === 'open') {
+              this.dc.send(JSON.stringify(pkt));
+            } else if (this.type === 'bc' && this.bc) {
+              this.bc.postMessage(pkt);
+            }
+          } catch (e) {}
+        }
+
+        handleMsg(msg) {
+          if (!msg || msg._from === this.clientId) return;
+          if (msg.type === 'HELLO') {
+            const isHost = (this.joinedAt < msg.joinedAt) ||
+              (this.joinedAt === msg.joinedAt && this.clientId < msg.clientId);
+            this.myRole = isHost ? 'G' : 'T';
+            if (!this.connected) {
+              this.connected = true;
+              clearInterval(this.helloTimer);
+              this.send({ type: 'HELLO', clientId: this.clientId, joinedAt: this.joinedAt });
+              this.status('ok', t('statusLinked'));
+              if (this.onConnected) this.onConnected(this.myRole);
+            }
+            return;
+          }
+          if (this.onMessage) this.onMessage(msg);
+        }
+
+        async createOffer() {
+          this.disconnect();
+          this.type = 'rtc';
+          this.myRole = 'G';
+          this.status('wait', 'Creating WebRTC Invite...');
+          const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+          this.pc = pc;
+          const dc = pc.createDataChannel('apa', { ordered: true });
+          this.wireDC(dc, 'G');
+          await pc.setLocalDescription(await pc.createOffer());
+          await waitIce(pc, 2400);
+          const code = await compressSDP(pc.localDescription);
+          this.status('wait', t('statusWait'));
+          return code;
+        }
+
+        async acceptAnswer(ansCode) {
+          if (!this.pc) throw new Error('Create Invite first');
+          const desc = await decompressSDP(ansCode);
+          await this.pc.setRemoteDescription(new RTCSessionDescription(desc));
+          this.status('wait', 'Locking P2P link...');
+        }
+
+        async createAnswer(offerCode) {
+          this.disconnect();
+          this.type = 'rtc';
+          this.myRole = 'T';
+          this.status('wait', 'Generating Reply...');
+          const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+          this.pc = pc;
+          pc.ondatachannel = (ev) => this.wireDC(ev.channel, 'T');
+          const offer = await decompressSDP(offerCode);
+          await pc.setRemoteDescription(new RTCSessionDescription(offer));
+          await pc.setLocalDescription(await pc.createAnswer());
+          await waitIce(pc, 2400);
+          const code = await compressSDP(pc.localDescription);
+          this.status('wait', 'Send Reply Code back to Host!');
+          return code;
+        }
+
+        wireDC(dc, role) {
+          this.dc = dc;
+          dc.onopen = () => {
+            this.myRole = role;
+            this.connected = true;
+            this.status('ok', t('statusLinked'));
+            if (this.onConnected) this.onConnected(role);
+          };
+          dc.onmessage = (ev) => {
+            try { this.handleMsg(JSON.parse(ev.data)); } catch (e) {}
+          };
+          dc.onclose = () => {
+            if (this.connected) {
+              this.connected = false;
+              if (this.onDisconnected) this.onDisconnected();
+            }
+          };
+        }
+
+        connectBroadcast(room) {
+          this.disconnect();
+          if (typeof BroadcastChannel !== 'function') {
+            this.status('err', 'BroadcastChannel unavailable');
+            return false;
+          }
+          this.type = 'bc';
+          this.joinedAt = Date.now();
+          const key = 'apa-bc-' + (room.trim().toUpperCase() || 'KOVAI');
+          this.bc = new BroadcastChannel(key);
+          this.bc.onmessage = (ev) => this.handleMsg(ev.data);
+          this.status('wait', `${t('statusWait')} (${room.trim().toUpperCase()})`);
+          this.send({ type: 'HELLO', clientId: this.clientId, joinedAt: this.joinedAt });
+          this.helloTimer = setInterval(() => {
+            if (!this.connected) this.send({ type: 'HELLO', clientId: this.clientId, joinedAt: this.joinedAt });
+          }, 500);
+          return true;
+        }
+      }
+
+      const net = new ServerlessP2P();
+
+      /* ========================================================================
+         5. PURE RULES ENGINE (USED BY GAMEPLAY & 2-PLY MINIMAX AI)
+         ======================================================================== */
+      function createInitialBoard() {
+        const b = new Array(23).fill(null);
+        b[0] = 'T';
+        b[3] = 'T';
+        b[4] = 'T';
+        return b;
+      }
+
+      /**
+       * Returns all legal moves for `side` ('G' or 'T') on a given board state.
+       * Move formats:
+       *  - { type: 'place', to }
+       *  - { type: 'move', from, to }
+       *  - { type: 'capture', from, over, to }
+       */
+      function getLegalMoves(board, side, goatsInPool) {
+        const moves = [];
+        if (side === 'G') {
+          if (goatsInPool > 0) {
+            for (let i = 0; i < 23; i++) {
+              if (board[i] === null) moves.push({ type: 'place', to: i });
+            }
+          } else {
+            for (let i = 0; i < 23; i++) {
+              if (board[i] !== 'G') continue;
+              for (const nb of ADJ[i]) {
+                if (board[nb] === null) moves.push({ type: 'move', from: i, to: nb });
+              }
+            }
+          }
+        } else {
+          for (let i = 0; i < 23; i++) {
+            if (board[i] !== 'T') continue;
+            for (const jp of JUMPS[i]) {
+              if (board[jp.over] === 'G' && board[jp.to] === null) {
+                moves.push({ type: 'capture', from: i, over: jp.over, to: jp.to });
+              }
+            }
+            for (const nb of ADJ[i]) {
+              if (board[nb] === null) moves.push({ type: 'move', from: i, to: nb });
+            }
+          }
+        }
+        return moves;
+      }
+
+      function applyMoveToState(sim, move) {
+        const nextBoard = sim.board.slice();
+        let nextPool = sim.pool;
+        let nextCap = sim.cap;
+
+        if (move.type === 'place') {
+          nextBoard[move.to] = 'G';
+          nextPool--;
+        } else if (move.type === 'move') {
+          nextBoard[move.to] = nextBoard[move.from];
+          nextBoard[move.from] = null;
+        } else if (move.type === 'capture') {
+          nextBoard[move.to] = 'T';
+          nextBoard[move.from] = null;
+          nextBoard[move.over] = null;
+          nextCap++;
+        }
+
+        return {
+          board: nextBoard,
+          pool: nextPool,
+          cap: nextCap,
+          turn: sim.turn === 'G' ? 'T' : 'G'
+        };
+      }
+
+      function checkWinnerState(sim) {
+        if (sim.cap >= 5) return 'T';
+        if (sim.turn === 'T' && getLegalMoves(sim.board, 'T', sim.pool).length === 0) return 'G';
+        return null;
+      }
+
+      /* ========================================================================
+         6. SMART 2-PLY ALPHA-BETA AI (PLAYS BOTH TIGERS & GOATS WELL)
+         ======================================================================== */
+      const HUB_WEIGHTS = [
+        14, 4, 12, 16, 16, 12, 4,
+        5, 13, 18, 18, 13, 5,
+        4, 11, 15, 15, 11, 4,
+        6, 10, 10, 6
+      ];
+
+      // Evaluates position positively for TIGERS ('T'), negatively for GOATS ('G')
+      function evaluateBoard(sim) {
+        if (sim.cap >= 5) return 100000;
+        const tMoves = getLegalMoves(sim.board, 'T', sim.pool);
+        if (tMoves.length === 0) return -100000;
+
+        let tigerMobility = 0;
+        let tigerCaptures = 0;
+        let blockedTigers = 0;
+        let centerScore = 0;
+
+        for (let i = 0; i < 23; i++) {
+          if (sim.board[i] === 'T') {
+            centerScore += HUB_WEIGHTS[i] * 1.4;
+            let localMob = 0;
+            for (const nb of ADJ[i]) if (sim.board[nb] === null) localMob++;
+            for (const jp of JUMPS[i]) {
+              if (sim.board[jp.over] === 'G' && sim.board[jp.to] === null) {
+                localMob += 2;
+                tigerCaptures++;
+              }
+            }
+            if (localMob === 0) blockedTigers++;
+            tigerMobility += localMob;
+          } else if (sim.board[i] === 'G') {
+            centerScore -= HUB_WEIGHTS[i] * 0.5;
+          }
+        }
+
+        // Count vulnerable goats (can be jumped immediately)
+        const vulnPenalty = tigerCaptures * (sim.turn === 'T' ? 140 : 48);
+
+        return (
+          sim.cap * 480 +
+          tigerMobility * 22 +
+          vulnPenalty -
+          blockedTigers * 135 +
+          centerScore
+        );
+      }
+
+      function minimax(sim, depth, alpha, beta, maximizingTiger) {
+        const win = checkWinnerState(sim);
+        if (win === 'T') return 100000 + depth * 100;
+        if (win === 'G') return -100000 - depth * 100;
+        if (depth === 0) return evaluateBoard(sim);
+
+        const moves = getLegalMoves(sim.board, sim.turn, sim.pool);
+        if (moves.length === 0) return evaluateBoard(sim);
+
+        // Move ordering: captures first, then central nodes
+        moves.sort((a, b) => {
+          const sa = (a.type === 'capture' ? 50 : 0) + HUB_WEIGHTS[a.to];
+          const sb = (b.type === 'capture' ? 50 : 0) + HUB_WEIGHTS[b.to];
+          return sb - sa;
+        });
+
+        if (maximizingTiger) {
+          let best = -Infinity;
+          for (const m of moves) {
+            const val = minimax(applyMoveToState(sim, m), depth - 1, alpha, beta, false);
+            if (val > best) best = val;
+            if (best > alpha) alpha = best;
+            if (beta <= alpha) break;
+          }
+          return best;
+        } else {
+          let best = Infinity;
+          for (const m of moves) {
+            const val = minimax(applyMoveToState(sim, m), depth - 1, alpha, beta, true);
+            if (val < best) best = val;
+            if (best < beta) beta = best;
+            if (beta <= alpha) break;
+          }
+          return best;
+        }
+      }
+
+      function chooseAIMove(sim, difficulty) {
+        const moves = getLegalMoves(sim.board, sim.turn, sim.pool);
+        if (moves.length === 0) return null;
+
+        const isTiger = sim.turn === 'T';
+        const depth = difficulty === 'smart' ? 2 : 1;
+
+        let scored = moves.map(m => {
+          const next = applyMoveToState(sim, m);
+          const score = minimax(next, depth - 1, -Infinity, Infinity, !isTiger);
+          // Tiny tie-breaker jitter so every game feels organic
+          const noise = difficulty === 'smart' ? (Math.random() - 0.5) * 8 : (Math.random() - 0.5) * 42;
+          return { m, score: score + noise };
+        });
+
+        scored.sort((a, b) => isTiger ? (b.score - a.score) : (a.score - b.score));
+        return scored[0].m;
+      }
+
+      /* ========================================================================
+         7. RUNTIME GAME STATE, ANIMATIONS & AMBIENT PETALS
+         ======================================================================== */
+      const petals = Array.from({ length: 18 }, (_, i) => ({
+        x: Math.random(),
+        y: Math.random(),
+        vx: 0.008 + Math.random() * 0.015,
+        vy: 0.015 + Math.random() * 0.024,
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 1.4,
+        size: 4 + Math.random() * 4.5,
+        kind: i % 3 === 0 ? 'jasmine' : (i % 2 === 0 ? 'marigold1' : 'marigold2')
+      }));
+
+      const state = {
+        screen: 'title',     // 'title' | 'playing' | 'gameover'
+        mode: 'solo',        // 'solo' | 'pass' | 'p2p'
+        myRole: 'G',         // In Solo & P2P: 'G' or 'T'
+        aiDiff: save.aiDiff || 'smart',
+
+        board: createInitialBoard(),
+        pool: 15,
+        cap: 0,
+        turn: 'G',
+        turnsPlayed: 0,
+        winner: null,
+
+        selectedNode: null,
+        validTargets: [],    // [{ type, from, to, over }]
+        history: [],         // Undo snapshots for Solo / Pass & Play
+
+        // Active smooth animation
+        anim: null,          // { kind:'place'|'move'|'capture', piece, fromNode, toNode, overNode, t, dur, onDone }
+        ripples: [],
+        particles: [],
+        floatTexts: [],
+        shakeTime: 0,
+        shakeMag: 0,
+
+        aiTimerId: null,
+        clock: 0,
+
+        // P2P Rematch handshake
+        myRematch: false,
+        rivalRematch: false
+      };
+
+      function isHumanTurnNow() {
+        if (state.screen !== 'playing' || state.anim || state.winner) return false;
+        if (state.mode === 'pass') return true;
+        if (state.mode === 'solo') return state.turn === state.myRole;
+        if (state.mode === 'p2p') return state.turn === state.myRole;
+        return false;
+      }
+
+      /* ========================================================================
+         8. CANVAS VIEWPORT & CACHED CARVED TEAKWOOD BOARD RENDERER
+         ======================================================================== */
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const view = { w: window.innerWidth, h: window.innerHeight, dpr: 1, bx: 0, by: 0, bSize: 320, scale: 0.32 };
+
+      let boardCache = null;
+      let boardCacheTheme = '';
+
+      function resizeCanvas() {
+        view.w = window.innerWidth;
+        view.h = window.innerHeight;
+        view.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(view.w * view.dpr);
+        canvas.height = Math.floor(view.h * view.dpr);
+
+        const topSpace = 68;
+        const botSpace = state.mode === 'p2p' ? 92 : 62;
+        const sidePad = view.w < 460 ? 8 : 22;
+
+        const availW = Math.max(240, view.w - sidePad * 2);
+        const availH = Math.max(240, view.h - topSpace - botSpace);
+        view.bSize = Math.min(availW, availH, 680);
+        view.bx = (view.w - view.bSize) / 2;
+        view.by = topSpace + (availH - view.bSize) / 2;
+        view.scale = view.bSize / LOGICAL;
+      }
+
+      function screenToBoard(cx, cy) {
+        return {
+          x: (cx - view.bx) / view.scale,
+          y: (cy - view.by) / view.scale
+        };
+      }
+
+      function roundRectPath(c, x, y, w, h, r) {
+        c.beginPath();
+        c.moveTo(x + r, y); c.lineTo(x + w - r, y);
+        c.quadraticCurveTo(x + w, y, x + w, y + r);
+        c.lineTo(x + w, y + h - r);
+        c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        c.lineTo(x + r, y + h);
+        c.quadraticCurveTo(x, y + h, x, y + h - r);
+        c.lineTo(x, y + r);
+        c.quadraticCurveTo(x, y, x + r, y);
+        c.closePath();
+      }
+
+      // Draw subtle traditional Tamil rice-flour Kolam corner flourish
+      function drawKolamCorner(c, cx, cy, rot) {
+        c.save();
+        c.translate(cx, cy);
+        c.rotate(rot);
+        c.strokeStyle = 'rgba(255, 250, 235, 0.34)';
+        c.lineWidth = 2.6;
+        c.lineCap = 'round';
+        // Petal arcs
+        c.beginPath();
+        c.moveTo(0, 0); c.quadraticCurveTo(22, -16, 44, 0);
+        c.quadraticCurveTo(22, 16, 0, 0);
+        c.stroke();
+        c.beginPath();
+        c.moveTo(0, 0); c.quadraticCurveTo(-16, 22, 0, 44);
+        c.quadraticCurveTo(16, 22, 0, 0);
+        c.stroke();
+        c.beginPath();
+        c.moveTo(8, 8); c.quadraticCurveTo(32, 8, 36, 36);
+        c.quadraticCurveTo(8, 32, 8, 8);
+        c.stroke();
+        // Pulli (Kolam dots)
+        c.fillStyle = 'rgba(255, 250, 235, 0.55)';
+        [[20, 0], [0, 20], [22, 22], [38, 12], [12, 38]].forEach(([dx, dy]) => {
+          c.beginPath(); c.arc(dx, dy, 2.4, 0, Math.PI * 2); c.fill();
+        });
+        c.restore();
+      }
+
+      function buildBoardCache() {
+        const theme = document.documentElement.getAttribute('data-theme') || 'sunlit';
+        if (boardCache && boardCacheTheme === theme) return;
+        boardCacheTheme = theme;
+
+        const off = document.createElement('canvas');
+        off.width = LOGICAL;
+        off.height = LOGICAL;
+        const c = off.getContext('2d');
+        const isDeepam = theme === 'deepam';
+
+        // 1. Carved Rosewood / Teakwood Outer Slab
+        const frameG = c.createLinearGradient(0, 0, LOGICAL, LOGICAL);
+        if (isDeepam) {
+          frameG.addColorStop(0, '#4c2212');
+          frameG.addColorStop(0.5, '#2b1209');
+          frameG.addColorStop(1, '#140804');
+        } else {
+          frameG.addColorStop(0, '#78381c');
+          frameG.addColorStop(0.48, '#542512');
+          frameG.addColorStop(1, '#2f1207');
+        }
+        roundRectPath(c, 8, 8, LOGICAL - 16, LOGICAL - 16, 46);
+        c.fillStyle = frameG;
+        c.fill();
+
+        // Outer metallic bevel highlight
+        roundRectPath(c, 12, 12, LOGICAL - 24, LOGICAL - 24, 42);
+        c.strokeStyle = 'rgba(254, 240, 138, 0.32)';
+        c.lineWidth = 3.5;
+        c.stroke();
+
+        // 2. Inner Recessed Carved Teak Playfield
+        const inset = 36;
+        const innerG = c.createRadialGradient(460, 380, 60, 500, 500, 620);
+        if (isDeepam) {
+          innerG.addColorStop(0, '#5a2b17');
+          innerG.addColorStop(0.65, '#3b1a0d');
+          innerG.addColorStop(1, '#230e06');
+        } else {
+          innerG.addColorStop(0, '#a3572a');
+          innerG.addColorStop(0.6, '#7c3d1b');
+          innerG.addColorStop(1, '#52240e');
+        }
+        roundRectPath(c, inset, inset, LOGICAL - inset * 2, LOGICAL - inset * 2, 32);
+        c.fillStyle = innerG;
+        c.fill();
+
+        // Subtle curved wood-grain texture
+        c.save();
+        roundRectPath(c, inset, inset, LOGICAL - inset * 2, LOGICAL - inset * 2, 32);
+        c.clip();
+        c.strokeStyle = 'rgba(255, 224, 178, 0.055)';
+        c.lineWidth = 2.6;
+        for (let y = inset; y < LOGICAL - inset; y += 15) {
+          c.beginPath();
+          c.moveTo(inset, y);
+          c.bezierCurveTo(320, y + Math.sin(y * 0.03) * 9, 680, y - Math.sin(y * 0.03) * 9, LOGICAL - inset, y);
+          c.stroke();
+        }
+        // Soft inner edge shadow
+        c.strokeStyle = 'rgba(18, 6, 2, 0.45)';
+        c.lineWidth = 14;
+        roundRectPath(c, inset - 2, inset - 2, LOGICAL - inset * 2 + 4, LOGICAL - inset * 2 + 4, 32);
+        c.stroke();
+        c.restore();
+
+        // Fine Golden Inlay Border around Playfield
+        roundRectPath(c, inset + 12, inset + 12, LOGICAL - (inset + 12) * 2, LOGICAL - (inset + 12) * 2, 24);
+        c.strokeStyle = 'rgba(250, 204, 21, 0.36)';
+        c.lineWidth = 2.2;
+        c.stroke();
+
+        // Corner Brass Studs + Subtle Rice-Flour Kolam Motifs
+        [[62, 62, 0], [938, 62, Math.PI / 2], [938, 938, Math.PI], [62, 938, -Math.PI / 2]].forEach(([kx, ky, rot]) => {
+          drawKolamCorner(c, kx, ky, rot);
+        });
+        [[26, 26], [974, 26], [26, 974], [974, 974]].forEach(([sx, sy]) => {
+          const sg = c.createRadialGradient(sx - 2, sy - 2, 1.5, sx, sy, 9);
+          sg.addColorStop(0, '#fef9c3');
+          sg.addColorStop(0.55, '#eab308');
+          sg.addColorStop(1, '#713f12');
+          c.fillStyle = sg;
+          c.beginPath(); c.arc(sx, sy, 8.5, 0, Math.PI * 2); c.fill();
+        });
+
+        // 3. Draw All 10 Recessed Golden Brass Lines
+        c.lineCap = 'round';
+        for (const line of LINES) {
+          const start = NODES[line[0]];
+          const end = NODES[line[line.length - 1]];
+
+          // Dark carved groove underneath
+          c.strokeStyle = 'rgba(20, 7, 2, 0.68)';
+          c.lineWidth = 12;
+          c.beginPath(); c.moveTo(start.x, start.y + 2); c.lineTo(end.x, end.y + 2); c.stroke();
+
+          // Warm antique brass channel
+          c.strokeStyle = '#ca8a04';
+          c.lineWidth = 7.5;
+          c.beginPath(); c.moveTo(start.x, start.y); c.lineTo(end.x, end.y); c.stroke();
+
+          // Specular golden highlight thread
+          c.strokeStyle = 'rgba(254, 249, 195, 0.72)';
+          c.lineWidth = 2.2;
+          c.beginPath(); c.moveTo(start.x, start.y - 1); c.lineTo(end.x, end.y - 1); c.stroke();
+        }
+
+        // 4. Draw All 23 Recessed Circular Brass Node Sockets
+        for (const n of NODES) {
+          // Outer carved rim shadow
+          c.beginPath(); c.arc(n.x, n.y + 1.5, 19, 0, Math.PI * 2);
+          c.fillStyle = 'rgba(18, 6, 2, 0.65)';
+          c.fill();
+
+          // Beveled brass bezel
+          const bg = c.createLinearGradient(n.x - 16, n.y - 16, n.x + 16, n.y + 16);
+          bg.addColorStop(0, '#fef08a');
+          bg.addColorStop(0.5, '#ca8a04');
+          bg.addColorStop(1, '#713f12');
+          c.beginPath(); c.arc(n.x, n.y, 17, 0, Math.PI * 2);
+          c.fillStyle = bg;
+          c.fill();
+
+          // Recessed wood-brass interior bowl
+          const innerB = c.createRadialGradient(n.x + 3, n.y + 3, 2, n.x, n.y, 12.5);
+          innerB.addColorStop(0, isDeepam ? '#261008' : '#4a1f0e');
+          innerB.addColorStop(1, isDeepam ? '#160804' : '#311307');
+          c.beginPath(); c.arc(n.x, n.y, 12, 0, Math.PI * 2);
+          c.fillStyle = innerB;
+          c.fill();
+
+          // Subtle center brass dimple
+          c.beginPath(); c.arc(n.x, n.y, 3.2, 0, Math.PI * 2);
+          c.fillStyle = 'rgba(254, 240, 138, 0.52)';
+          c.fill();
+        }
+
+        boardCache = off;
+      }
+
+      /* ========================================================================
+         9. SCULPTURAL 3D-SHADED TIGER & GOAT PIECE RENDERERS
+         ======================================================================== */
+      function drawPiece3D(x, y, type, liftZ = 0, scaleMul = 1, alpha = 1, selected = false) {
+        const r = PIECE_R * scaleMul;
+        const drawY = y - liftZ;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        // 1. Dynamic Cast Shadow (grows softer & shifts down as piece lifts in 3D arc)
+        const shScale = Math.max(0.68, 1 - liftZ * 0.003);
+        const shOff = 6 + liftZ * 0.35;
+        ctx.fillStyle = `rgba(12, 4, 2, ${Math.max(0.16, 0.44 - liftZ * 0.0025)})`;
+        ctx.beginPath();
+        ctx.ellipse(x + shOff * 0.45, y + shOff, r * 1.04 * shScale, r * 0.88 * shScale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Selection Radiant Halo
+        if (selected) {
+          const pulse = 1 + Math.sin(state.clock * 7) * 0.08;
+          ctx.strokeStyle = type === 'T' ? '#fb923c' : '#4ade80';
+          ctx.lineWidth = 4.5;
+          ctx.beginPath();
+          ctx.arc(x, drawY, (r + 8) * pulse, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // 2. 3D Extruded Cylinder Rim (Thickness)
+        ctx.beginPath();
+        ctx.arc(x, drawY + 5.5 * scaleMul, r, 0, Math.PI * 2);
+        ctx.fillStyle = type === 'T' ? '#6c2706' : '#0f5132';
+        ctx.fill();
+
+        // 3. Sculpted Top Face
+        if (type === 'T') {
+          // TIGER (PULI): Amber-Gold Disc + Tiger Stripes + Bronze Rim
+          const tg = ctx.createRadialGradient(x - r * 0.3, drawY - r * 0.35, r * 0.1, x, drawY, r);
+          tg.addColorStop(0, '#fef08a');
+          tg.addColorStop(0.45, '#f59e0b');
+          tg.addColorStop(0.88, '#c2410c');
+          tg.addColorStop(1, '#7c2d12');
+          ctx.beginPath(); ctx.arc(x, drawY, r, 0, Math.PI * 2);
+          ctx.fillStyle = tg; ctx.fill();
+
+          // Subtle edge stripes clipped to disc
+          ctx.save();
+          ctx.beginPath(); ctx.arc(x, drawY, r - 2, 0, Math.PI * 2); ctx.clip();
+          ctx.strokeStyle = 'rgba(67, 20, 7, 0.42)';
+          ctx.lineWidth = 3.2 * scaleMul;
+          ctx.lineCap = 'round';
+          [[-1, -0.45], [-1, 0.35], [1, -0.45], [1, 0.35]].forEach(([sx, sy]) => {
+            ctx.beginPath();
+            ctx.moveTo(x + sx * r * 1.05, drawY + sy * r);
+            ctx.lineTo(x + sx * r * 0.62, drawY + (sy + 0.14) * r);
+            ctx.stroke();
+          });
+          ctx.restore();
+
+          // Beveled bronze rim
+          ctx.beginPath(); ctx.arc(x, drawY, r, 0, Math.PI * 2);
+          ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 2.6 * scaleMul; ctx.stroke();
+
+          // Crisp Stylized Roaring Tiger Emblem
+          drawTigerEmblem(x, drawY + 1 * scaleMul, r * 0.64);
+        } else {
+          // GOAT (AADU): Ivory-Cream Disc + Emerald Rim
+          const gg = ctx.createRadialGradient(x - r * 0.3, drawY - r * 0.35, r * 0.1, x, drawY, r);
+          gg.addColorStop(0, '#ffffff');
+          gg.addColorStop(0.58, '#f5f0e1');
+          gg.addColorStop(0.92, '#d6c8a8');
+          gg.addColorStop(1, '#a89a7c');
+          ctx.beginPath(); ctx.arc(x, drawY, r, 0, Math.PI * 2);
+          ctx.fillStyle = gg; ctx.fill();
+
+          // Emerald carved bezel
+          ctx.beginPath(); ctx.arc(x, drawY, r, 0, Math.PI * 2);
+          ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 3.6 * scaleMul; ctx.stroke();
+          ctx.beginPath(); ctx.arc(x, drawY, r - 3.6 * scaleMul, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)'; ctx.lineWidth = 1.4 * scaleMul; ctx.stroke();
+
+          // Crisp Cute Goat Silhouette Emblem
+          drawGoatEmblem(x, drawY + 1 * scaleMul, r * 0.62);
+        }
+
+        // Top-Left Specular Crescent Highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.34)';
+        ctx.beginPath();
+        ctx.ellipse(x - r * 0.28, drawY - r * 0.36, r * 0.34, r * 0.16, -0.55, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawTigerEmblem(cx, cy, s) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        // Ears
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath(); ctx.arc(-s * 0.64, -s * 0.56, s * 0.28, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(s * 0.64, -s * 0.56, s * 0.28, 0, Math.PI * 2); ctx.fill();
+        // Head silhouette
+        ctx.fillStyle = '#5c1f06';
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.72);
+        ctx.quadraticCurveTo(s * 0.85, -s * 0.65, s * 0.76, s * 0.12);
+        ctx.quadraticCurveTo(s * 0.58, s * 0.76, 0, s * 0.78);
+        ctx.quadraticCurveTo(-s * 0.58, s * 0.76, -s * 0.76, s * 0.12);
+        ctx.quadraticCurveTo(-s * 0.85, -s * 0.65, 0, -s * 0.72);
+        ctx.closePath();
+        ctx.fill();
+        // Forehead V-stripes (golden highlight)
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = s * 0.13;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.52); ctx.lineTo(0, -s * 0.22);
+        ctx.moveTo(-s * 0.28, -s * 0.44); ctx.lineTo(-s * 0.14, -s * 0.22);
+        ctx.moveTo(s * 0.28, -s * 0.44); ctx.lineTo(s * 0.14, -s * 0.22);
+        ctx.stroke();
+        // Fierce glowing eyes
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.30, -s * 0.04, s * 0.14, s * 0.09, 0.25, 0, Math.PI * 2);
+        ctx.ellipse(s * 0.30, -s * 0.04, s * 0.14, s * 0.09, -0.25, 0, Math.PI * 2);
+        ctx.fill();
+        // Nose & muzzle
+        ctx.fillStyle = '#fb923c';
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.16, s * 0.20); ctx.lineTo(s * 0.16, s * 0.20); ctx.lineTo(0, s * 0.38);
+        ctx.closePath(); ctx.fill();
+        // Roaring mouth fangs
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = s * 0.10;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.24, s * 0.48); ctx.quadraticCurveTo(0, s * 0.64, s * 0.24, s * 0.48);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawGoatEmblem(cx, cy, s) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        // Curved horns
+        ctx.strokeStyle = '#15803d';
+        ctx.lineWidth = s * 0.18;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.22, -s * 0.36); ctx.quadraticCurveTo(-s * 0.55, -s * 0.92, -s * 0.80, -s * 0.62);
+        ctx.moveTo(s * 0.22, -s * 0.36);  ctx.quadraticCurveTo(s * 0.55, -s * 0.92, s * 0.80, -s * 0.62);
+        ctx.stroke();
+        // Droopy cute ears
+        ctx.fillStyle = '#166534';
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.66, -s * 0.06, s * 0.28, s * 0.13, -0.45, 0, Math.PI * 2);
+        ctx.ellipse(s * 0.66, -s * 0.06, s * 0.28, s * 0.13, 0.45, 0, Math.PI * 2);
+        ctx.fill();
+        // Face shape + goatee
+        ctx.fillStyle = '#14532d';
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.46, -s * 0.34);
+        ctx.quadraticCurveTo(0, -s * 0.54, s * 0.46, -s * 0.34);
+        ctx.quadraticCurveTo(s * 0.50, s * 0.28, s * 0.20, s * 0.58);
+        ctx.lineTo(0, s * 0.84);
+        ctx.lineTo(-s * 0.20, s * 0.58);
+        ctx.quadraticCurveTo(-s * 0.50, s * 0.28, -s * 0.46, -s * 0.34);
+        ctx.closePath();
+        ctx.fill();
+        // Friendly bright eyes
+        ctx.fillStyle = '#fffbeb';
+        ctx.beginPath();
+        ctx.arc(-s * 0.20, -s * 0.06, s * 0.10, 0, Math.PI * 2);
+        ctx.arc(s * 0.20, -s * 0.06, s * 0.10, 0, Math.PI * 2);
+        ctx.fill();
+        // Cute nose
+        ctx.fillStyle = '#86efac';
+        ctx.beginPath(); ctx.ellipse(0, s * 0.30, s * 0.14, s * 0.09, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      /* ========================================================================
+         10. MOVE EXECUTION, PARABOLIC ANIMATIONS & GAME PROGRESSION
+         ======================================================================== */
+      function spawnRipple(nodeId, color) {
+        const n = NODES[nodeId];
+        state.ripples.push({ x: n.x, y: n.y, r: 16, maxR: 62, color, life: 1 });
+      }
+
+      function spawnCaptureBurst(nodeId) {
+        const n = NODES[nodeId];
+        for (let i = 0; i < 18; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const sp = 2.5 + Math.random() * 6.5;
+          state.particles.push({
+            x: n.x, y: n.y,
+            vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+            r: 3 + Math.random() * 4.5,
+            color: i % 2 === 0 ? '#fde047' : '#fb923c',
+            life: 1, decay: 0.025 + Math.random() * 0.02
+          });
+        }
+        state.floatTexts.push({ x: n.x, y: n.y - 14, text: '+1', color: '#fde047', vy: -1.4, life: 1 });
+        state.shakeTime = 0.22;
+        state.shakeMag = 7;
+      }
+
+      function saveUndoSnapshot() {
+        state.history.push({
+          board: state.board.slice(),
+          pool: state.pool,
+          cap: state.cap,
+          turn: state.turn,
+          turnsPlayed: state.turnsPlayed
+        });
+        if (state.history.length > 60) state.history.shift();
+      }
+
+      function performMove(move, isRemote = false) {
+        if (state.anim || state.winner) return;
+
+        // Store undo history before human moves in Solo/Pass modes
+        if (!isRemote && (state.mode === 'pass' || (state.mode === 'solo' && state.turn === state.myRole))) {
+          saveUndoSnapshot();
+        }
+
+        // Send over P2P immediately if initiated locally
+        if (!isRemote && state.mode === 'p2p' && net.connected) {
+          net.send({ type: 'MOVE', move });
+        }
+
+        state.selectedNode = null;
+        state.validTargets = [];
+
+        if (move.type === 'place') {
+          state.anim = {
+            kind: 'place',
+            piece: 'G',
+            toNode: move.to,
+            t: 0,
+            dur: 0.26,
+            onDone: () => {
+              state.board[move.to] = 'G';
+              state.pool--;
+              audio.playGoatStep();
+              spawnRipple(move.to, '#4ade80');
+              finishTurn();
+            }
+          };
+        } else if (move.type === 'move') {
+          const piece = state.board[move.from];
+          state.board[move.from] = null;
+          state.anim = {
+            kind: 'move',
+            piece,
+            fromNode: move.from,
+            toNode: move.to,
+            t: 0,
+            dur: 0.28,
+            onDone: () => {
+              state.board[move.to] = piece;
+              if (piece === 'T') audio.playTigerStep();
+              else audio.playGoatStep();
+              spawnRipple(move.to, piece === 'T' ? '#fb923c' : '#4ade80');
+              finishTurn();
+            }
+          };
+        } else if (move.type === 'capture') {
+          state.board[move.from] = null;
+          state.anim = {
+            kind: 'capture',
+            piece: 'T',
+            fromNode: move.from,
+            overNode: move.over,
+            toNode: move.to,
+            capturedCleared: false,
+            t: 0,
+            dur: 0.38,
+            onDone: () => {
+              state.board[move.to] = 'T';
+              if (state.board[move.over] === 'G') {
+                state.board[move.over] = null;
+                state.cap++;
+              }
+              spawnRipple(move.to, '#fde047');
+              finishTurn();
+            }
+          };
+        }
+      }
+
+      function finishTurn() {
+        state.turnsPlayed++;
+        state.turn = state.turn === 'G' ? 'T' : 'G';
+
+        const sim = { board: state.board, pool: state.pool, cap: state.cap, turn: state.turn };
+        const win = checkWinnerState(sim);
+
+        // Edge-case safeguard: if Goats have 0 moves in Phase 2, Tigers win
+        if (!win && state.turn === 'G' && getLegalMoves(state.board, 'G', state.pool).length === 0) {
+          state.winner = 'T';
+        } else {
+          state.winner = win;
+        }
+
+        updateHUD();
+
+        if (state.winner) {
+          state.screen = 'gameover';
+          setScreenClass('gameover');
+          audio.playWin();
+          openWinModal();
+          return;
+        }
+
+        // Schedule AI if Solo mode & AI's turn
+        if (state.mode === 'solo' && state.turn !== state.myRole) {
+          clearTimeout(state.aiTimerId);
+          state.aiTimerId = setTimeout(() => {
+            if (state.screen !== 'playing' || state.mode !== 'solo' || state.turn === state.myRole || state.winner) return;
+            const mv = chooseAIMove({ board: state.board, pool: state.pool, cap: state.cap, turn: state.turn }, state.aiDiff);
+            if (mv) performMove(mv, false);
+          }, 480);
+        }
+      }
+
+      function undoLastMove() {
+        if (state.mode === 'p2p' || state.anim || state.history.length === 0) return;
+        clearTimeout(state.aiTimerId);
+        const snap = state.history.pop();
+        state.board = snap.board;
+        state.pool = snap.pool;
+        state.cap = snap.cap;
+        state.turn = snap.turn;
+        state.turnsPlayed = snap.turnsPlayed;
+        state.winner = null;
+        state.selectedNode = null;
+        state.validTargets = [];
+        state.screen = 'playing';
+        setScreenClass('playing');
+        closeAllModals();
+        audio.playSelect();
+        updateHUD();
+      }
+
+      /* ========================================================================
+         11. INTERACTION (TAP / CLICK ON CANVAS NODES)
+         ======================================================================== */
+      canvas.addEventListener('pointerdown', (e) => {
+        if (!isHumanTurnNow()) return;
+        audio.unlock();
+
+        const pt = screenToBoard(e.clientX, e.clientY);
+        // Find closest node within generous touch hit radius
+        let closestId = -1;
+        let minDist = 48;
+        for (const n of NODES) {
+          const d = Math.hypot(pt.x - n.x, pt.y - n.y);
+          if (d < minDist) { minDist = d; closestId = n.id; }
+        }
+        if (closestId === -1) {
+          state.selectedNode = null;
+          state.validTargets = [];
+          updateHUD();
+          return;
+        }
+
+        // Phase 1 Goat Placement: single tap on any empty node places a Goat!
+        if (state.turn === 'G' && state.pool > 0) {
+          if (state.board[closestId] === null) {
+            performMove({ type: 'place', to: closestId }, false);
+          }
+          return;
+        }
+
+        // Check if tapped node is a valid target for currently selected piece
+        if (state.selectedNode !== null) {
+          const matched = state.validTargets.find(m => m.to === closestId);
+          if (matched) {
+            performMove(matched, false);
+            return;
+          }
+          // Tap same piece again to deselect
+          if (closestId === state.selectedNode) {
+            state.selectedNode = null;
+            state.validTargets = [];
+            audio.playSelect();
+            updateHUD();
+            return;
+          }
+        }
+
+        // Otherwise select own piece and compute its valid moves/jumps
+        if (state.board[closestId] === state.turn) {
+          const allMoves = getLegalMoves(state.board, state.turn, state.pool);
+          const pieceMoves = allMoves.filter(m => m.from === closestId);
+          if (pieceMoves.length > 0) {
+            state.selectedNode = closestId;
+            state.validTargets = pieceMoves;
+            audio.playSelect();
+          } else {
+            state.selectedNode = null;
+            state.validTargets = [];
+          }
+          updateHUD();
+        }
+      });
+
+      /* ========================================================================
+         12. MAIN UPDATE & 60FPS CANVAS RENDER LOOP
+         ======================================================================== */
+      function update(dt) {
+        state.clock += dt;
+
+        // Ambient drifting marigold & jasmine petals
+        for (const p of petals) {
+          p.x += (p.vx + Math.sin(state.clock * 1.1 + p.y * 5) * 0.008) * dt;
+          p.y += p.vy * dt;
+          p.rot += p.vRot * dt;
+          if (p.y > 1.05) { p.y = -0.05; p.x = Math.random(); }
+          if (p.x > 1.05) p.x = -0.05;
+        }
+
+        if (state.shakeTime > 0) state.shakeTime = Math.max(0, state.shakeTime - dt);
+
+        // Step active piece animation
+        if (state.anim) {
+          state.anim.t += dt / state.anim.dur;
+          // Trigger capture burst right as the tiger passes over the goat!
+          if (state.anim.kind === 'capture' && !state.anim.capturedCleared && state.anim.t >= 0.52) {
+            state.anim.capturedCleared = true;
+            if (state.board[state.anim.overNode] === 'G') {
+              state.board[state.anim.overNode] = null;
+              state.cap++;
+            }
+            audio.playCapture();
+            spawnCaptureBurst(state.anim.overNode);
+            showToast(t('capturedToast'));
+          }
+          if (state.anim.t >= 1) {
+            const done = state.anim.onDone;
+            state.anim = null;
+            if (done) done();
+          }
+        }
+
+        // Ripples, sparks, float texts
+        for (const r of state.ripples) {
+          r.r += (r.maxR - r.r) * 0.2;
+          r.life -= dt * 2.5;
+        }
+        state.ripples = state.ripples.filter(r => r.life > 0);
+
+        for (const pt of state.particles) {
+          pt.x += pt.vx; pt.y += pt.vy;
+          pt.vx *= 0.94; pt.vy *= 0.94;
+          pt.life -= pt.decay;
+        }
+        state.particles = state.particles.filter(pt => pt.life > 0);
+
+        for (const ft of state.floatTexts) {
+          ft.y += ft.vy;
+          ft.life -= dt * 1.3;
+        }
+        state.floatTexts = state.floatTexts.filter(ft => ft.life > 0);
+      }
+
+      function render() {
+        buildBoardCache();
+        ctx.save();
+        ctx.scale(view.dpr, view.dpr);
+        ctx.clearRect(0, 0, view.w, view.h);
+
+        // 1. Ambient Courtyard Drifting Petals
+        for (const p of petals) {
+          ctx.save();
+          ctx.translate(p.x * view.w, p.y * view.h);
+          ctx.rotate(p.rot);
+          ctx.globalAlpha = document.documentElement.getAttribute('data-theme') === 'deepam' ? 0.38 : 0.62;
+          ctx.fillStyle = p.kind === 'jasmine' ? '#fffbeb' : (p.kind === 'marigold1' ? '#f97316' : '#facc15');
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.56, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Gentle screen shake on Tiger capture
+        let sx = 0, sy = 0;
+        if (state.shakeTime > 0) {
+          const mag = state.shakeMag * (state.shakeTime / 0.22);
+          sx = (Math.random() - 0.5) * mag;
+          sy = (Math.random() - 0.5) * mag;
+        }
+
+        // 2. Draw Cached Carved Teakwood Board
+        ctx.save();
+        ctx.translate(view.bx + sx, view.by + sy);
+        ctx.scale(view.scale, view.scale);
+
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.52)';
+        ctx.shadowBlur = 32;
+        ctx.shadowOffsetY = 12;
+        ctx.drawImage(boardCache, 0, 0, LOGICAL, LOGICAL);
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+
+        // 3. Highlight Valid Destinations (Pulsing Emerald Move / Fiery Amber Capture Rings)
+        if (isHumanTurnNow()) {
+          const pulse = 0.5 + 0.5 * Math.sin(state.clock * 6);
+
+          if (state.turn === 'G' && state.pool > 0) {
+            // Subtle breathing emerald ring on empty placement sockets
+            for (let i = 0; i < 23; i++) {
+              if (state.board[i] !== null) continue;
+              const n = NODES[i];
+              ctx.save();
+              ctx.strokeStyle = `rgba(74, 222, 128, ${0.30 + pulse * 0.34})`;
+              ctx.lineWidth = 3.2;
+              ctx.beginPath();
+              ctx.arc(n.x, n.y, 19 + pulse * 2.5, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.restore();
+            }
+          } else if (state.selectedNode !== null) {
+            const src = NODES[state.selectedNode];
+            for (const mv of state.validTargets) {
+              const dst = NODES[mv.to];
+              const isCap = mv.type === 'capture';
+              const ringCol = isCap ? '#fb923c' : '#4ade80';
+
+              // Subtle connecting guide line
+              ctx.save();
+              ctx.setLineDash([8, 8]);
+              ctx.strokeStyle = isCap ? 'rgba(251, 146, 60, 0.72)' : 'rgba(74, 222, 128, 0.65)';
+              ctx.lineWidth = 4;
+              ctx.beginPath(); ctx.moveTo(src.x, src.y); ctx.lineTo(dst.x, dst.y); ctx.stroke();
+              ctx.setLineDash([]);
+
+              // Glowing destination target ring
+              ctx.fillStyle = isCap ? `rgba(251, 146, 60, ${0.18 + pulse * 0.16})` : `rgba(74, 222, 128, ${0.16 + pulse * 0.14})`;
+              ctx.beginPath(); ctx.arc(dst.x, dst.y, 24 + pulse * 3, 0, Math.PI * 2); ctx.fill();
+
+              ctx.strokeStyle = ringCol;
+              ctx.lineWidth = 4.2;
+              ctx.beginPath(); ctx.arc(dst.x, dst.y, 22 + pulse * 3, 0, Math.PI * 2); ctx.stroke();
+
+              if (isCap) {
+                ctx.strokeStyle = '#fde047';
+                ctx.lineWidth = 2.4;
+                ctx.beginPath(); ctx.arc(dst.x, dst.y, 14, 0, Math.PI * 2); ctx.stroke();
+              }
+              ctx.restore();
+            }
+          } else {
+            // Subtle breathing halo on movable pieces of the active side
+            const movableIds = new Set(getLegalMoves(state.board, state.turn, state.pool).map(m => m.from));
+            for (const id of movableIds) {
+              const n = NODES[id];
+              ctx.save();
+              ctx.strokeStyle = state.turn === 'T'
+                ? `rgba(254, 240, 138, ${0.32 + pulse * 0.40})`
+                : `rgba(74, 222, 128, ${0.30 + pulse * 0.36})`;
+              ctx.lineWidth = 3.2;
+              ctx.beginPath(); ctx.arc(n.x, n.y, PIECE_R + 5 + pulse * 2.5, 0, Math.PI * 2); ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+
+        // 4. Ripple Rings
+        for (const rp of state.ripples) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, rp.life * 0.8);
+          ctx.strokeStyle = rp.color;
+          ctx.lineWidth = 4 * rp.life;
+          ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        }
+
+        // 5. Static Pieces on Board
+        for (let i = 0; i < 23; i++) {
+          const piece = state.board[i];
+          if (!piece) continue;
+          const n = NODES[i];
+          drawPiece3D(n.x, n.y, piece, 0, 1, 1, state.selectedNode === i);
+        }
+
+        // 6. Active Animated Piece (Parabolic 3D Lift-and-Hop / Bounce Drop)
+        if (state.anim) {
+          const a = state.anim;
+          const tClamped = Math.max(0, Math.min(1, a.t));
+          if (a.kind === 'place') {
+            const dst = NODES[a.toNode];
+            const bounceLift = Math.abs(Math.sin(tClamped * Math.PI * 1.5)) * (1 - tClamped) * 58;
+            const sc = 0.72 + Math.min(1, tClamped * 1.4) * 0.28;
+            drawPiece3D(dst.x, dst.y, 'G', bounceLift, sc, Math.min(1, tClamped * 2.2), false);
+          } else {
+            const src = NODES[a.fromNode];
+            const dst = NODES[a.toNode];
+            const ease = tClamped < 0.5 ? 2 * tClamped * tClamped : 1 - Math.pow(-2 * tClamped + 2, 2) / 2;
+            const px = src.x + (dst.x - src.x) * ease;
+            const py = src.y + (dst.y - src.y) * ease;
+            const arcPeak = a.kind === 'capture' ? 88 : 34;
+            const lift = Math.sin(tClamped * Math.PI) * arcPeak;
+            const sc = 1 + Math.sin(tClamped * Math.PI) * (a.kind === 'capture' ? 0.14 : 0.05);
+            drawPiece3D(px, py, a.piece, lift, sc, 1, false);
+          }
+        }
+
+        // 7. Capture Spark Particles & "+1" Shimmer
+        for (const pt of state.particles) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+        for (const ft of state.floatTexts) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, ft.life);
+          ctx.font = '900 32px ' + getComputedStyle(document.body).fontFamily;
+          ctx.textAlign = 'center';
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = '#3b1506';
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+          ctx.restore();
+        }
+
+        ctx.restore();
+        ctx.restore();
+      }
+
+      /* ========================================================================
+         13. UI CONTROLLERS, MODALS, P2P EVENTS & STANDALONE HTML EXPORT
+         ======================================================================== */
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 2100);
+      }
+
+      let tauntTimer = null;
+      function showTauntPopup(emoji) {
+        audio.playTaunt();
+        const el = document.getElementById('taunt-popup');
+        el.textContent = emoji;
+        el.classList.add('show');
+        clearTimeout(tauntTimer);
+        tauntTimer = setTimeout(() => el.classList.remove('show'), 1500);
+      }
+
+      function setScreenClass(scr) {
+        document.body.classList.remove('screen-title', 'screen-playing', 'screen-gameover');
+        document.body.classList.add(`screen-${scr}`);
+        document.body.classList.toggle('is-p2p', state.mode === 'p2p');
+        resizeCanvas();
+      }
+
+      function closeAllModals() {
+        ['modal-p2p', 'modal-menu', 'modal-rules', 'modal-win'].forEach(id => {
+          const el = document.getElementById(id);
+          el.classList.remove('open');
+          el.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      function showTitle() {
+        clearTimeout(state.aiTimerId);
+        net.disconnect();
+        closeAllModals();
+        state.screen = 'title';
+        state.board = createInitialBoard();
+        state.pool = 15;
+        state.cap = 0;
+        state.anim = null;
+        state.selectedNode = null;
+        state.validTargets = [];
+        setScreenClass('title');
+      }
+
+      function startMatch(mode, assignedRole = null) {
+        clearTimeout(state.aiTimerId);
+        closeAllModals();
+        state.mode = mode;
+        state.screen = 'playing';
+        state.board = createInitialBoard();
+        state.pool = 15;
+        state.cap = 0;
+        state.turn = 'G';
+        state.turnsPlayed = 0;
+        state.winner = null;
+        state.selectedNode = null;
+        state.validTargets = [];
+        state.history = [];
+        state.anim = null;
+        state.ripples = [];
+        state.particles = [];
+        state.floatTexts = [];
+        state.myRematch = false;
+        state.rivalRematch = false;
+
+        if (mode === 'solo') state.myRole = save.soloRole || 'G';
+        else if (mode === 'p2p') state.myRole = assignedRole || net.myRole || 'G';
+        else state.myRole = 'G';
+
+        setScreenClass('playing');
+        updateHUD();
+
+        // If Solo and human chose Tigers ('T'), Goat AI makes opening placement
+        if (mode === 'solo' && state.myRole === 'T') {
+          state.aiTimerId = setTimeout(() => {
+            if (state.screen !== 'playing' || state.turn !== 'G') return;
+            const mv = chooseAIMove({ board: state.board, pool: state.pool, cap: state.cap, turn: 'G' }, state.aiDiff);
+            if (mv) performMove(mv, false);
+          }, 520);
+        }
+      }
+
+      function updateHUD() {
+        const badge = document.getElementById('hud-turn');
+        badge.className = `turn-badge turn-${state.turn}`;
+        document.getElementById('hud-turn-ico').innerHTML = state.turn === 'G' ? '&#128016;' : '&#128047;';
+        document.getElementById('hud-turn-text').textContent = state.turn === 'G' ? t('goatTurn') : t('tigerTurn');
+        document.getElementById('hud-pool').textContent = String(state.pool);
+        document.getElementById('hud-cap').textContent = `${state.cap}/5`;
+
+        const btnUndo = document.getElementById('btn-undo');
+        btnUndo.style.display = state.mode === 'p2p' ? 'none' : 'inline-flex';
+        btnUndo.disabled = state.history.length === 0 || !!state.anim;
+
+        // Bottom contextual phase strip
+        const strip = document.getElementById('status-strip');
+        if (state.mode === 'solo' && state.turn !== state.myRole) {
+          strip.textContent = t('aiThinking');
+        } else if (state.mode === 'p2p' && state.turn !== state.myRole) {
+          strip.textContent = t('waitRival');
+        } else if (state.turn === 'G' && state.pool > 0) {
+          strip.textContent = t('hintPlace');
+        } else if (state.selectedNode !== null) {
+          strip.textContent = t('hintSelectDst');
+        } else {
+          strip.textContent = state.turn === 'G' ? t('hintMoveG') : t('hintMoveT');
+        }
+
+        if (state.mode === 'p2p') {
+          const roleTag = state.myRole === 'G' ? '🐐' : '🐯';
+          document.getElementById('p2p-live-tag').textContent = `● ${roleTag} P2P`;
+        }
+      }
+
+      function openWinModal() {
+        const isTigerWin = state.winner === 'T';
+        document.getElementById('win-emoji').innerHTML = isTigerWin ? '&#128047;' : '&#128016;';
+        document.getElementById('win-title').textContent = isTigerWin ? t('tigersWin') : t('goatsWin');
+        document.getElementById('win-sub').textContent = isTigerWin ? t('tigersWinSub') : t('goatsWinSub');
+        document.getElementById('ws-turns').textContent = String(state.turnsPlayed);
+        document.getElementById('ws-cap').textContent = `${state.cap}/5`;
+        document.getElementById('ws-placed').textContent = `${15 - state.pool}/15`;
+        document.getElementById('ui-win-again').textContent = state.mode === 'p2p' ? t('rematch') : t('playAgain');
+
+        const m = document.getElementById('modal-win');
+        m.classList.add('open');
+        m.setAttribute('aria-hidden', 'false');
+      }
+
+      function applyTranslations() {
+        document.documentElement.lang = save.lang;
+        document.getElementById('lang-en').classList.toggle('active', save.lang === 'en');
+        document.getElementById('lang-ta').classList.toggle('active', save.lang === 'ta');
+
+        document.getElementById('ui-subtitle').textContent = t('subtitle');
+        document.getElementById('ui-play-as').textContent = t('playAs');
+        document.getElementById('ui-role-g').textContent = t('goats');
+        document.getElementById('ui-role-t').textContent = t('tigers');
+        document.getElementById('ui-ai-lvl').textContent = t('aiLevel');
+        document.getElementById('ui-diff-c').textContent = t('classic');
+        document.getElementById('ui-diff-s').textContent = t('smart');
+        document.getElementById('ui-btn-solo').textContent = t('btnSolo');
+        document.getElementById('ui-btn-pass').textContent = t('btnPass');
+        document.getElementById('ui-btn-p2p').textContent = t('btnP2P');
+        document.getElementById('ui-rules-link').textContent = t('rulesLink');
+        document.getElementById('ui-dl-link').textContent = t('downloadLink');
+
+        document.getElementById('ui-p2p-title').innerHTML = `&#127760; ${t('p2pTitle')}`;
+        document.getElementById('tab-rtc').textContent = t('tabRtc');
+        document.getElementById('tab-bc').textContent = t('tabBc');
+        document.getElementById('ui-rtc-hint').textContent = t('rtcHint');
+        document.getElementById('ui-bc-hint').textContent = t('bcHint');
+        document.getElementById('btn-rtc-host-tab').textContent = t('hostRole');
+        document.getElementById('btn-rtc-guest-tab').textContent = t('guestRole');
+        document.getElementById('btn-make-offer').textContent = t('createInvite');
+        document.getElementById('ui-paste-reply-lbl').textContent = t('pasteReplyLbl');
+        document.getElementById('btn-accept-answer').textContent = t('connectPlay');
+        document.getElementById('ui-paste-inv-lbl').textContent = t('pasteInvLbl');
+        document.getElementById('btn-make-answer').textContent = t('genReply');
+        document.getElementById('ui-room-lbl').textContent = t('roomLbl');
+        document.getElementById('ui-join-tab').textContent = t('joinTab');
+
+        document.getElementById('ui-menu-title').innerHTML = `&#9776; ${t('menuTitle')}`;
+        document.getElementById('ui-m-restart').textContent = t('restart');
+        document.getElementById('ui-m-rules').textContent = t('rulesLink');
+        document.getElementById('ui-m-dl').textContent = t('downloadBtn');
+        document.getElementById('ui-m-title').textContent = t('mainMenu');
+
+        document.getElementById('ui-rules-title').innerHTML = `&#128214; ${t('rulesTitle')}`;
+        document.getElementById('ui-r1').innerHTML = t('r1');
+        document.getElementById('ui-r2').innerHTML = t('r2');
+        document.getElementById('ui-r3').innerHTML = t('r3');
+        document.getElementById('ui-r4').innerHTML = t('r4');
+
+        document.getElementById('ui-ws-turns').textContent = t('statTurns');
+        document.getElementById('ui-ws-cap').textContent = t('statCaptured');
+        document.getElementById('ui-ws-placed').textContent = t('statPlaced');
+        document.getElementById('ui-win-menu').textContent = t('mainMenu');
+
+        syncThemeUI();
+        syncSoundUI();
+        if (state.screen !== 'title') updateHUD();
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        save.theme = theme;
+        persistSave();
+        boardCache = null;
+        syncThemeUI();
+      }
+
+      function syncThemeUI() {
+        const isD = save.theme === 'deepam';
+        const ico = isD ? '&#129684;' : '&#9728;&#65039;';
+        document.getElementById('btn-theme').innerHTML = ico;
+        document.getElementById('btn-title-theme').innerHTML = ico;
+        document.getElementById('btn-m-theme').innerHTML = `${ico} ${isD ? t('themeDeepam') : t('themeSunlit')}`;
+      }
+
+      function syncSoundUI() {
+        const ico = audio.muted ? '&#128263;' : '&#128266;';
+        document.getElementById('btn-sound').innerHTML = ico;
+        document.getElementById('btn-title-sound').innerHTML = ico;
+        document.getElementById('btn-m-sound').innerHTML = `${ico} ${audio.muted ? t('soundOff') : t('soundOn')}`;
+      }
+
+      function toggleSound() {
+        audio.unlock();
+        audio.muted = !audio.muted;
+        save.muted = audio.muted;
+        persistSave();
+        syncSoundUI();
+      }
+
+      function downloadStandaloneHTML() {
+        try {
+          const blob = new Blob([CLEAN_SOURCE_HTML], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'aadu-puli-aattam.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showToast(t('savedHtml'));
+        } catch (e) {
+          showToast('Download blocked by browser');
+        }
+      }
+
+      // Wire P2P Events
+      net.onStatus = (kind, text) => {
+        document.getElementById('p2p-dot').className = 's-dot' + (kind ? ` ${kind}` : '');
+        document.getElementById('p2p-status').textContent = text;
+      };
+
+      net.onConnected = (role) => {
+        audio.playTaunt();
+        startMatch('p2p', role);
+        showToast(role === 'G' ? 'Connected as GOATS (Host)!' : 'Connected as TIGERS (Guest)!');
+      };
+
+      net.onDisconnected = () => {
+        if (state.mode === 'p2p' && state.screen !== 'title') {
+          showToast('Opponent disconnected');
+        }
+      };
+
+      net.onMessage = (msg) => {
+        if (msg.type === 'MOVE' && msg.move) {
+          performMove(msg.move, true);
+        } else if (msg.type === 'TAUNT' && msg.emoji) {
+          showTauntPopup(msg.emoji);
+        } else if (msg.type === 'REMATCH') {
+          state.rivalRematch = true;
+          if (state.myRematch) {
+            const swapped = state.myRole === 'G' ? 'T' : 'G';
+            net.myRole = swapped;
+            startMatch('p2p', swapped);
+          } else {
+            document.getElementById('ui-win-again').textContent = t('rematchAsk');
+            audio.playTaunt();
+          }
+        }
+      };
+
+      // Wire Title Controls
+      document.getElementById('lang-en').addEventListener('click', () => { save.lang = 'en'; persistSave(); applyTranslations(); });
+      document.getElementById('lang-ta').addEventListener('click', () => { save.lang = 'ta'; persistSave(); applyTranslations(); });
+
+      function syncSoloConfigUI() {
+        document.getElementById('role-G').classList.toggle('active', save.soloRole === 'G');
+        document.getElementById('role-T').classList.toggle('active', save.soloRole === 'T');
+        document.getElementById('diff-classic').classList.toggle('active', save.aiDiff === 'classic');
+        document.getElementById('diff-smart').classList.toggle('active', save.aiDiff === 'smart');
+        state.aiDiff = save.aiDiff;
+      }
+      document.getElementById('role-G').addEventListener('click', () => { save.soloRole = 'G'; persistSave(); syncSoloConfigUI(); });
+      document.getElementById('role-T').addEventListener('click', () => { save.soloRole = 'T'; persistSave(); syncSoloConfigUI(); });
+      document.getElementById('diff-classic').addEventListener('click', () => { save.aiDiff = 'classic'; persistSave(); syncSoloConfigUI(); });
+      document.getElementById('diff-smart').addEventListener('click', () => { save.aiDiff = 'smart'; persistSave(); syncSoloConfigUI(); });
+
+      document.getElementById('btn-start-solo').addEventListener('click', () => { audio.unlock(); audio.playSelect(); startMatch('solo'); });
+      document.getElementById('btn-start-pass').addEventListener('click', () => { audio.unlock(); audio.playSelect(); startMatch('pass'); });
+      document.getElementById('btn-open-p2p').addEventListener('click', () => {
+        audio.unlock(); audio.playSelect();
+        net.status('', t('statusReady'));
+        const m = document.getElementById('modal-p2p');
+        m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
+      });
+
+      // Top HUD & Menu Wiring
+      document.getElementById('btn-undo').addEventListener('click', undoLastMove);
+      document.getElementById('btn-sound').addEventListener('click', toggleSound);
+      document.getElementById('btn-title-sound').addEventListener('click', toggleSound);
+      document.getElementById('btn-m-sound').addEventListener('click', toggleSound);
+
+      const toggleTheme = () => applyTheme(save.theme === 'deepam' ? 'sunlit' : 'deepam');
+      document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+      document.getElementById('btn-title-theme').addEventListener('click', toggleTheme);
+      document.getElementById('btn-m-theme').addEventListener('click', toggleTheme);
+
+      document.getElementById('btn-menu').addEventListener('click', () => {
+        const m = document.getElementById('modal-menu');
+        m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
+      });
+
+      const openRules = () => {
+        closeAllModals();
+        const m = document.getElementById('modal-rules');
+        m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
+      };
+      document.getElementById('btn-title-rules').addEventListener('click', openRules);
+      document.getElementById('btn-m-rules').addEventListener('click', openRules);
+
+      document.getElementById('btn-title-dl').addEventListener('click', downloadStandaloneHTML);
+      document.getElementById('btn-m-download').addEventListener('click', downloadStandaloneHTML);
+
+      document.getElementById('btn-m-restart').addEventListener('click', () => {
+        if (state.mode === 'p2p' && net.connected) {
+          state.myRematch = true;
+          net.send({ type: 'REMATCH' });
+          showToast(t('rematchWait'));
+          closeAllModals();
+        } else {
+          startMatch(state.mode);
+        }
+      });
+      document.getElementById('btn-m-title').addEventListener('click', showTitle);
+      document.getElementById('btn-win-menu').addEventListener('click', showTitle);
+
+      document.getElementById('btn-win-again').addEventListener('click', () => {
+        if (state.mode === 'p2p' && net.connected) {
+          state.myRematch = true;
+          net.send({ type: 'REMATCH' });
+          if (state.rivalRematch) {
+            const swapped = state.myRole === 'G' ? 'T' : 'G';
+            net.myRole = swapped;
+            startMatch('p2p', swapped);
+          } else {
+            document.getElementById('ui-win-again').textContent = t('rematchWait');
+          }
+        } else {
+          startMatch(state.mode);
+        }
+      });
+
+      // Modal Close Buttons
+      document.getElementById('btn-close-p2p').addEventListener('click', () => { if (!net.connected) net.disconnect(); closeAllModals(); });
+      document.getElementById('btn-close-menu').addEventListener('click', closeAllModals);
+      document.getElementById('btn-close-rules').addEventListener('click', closeAllModals);
+      ['modal-menu', 'modal-rules'].forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => { if (e.target.id === id) closeAllModals(); });
+      });
+
+      // P2P Lobby Tabs & Handshake Buttons
+      document.getElementById('tab-rtc').addEventListener('click', () => {
+        document.getElementById('tab-rtc').classList.add('active');
+        document.getElementById('tab-bc').classList.remove('active');
+        document.getElementById('pane-rtc').classList.add('active');
+        document.getElementById('pane-bc').classList.remove('active');
+      });
+      document.getElementById('tab-bc').addEventListener('click', () => {
+        document.getElementById('tab-bc').classList.add('active');
+        document.getElementById('tab-rtc').classList.remove('active');
+        document.getElementById('pane-bc').classList.add('active');
+        document.getElementById('pane-rtc').classList.remove('active');
+      });
+
+      const hTab = document.getElementById('btn-rtc-host-tab');
+      const gTab = document.getElementById('btn-rtc-guest-tab');
+      hTab.addEventListener('click', () => {
+        hTab.className = 'btn-brass'; gTab.className = 'btn-wood';
+        document.getElementById('rtc-host-box').style.display = 'flex';
+        document.getElementById('rtc-guest-box').style.display = 'none';
+      });
+      gTab.addEventListener('click', () => {
+        gTab.className = 'btn-brass'; hTab.className = 'btn-wood';
+        document.getElementById('rtc-host-box').style.display = 'none';
+        document.getElementById('rtc-guest-box').style.display = 'flex';
+      });
+
+      document.getElementById('btn-make-offer').addEventListener('click', async () => {
+        try {
+          const code = await net.createOffer();
+          document.getElementById('txt-offer-out').value = code;
+          if (copySafe(code)) showToast(t('copied'));
+        } catch (err) {
+          net.status('err', 'WebRTC Error: ' + err.message);
+        }
+      });
+      document.getElementById('btn-copy-offer').addEventListener('click', () => {
+        if (copySafe(document.getElementById('txt-offer-out').value)) showToast(t('copied'));
+      });
+      document.getElementById('btn-accept-answer').addEventListener('click', async () => {
+        try {
+          const code = document.getElementById('txt-answer-in').value.trim();
+          if (!code) return;
+          await net.acceptAnswer(code);
+        } catch (err) {
+          net.status('err', 'Invalid Reply Code');
+        }
+      });
+      document.getElementById('btn-make-answer').addEventListener('click', async () => {
+        try {
+          const code = document.getElementById('txt-offer-in').value.trim();
+          if (!code) return;
+          const ans = await net.createAnswer(code);
+          document.getElementById('txt-answer-out').value = ans;
+          if (copySafe(ans)) showToast(t('copied'));
+        } catch (err) {
+          net.status('err', 'Invalid Invite Code');
+        }
+      });
+      document.getElementById('btn-copy-answer').addEventListener('click', () => {
+        if (copySafe(document.getElementById('txt-answer-out').value)) showToast(t('copied'));
+      });
+
+      document.getElementById('btn-copy-bc').addEventListener('click', () => {
+        if (copySafe(document.getElementById('inp-bc-room').value)) showToast(t('copied'));
+      });
+      document.getElementById('btn-connect-bc').addEventListener('click', () => {
+        net.connectBroadcast(document.getElementById('inp-bc-room').value);
+      });
+
+      // P2P Quick Emoji Taunts
+      document.querySelectorAll('.taunt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const em = btn.getAttribute('data-em');
+          if (net.connected) net.send({ type: 'TAUNT', emoji: em });
+          showTauntPopup(em);
+        });
+      });
+
+      /* ========================================================================
+         14. MAIN ANIMATION LOOP & BOOTSTRAP
+         ======================================================================== */
+      let lastTime = performance.now();
+
+      function loop(now) {
+        const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
+        lastTime = now;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      window.onload = function () {
+        applyTheme(save.theme || 'sunlit');
+        syncSoloConfigUI();
+        applyTranslations();
+        resizeCanvas();
+        showTitle();
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+      };
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "AADU PULI AATTAM — ஆடுபுலி ஆட்டம்",
+  "short_name": "Aadu Puli",
+  "description": "Classic Tamil strategy board game. 3 tigers vs 15 goats — trap the tigers or hunt the goats. Play against the computer.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2B140B",
+  "theme_color": "#EAB308",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
