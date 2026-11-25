@@ -1776,7 +1776,7 @@
   <!-- 0.8s Sleek Boot Splash Screen -->
   <div id="boot-splash" aria-hidden="true">
     <div class="boot-logo-wrap">
-      <img id="boot-logo-img" src="1000064433_2.png" alt="MINNAL AUTO" />
+      <img id="boot-logo-img" src="minnal-logo.png" alt="MINNAL AUTO" />
     </div>
     <div class="boot-bar"><div class="boot-bar-fill"></div></div>
   </div>
@@ -1799,7 +1799,7 @@
     <div class="hero-logo-stage">
       <div class="speed-rays" aria-hidden="true"></div>
       <div class="logo-frame">
-        <img id="brand-logo" src="1000064433_2.png" alt="MINNAL AUTO" />
+        <img id="brand-logo" src="minnal-logo.png" alt="MINNAL AUTO" />
         <!-- High-Craft Vector Emblem matching the MINNAL AUTO artwork (shown if PNG file is not loaded yet) -->
         <svg id="brand-logo-fallback" viewBox="0 0 560 285" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MINNAL AUTO">
           <defs>
@@ -2164,7 +2164,7 @@
       });
 
       elBootLogo.addEventListener('error', () => {
-        if (elBootLogo.getAttribute('src') === '1000064433_2.png') {
+        if (elBootLogo.getAttribute('src') === 'minnal-logo.png') {
           elBootLogo.src = '1000064433.png';
           return;
         }
@@ -4150,7 +4150,7 @@
         const dataUri = getInlineLogoDataURI();
         if (dataUri) {
           htmlOut = htmlOut
-            .replaceAll('src="1000064433_2.png"', `src="${dataUri}"`)
+            .replaceAll('src="minnal-logo.png"', `src="${dataUri}"`)
             .replaceAll('src="1000064433.png"', `src="${dataUri}"`);
         }
         if (downloadFile(htmlOut, 'minnal-auto.html', 'text/html;charset=utf-8')) {

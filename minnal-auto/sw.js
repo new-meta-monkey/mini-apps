@@ -3,7 +3,7 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './1000064433_2.png',
+  './minnal-logo.png',
   './icon-192.png',
   './icon-512.png',
 ];
