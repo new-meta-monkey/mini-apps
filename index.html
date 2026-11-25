@@ -22,6 +22,7 @@
   <meta name="theme-color" content="#FFF9F0" />
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101828" />
   <meta name="color-scheme" content="light dark" />
+  <script>try{var t=localStorage.getItem('mini-apps-theme-v1');if(t==='light'||t==='dark'){document.querySelector('meta[name="color-scheme"]').content=t;}}catch(e){}</script>
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-180.png" />
@@ -52,7 +53,11 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
-    :root { color-scheme: light dark; }
+    :root {
+      color-scheme: light dark;
+      &:has(> head > meta[name="color-scheme"][content="dark"]) { color-scheme: dark; }
+      &:has(> head > meta[name="color-scheme"][content="light"]) { color-scheme: light; }
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Nunito', system-ui, sans-serif;
@@ -398,8 +403,49 @@
       .sheet-body ul { font-size: 14px; }
     }
 
-    /* ---------- Dark theme: follows the system setting (prefers-color-scheme) ---------- */
+    /* ---------- Dark theme: follows the system setting, or the user's saved choice ---------- */
+    /* Dark when the system is dark and the user has not picked Light ... */
     @media (prefers-color-scheme: dark) {
+      :root:not(:has(> head > meta[name="color-scheme"][content="light"])) {
+
+      body { background: #101828; color: #F5EFE6; }
+      .gear, .github-link { color: #F5EFE6; background: #1B2A4A; border-color: #2E3D5C; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }
+      .gear:hover, .github-link:hover { border-color: #8B7CFF; color: #8B7CFF; }
+      .gear:focus-visible, .github-link:focus-visible { outline-color: #8B7CFF; }
+      header p { color: #A8B4C9; }
+      .search { color: #F5EFE6; background: #1B2A4A; border-color: #2E3D5C; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }
+      .search:focus { border-color: #8B7CFF; box-shadow: 0 0 0 3px rgba(139, 124, 255, 0.25); }
+      .chip { color: #A8B4C9; background: #1B2A4A; border-color: #2E3D5C; }
+      .chip.active { background: #FFF9F0; color: #1B2A4A; border-color: #FFF9F0; }
+      .undo-bar { background: #0F3D3A; border-color: #2EC4B6; color: #D8F5F1; }
+      .undo-bar button { color: #06231F; background: #2EC4B6; }
+      .card { background: #1B2A4A; border-color: #2E3D5C; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4); }
+      .card img { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); }
+      .card-star { color: #5A6478; background: #2E3D5C; border-color: #3D4E6E; }
+      .card-star.fav { color: #E8A100; }
+      .cat { color: #A8B4C9; background: #2E3D5C; border-color: #3D4E6E; }
+      .card p { color: #A8B4C9; }
+      .install-note { color: #93A1B8; }
+      .empty { color: #A8B4C9; }
+      .overlay { background: rgba(4, 8, 18, 0.65); }
+      .sheet { background: #1B2A4A; box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5); }
+      .sheet-handle { background: #4A5878; }
+      .sheet-close { background: #2E3D5C; color: #F5EFE6; }
+      .sheet-body img.app-icon { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); }
+      .sheet-body h2 { color: #F5EFE6; }
+      .sheet-body .tagline { color: #A8B4C9; }
+      .sheet-section-title { color: #93A1B8; }
+      .sheet-body ul { color: #A8B4C9; }
+      .ghost-btn { color: #F5EFE6; background: #2E3D5C; border-color: #3D4E6E; }
+      .sheet-body .last-backup { color: #93A1B8; }
+      footer { color: #93A1B8; }
+      footer a { color: #A8B4C9; }
+      noscript div { color: #A8B4C9 !important; }
+      }
+    }
+    /* ... or whenever the user picked Dark in Settings. */
+    :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+
       body { background: #101828; color: #F5EFE6; }
       .gear, .github-link { color: #F5EFE6; background: #1B2A4A; border-color: #2E3D5C; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }
       .gear:hover, .github-link:hover { border-color: #8B7CFF; color: #8B7CFF; }
@@ -436,9 +482,20 @@
     }
     /* Phones keep the plain list rows in dark mode too (no solid cards). */
     @media (prefers-color-scheme: dark) and (max-width: 1023px) {
+      :root:not(:has(> head > meta[name="color-scheme"][content="light"])) {
+
       .card { background: transparent; border-bottom-color: #2E3D5C; }
       .card .cat { background: transparent; border: none; color: #93A1B8; }
       .card-star { background: transparent; border: none; }
+      }
+    }
+    @media (max-width: 1023px) {
+      :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+
+      .card { background: transparent; border-bottom-color: #2E3D5C; }
+      .card .cat { background: transparent; border: none; color: #93A1B8; }
+      .card-star { background: transparent; border: none; }
+      }
     }
   </style>
 </head>
@@ -773,6 +830,13 @@ function openSettingsSheet() {
   document.getElementById('sheetBody').innerHTML =
     '<h2>Settings</h2>'
     + '<p class="tagline">Your apps and their data stay on this device. Back up before switching phones.</p>'
+    + '<div class="sheet-section-title">Theme</div>'
+    + '<div class="chips" id="themeChips">'
+    + '<button type="button" class="chip" data-theme="system">System</button>'
+    + '<button type="button" class="chip" data-theme="light">Light</button>'
+    + '<button type="button" class="chip" data-theme="dark">Dark</button>'
+    + '</div>'
+    + '<span class="install-note" id="themeNote"></span>'
     + '<div class="sheet-actions">'
     + '<button type="button" class="ghost-btn wide" id="settingsBackupBtn">Backup all apps</button>'
     + '<button type="button" class="ghost-btn wide" id="settingsRestoreBtn">Restore from backup</button>'
@@ -780,6 +844,9 @@ function openSettingsSheet() {
     + '</div>'
     + '<span id="settingsLastBackup" class="last-backup"></span>'
     + '<span class="install-note">Backup downloads one file with all three apps&rsquo; data. Restore replaces the data in the apps it covers and keeps a safety copy you can undo.</span>';
+  document.getElementById('themeChips').querySelectorAll('.chip').forEach(function (b) {
+    b.addEventListener('click', function () { applyTheme(b.getAttribute('data-theme')); });
+  });
   document.getElementById('settingsBackupBtn').addEventListener('click', function () {
     backupAll();
     showLastBackup();
@@ -790,9 +857,62 @@ function openSettingsSheet() {
   document.getElementById('settingsUpdateBtn').addEventListener('click', function () {
     checkForUpdates(this);
   });
+  renderThemeRow();
   showLastBackup();
   showSheet();
+} 
+/* ---------- Theme choice: System (default) / Light / Dark, saved in localStorage ---------- */
+
+var THEME_KEY = 'mini-apps-theme-v1';
+
+function getTheme() {
+  try {
+    var v = localStorage.getItem(THEME_KEY);
+    return (v === 'light' || v === 'dark') ? v : 'system';
+  } catch (e) { return 'system'; }
 }
+
+function systemIsDark() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function applyTheme(mode) {
+  var meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.content = mode === 'system' ? 'light dark' : mode;
+  try {
+    if (mode === 'system') { localStorage.removeItem(THEME_KEY); }
+    else { localStorage.setItem(THEME_KEY, mode); }
+  } catch (e) {}
+  renderThemeRow();
+}
+
+function renderThemeRow() {
+  var box = document.getElementById('themeChips');
+  if (!box) return;
+  var cur = getTheme();
+  var btns = box.querySelectorAll('.chip');
+  btns.forEach(function (b) {
+    var mode = b.getAttribute('data-theme');
+    b.classList.toggle('active', mode === cur);
+    if (mode === 'system') { b.textContent = 'System (' + (systemIsDark() ? 'Dark' : 'Light') + ')'; }
+  });
+  var note = document.getElementById('themeNote');
+  if (note) {
+    note.textContent = cur === 'system'
+      ? 'Following your phone\u2019s setting.'
+      : 'Using ' + cur + ' theme. Pick System to follow your phone again.';
+  }
+}
+
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+    if (sheetKind === 'settings') renderThemeRow();
+  });
+  window.addEventListener('storage', function (ev) {
+    if (ev.key === THEME_KEY) { applyTheme(getTheme()); }
+  });
+}
+
 
 function checkForUpdates(btn) {
   if (btn) { btn.textContent = 'Checking\u2026'; btn.disabled = true; }
