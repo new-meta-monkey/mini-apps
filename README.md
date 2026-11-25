@@ -10,6 +10,7 @@ https://new-meta-monkey.github.io/mini-apps/
 | Wonder Kids GK | `wonder-kids-gk/` | Kids' general knowledge: flip-card learning + Challenge quiz, 11 topics, Supabase leaderboard |
 | SleepPulse | `sleep-pulse/` | One-click sleep tracker: log bedtime and wake-up, weekly chart, private local storage |
 | ShopPulse | `shop-pulse/` | Offline shop manager: POS billing, stock, sales, expenses, customers, reports, multi-shop |
+| PolyPrism 3D | `polyprism-3d/` | Colorful geometric physics game: launch rainbow marbles, bounce off trampolines, pop the blocks, levels + endless mode |
 
 Each app is its own installable PWA (own `manifest.json` + `sw.js`, scoped to its
 folder), so it installs separately on a phone with its own icon and works offline.

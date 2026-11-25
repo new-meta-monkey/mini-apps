@@ -1,0 +1,19 @@
+{
+  "name": "PolyPrism 3D \u2014 Colorful Geometric Ricochet",
+  "short_name": "PolyPrism 3D",
+  "description": "Colorful geometric physics game. Launch glossy rainbow marbles, bounce off squishy trampolines, split through spinning crystal prisms, and pop all the cute 3D blocks.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e1b4b",
+  "theme_color": "#EC4899",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
