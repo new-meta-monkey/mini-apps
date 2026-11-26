@@ -15,6 +15,17 @@
     @supports (height: 100dvh) {
       body { height: 100dvh; }
       #chatPanel { height: 100dvh; }
+      #connectionModalCard { max-height: 92dvh; }
+    }
+    /* Bottom sheet on phones: the connection popup slides up from the
+       bottom instead of floating centered, so its title is never clipped
+       by the browser bars. Desktop keeps the centered dialog. */
+    @media (max-width: 639px) {
+      #connectionModalCard { animation: sheet-up .28s cubic-bezier(.32,.72,.35,1); }
+    }
+    @keyframes sheet-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
     }
   </style>
   <title>PeerLink — P2P Video, Chat &amp; Binary File Share</title>
@@ -443,8 +454,13 @@
   </main>
 
   <!-- ==================== CONNECTION DRAWER / MODAL ==================== -->
-  <div id="connectionModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
-    <div id="connectionModalCard" class="w-full max-w-lg max-h-[92vh] bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+  <div id="connectionModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+    <div id="connectionModalCard" class="w-full sm:max-w-lg max-h-[92vh] bg-slate-900 border border-slate-700/80 rounded-t-3xl rounded-b-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+
+      <!-- Bottom-sheet drag handle (phones only): drag down to close -->
+      <div id="sheetHandle" class="sm:hidden pt-2.5 pb-1 shrink-0 flex justify-center cursor-grab active:cursor-grabbing touch-none" aria-hidden="true">
+        <span class="block w-10 h-1.5 rounded-full bg-slate-600"></span>
+      </div>
 
       <!-- Modal Header -->
       <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
@@ -485,7 +501,7 @@
       </div>
 
       <!-- Modal Scrollable Content -->
-      <div class="p-5 overflow-y-auto space-y-5 flex-1">
+      <div class="p-5 overflow-y-auto overscroll-contain space-y-5 flex-1">
 
         <!-- ==================== TAB 1: QUICK CONNECT (PeerJS) ==================== -->
         <div id="panelQuickConnect" class="space-y-4">
@@ -998,6 +1014,8 @@
 
         // Connection Modal
         connectionModal: document.getElementById('connectionModal'),
+        connectionModalCard: document.getElementById('connectionModalCard'),
+        sheetHandle: document.getElementById('sheetHandle'),
         closeModalBtn: document.getElementById('closeModalBtn'),
         tabQuickConnect: document.getElementById('tabQuickConnect'),
         tabManualMode: document.getElementById('tabManualMode'),
@@ -3929,11 +3947,15 @@
           switchModalTab(preferredTab);
         }
         dom.connectionModal.classList.remove('hidden');
+        dom.connectionModalCard.style.transform = '';
+        dom.connectionModalCard.style.transition = '';
         dom.disconnectBtn.classList.toggle('hidden', state.connectionStatus === 'disconnected');
       }
 
       function closeConnectionModal() {
         dom.connectionModal.classList.add('hidden');
+        dom.connectionModalCard.style.transform = '';
+        dom.connectionModalCard.style.transition = '';
       }
 
       function switchModalTab(tab) {
@@ -4106,6 +4128,33 @@
         dom.connectionModal.addEventListener('click', (e) => {
           if (e.target === dom.connectionModal) closeConnectionModal();
         });
+        // Bottom-sheet swipe down to close (phones): drag the handle down
+        // to dismiss. Only the handle drags; the content area keeps its
+        // own scroll.
+        let sheetDragY = null;
+        dom.sheetHandle.addEventListener('pointerdown', (e) => {
+          sheetDragY = e.clientY;
+          dom.sheetHandle.setPointerCapture(e.pointerId);
+        });
+        dom.sheetHandle.addEventListener('pointermove', (e) => {
+          if (sheetDragY === null) return;
+          const dy = e.clientY - sheetDragY;
+          if (dy > 0) dom.connectionModalCard.style.transform = 'translateY(' + dy + 'px)';
+        });
+        const endSheetDrag = (e) => {
+          if (sheetDragY === null) return;
+          const dy = e.clientY - sheetDragY;
+          sheetDragY = null;
+          if (dy > 90) {
+            closeConnectionModal();
+          } else {
+            dom.connectionModalCard.style.transition = 'transform .2s ease-out';
+            dom.connectionModalCard.style.transform = '';
+            setTimeout(() => { dom.connectionModalCard.style.transition = ''; }, 220);
+          }
+        };
+        dom.sheetHandle.addEventListener('pointerup', endSheetDrag);
+        dom.sheetHandle.addEventListener('pointercancel', endSheetDrag);
         dom.tabQuickConnect.addEventListener('click', () => switchModalTab('peerjs'));
         dom.tabManualMode.addEventListener('click', () => switchModalTab('manual'));
         dom.switchToManualBtn.addEventListener('click', () => switchModalTab('manual'));
