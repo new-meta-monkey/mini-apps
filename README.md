@@ -23,3 +23,4 @@ folder), so it installs separately on a phone with its own icon and works offlin
    (relative `scope`/`start_url`), `sw.js` and icon.
 2. Add a card for it on the dashboard `index.html` and in the table above.
 3. Push to `main` — GitHub Pages serves it automatically.
+| PeerLink | `peerlink/` | P2P video, chat and file share (up to 50 MB) over WebRTC; Quick Connect via PeerJS cloud or Manual Mode with no server; needs internet |
