@@ -407,6 +407,18 @@
           <span id="chatStatusPill" class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800 text-slate-400 border border-slate-700/70">Offline</span>
         </div>
         <div class="flex items-center gap-1">
+          <!-- Start Audio Call Button -->
+          <button
+            id="chatAudioBtn"
+            type="button"
+            class="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            title="Audio call"
+            aria-label="Start audio call"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+            </svg>
+          </button>
           <!-- Start / Open Video Call Button -->
           <button
             id="chatCallBtn"
@@ -640,7 +652,7 @@
                 id="displayNameInput"
                 type="text"
                 maxlength="30"
-                placeholder="e.g. Karthick"
+                placeholder="Your display name"
                 autocomplete="off"
                 class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
               />
@@ -1270,6 +1282,7 @@
         groupMembersBar: document.getElementById('groupMembersBar'),
         chatTitle: document.getElementById('chatTitle'),
         chatCallBtn: document.getElementById('chatCallBtn'),
+        chatAudioBtn: document.getElementById('chatAudioBtn'),
         callBtnDot: document.getElementById('callBtnDot'),
         displayNameInput: document.getElementById('displayNameInput'),
         callNotifyToggle: document.getElementById('callNotifyToggle'),
@@ -4592,10 +4605,16 @@
       function renderChatsList() {
         return loadChats().then((rows) => {
           dom.chatsList.innerHTML = '';
+          // No chats yet: the start actions live in the empty area itself, not
+          // as small header icons a first-time user would miss.
+          dom.newChatBtn.classList.toggle('hidden', !rows.length);
+          dom.newGroupBtn.classList.toggle('hidden', !rows.length);
           if (!rows.length) {
             const empty = document.createElement('div');
             empty.className = 'px-4 py-8 text-center';
-            empty.innerHTML = '<p class="text-sm font-medium text-slate-300 mb-1">No chats yet</p><p class="text-xs text-slate-500 leading-relaxed">Connect to a peer or create a group to start chatting.</p>';
+            empty.innerHTML = '<p class="text-sm font-medium text-slate-300 mb-1">No chats yet</p><p class="text-xs text-slate-500 leading-relaxed mb-4">PeerLink connects your browser straight to your friend\'s browser. No account, no server.</p><button id="emptyStartChatBtn" type="button" class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition cursor-pointer">Start a chat</button><button id="emptyCreateGroupBtn" type="button" class="mt-2 w-full px-4 py-1.5 text-xs font-medium text-indigo-300 hover:text-indigo-200 transition cursor-pointer">Create a group</button>';
+            document.getElementById('emptyStartChatBtn').addEventListener('click', () => openConnectionModal());
+            document.getElementById('emptyCreateGroupBtn').addEventListener('click', () => openConnectionModal());
             dom.chatsList.appendChild(empty);
             return;
           }
@@ -4735,6 +4754,55 @@
         // Connected but no media yet: get camera/mic; the existing auto-call in
         // attachLocalStream upgrades the session, then open the call screen.
         if (!state.localStream) requestLocalMedia(false);
+        openCallView();
+      }
+
+      // Audio-only media: microphone on, camera off from the start. Reuses
+      // attachLocalStream, which sets isCamOff when the stream has no video
+      // track and upgrades a PeerJS chat-only session to media.
+      async function requestAudioOnlyMedia() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          enterChatOnlyMode(
+            'Microphone API is unavailable in this browser context (HTTPS or localhost required). Running in Chat-Only mode.',
+            false
+          );
+          return false;
+        }
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true },
+            video: false,
+          });
+          attachLocalStream(stream);
+          dom.mediaNoticeBanner.classList.add('hidden');
+          showToast('Microphone enabled', 'success');
+          return true;
+        } catch (err) {
+          console.warn('Audio-only request failed:', err);
+          let reason = 'Microphone access was denied or unavailable. You can still connect in Chat-Only mode.';
+          if (err && err.name === 'NotAllowedError') {
+            reason = 'Microphone permission was denied or blocked by an embedded frame. Allow microphone in browser settings, or continue in Chat-Only mode.';
+          } else if (err && err.name === 'NotFoundError') {
+            reason = 'No microphone hardware detected. You can continue in Chat-Only mode.';
+          }
+          enterChatOnlyMode(reason, false);
+          return false;
+        }
+      }
+
+      function onChatAudioButton() {
+        if (state.connectionStatus !== 'connected') {
+          openConnectionModal();
+          return;
+        }
+        if (isInCall()) {
+          openCallView();
+          return;
+        }
+        // Connected but no media yet: microphone only, camera stays off. If a
+        // video stream is already attached, replace it with audio-only so the
+        // call never sends video.
+        if (!state.localStream || state.localStream.getVideoTracks().length) requestAudioOnlyMedia();
         openCallView();
       }
 
@@ -5655,6 +5723,9 @@
 
         // PeerLink v2: video-call button in the chat header.
         dom.chatCallBtn.addEventListener('click', onChatCallButton);
+
+        // Flow redesign: audio-call button in the chat header.
+        dom.chatAudioBtn.addEventListener('click', onChatAudioButton);
 
         // PeerLink v2: new chat / new group buttons open the connection modal.
         dom.newChatBtn.addEventListener('click', () => openConnectionModal());
