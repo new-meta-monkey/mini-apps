@@ -307,13 +307,13 @@
               </svg>
             </button>
 
-            <!-- Hang Up / Reset -->
+            <!-- End Call (keeps the peer connection) -->
             <button
               id="hangupBtn"
               type="button"
               class="p-3 rounded-xl bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white shadow-lg shadow-rose-600/25 transition-all cursor-pointer"
-              title="Hang Up / Reset Connection"
-              aria-label="Hang Up and Reset"
+              title="End Call"
+              aria-label="End Call"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
@@ -747,6 +747,19 @@
           </div>
         </div>
 
+        <!-- Disconnect: fully closes the peer link (the explicit close) -->
+        <div class="rounded-xl bg-slate-950/70 border border-rose-500/40 p-3.5 space-y-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-rose-300">Disconnect</span>
+          <p class="text-[11px] text-slate-400">Fully closes the connection to this peer. Chat, files and call history are cleared. Use End Call (red button) to stop only the video.</p>
+          <button
+            id="disconnectBtn"
+            type="button"
+            class="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white text-sm font-semibold transition cursor-pointer"
+          >
+            Disconnect from peer
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -990,6 +1003,7 @@
         tabManualMode: document.getElementById('tabManualMode'),
         panelQuickConnect: document.getElementById('panelQuickConnect'),
         panelManualMode: document.getElementById('panelManualMode'),
+        disconnectBtn: document.getElementById('disconnectBtn'),
         fileLimitSelector: document.getElementById('fileLimitSelector'),
 
         // Quick Connect Elements
@@ -2214,6 +2228,9 @@
             state.remoteCamOff = !!payload.camOff;
             state.remoteMicMuted = !!payload.micMuted;
             updateVideoStageUI();
+          } else if (payload.action === 'call-ended') {
+            showToast('Remote peer ended the call.', 'info');
+            endCall({ notifyPeer: false });
           } else if (payload.action === 'hangup') {
             showToast('Remote peer ended the call.', 'info');
             cleanupSession({ notifyPeer: false });
@@ -3028,12 +3045,23 @@
           : 'max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm leading-relaxed bg-slate-800 border border-slate-700/80 text-slate-100 shadow break-words whitespace-pre-wrap';
         bubble.textContent = text;
 
+        const metaRow = document.createElement('div');
+        metaRow.className = 'flex items-center gap-1 mt-1 px-1';
         const meta = document.createElement('span');
-        meta.className = 'text-[10px] text-slate-500 mt-1 px-1';
+        meta.className = 'text-[10px] text-slate-500';
         meta.textContent = `${isLocal ? 'You' : 'Peer'} • ${customTime || getTimeString()}`;
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer';
+        copyBtn.title = 'Copy message';
+        copyBtn.setAttribute('aria-label', 'Copy message');
+        copyBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>';
+        copyBtn.addEventListener('click', () => copyToClipboard(text, 'Message'));
+        metaRow.appendChild(meta);
+        metaRow.appendChild(copyBtn);
 
         wrapper.appendChild(bubble);
-        wrapper.appendChild(meta);
+        wrapper.appendChild(metaRow);
         dom.chatMessages.appendChild(wrapper);
         dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
 
@@ -3775,6 +3803,50 @@
         }
       }
 
+        /**
+         * Ends only the video/audio call. The peer connection, chat and file
+         * channels, and chat history all stay alive, so the two of you can
+         * keep messaging or sharing files, or start video again, without
+         * reconnecting. Use cleanupSession() only for an explicit Disconnect.
+         */
+        function endCall({ notifyPeer = true } = {}) {
+          if (notifyPeer && isChatChannelOpen()) {
+            sendChatControl({ action: 'call-ended' });
+          }
+          if (state.isScreenSharing) {
+            stopScreenShare();
+          }
+          // Quick Connect: the media call is its own connection, close only it.
+          if (state.currentMediaConn) {
+            try { state.currentMediaConn.close(); } catch {}
+            state.currentMediaConn = null;
+          }
+          // Manual Mode: media and data share one RTCPeerConnection, so stop
+          // sending media on the existing senders instead of closing the link.
+          // replaceTrack(null) needs no renegotiation, and the sender stays,
+          // so video can be resumed on the same connection later.
+          const pc = getActiveRTCPeerConnection();
+          if (pc && typeof pc.getSenders === 'function') {
+            pc.getSenders().forEach((sender) => {
+              if (sender.track) {
+                try {
+                  if (typeof sender.replaceTrack === 'function') sender.replaceTrack(null);
+                } catch {}
+              }
+            });
+          }
+          // Clear the remote video on this side.
+          if (state.remoteStream) {
+            state.remoteStream.getTracks().forEach((t) => t.stop());
+            state.remoteStream = null;
+          }
+          dom.remoteVideo.srcObject = null;
+          dom.unmuteRemoteBtn.classList.add('hidden');
+          state.remoteCamOff = false;
+          state.remoteMicMuted = false;
+          updateVideoStageUI();
+        }
+
       // ==================== HANG UP & CLEANUP ====================
 
       /**
@@ -3857,6 +3929,7 @@
           switchModalTab(preferredTab);
         }
         dom.connectionModal.classList.remove('hidden');
+        dom.disconnectBtn.classList.toggle('hidden', state.connectionStatus === 'disconnected');
       }
 
       function closeConnectionModal() {
@@ -3931,9 +4004,13 @@
         dom.switchCamBtn.addEventListener('click', swapCamera);
         dom.screenBtn.addEventListener('click', toggleScreenShare);
         dom.hangupBtn.addEventListener('click', () => {
-          const hadConnection = state.connectionStatus !== 'disconnected';
-          cleanupSession({ notifyPeer: true, keepPeerInstance: true, revokeFiles: true });
-          showToast(hadConnection ? 'Call ended & session reset' : 'Session reset', 'info');
+          if (state.connectionStatus === 'disconnected') {
+            cleanupSession({ notifyPeer: false, keepPeerInstance: true, revokeFiles: true });
+            showToast('Session reset', 'info');
+            return;
+          }
+          endCall({ notifyPeer: true });
+          showToast('Call ended — still connected to peer', 'info');
         });
 
         // Device change listener for dynamic Switch Camera visibility
@@ -4021,6 +4098,11 @@
 
         // Connection Modal controls
         dom.closeModalBtn.addEventListener('click', closeConnectionModal);
+        dom.disconnectBtn.addEventListener('click', () => {
+          closeConnectionModal();
+          cleanupSession({ notifyPeer: true, keepPeerInstance: true, revokeFiles: true });
+          showToast('Disconnected from peer', 'info');
+        });
         dom.connectionModal.addEventListener('click', (e) => {
           if (e.target === dom.connectionModal) closeConnectionModal();
         });
