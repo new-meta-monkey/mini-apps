@@ -115,11 +115,50 @@
     </div>
   </header>
 
-  <!-- ==================== MAIN WORKSPACE: VIDEO STAGE + SIDE CHAT ==================== -->
+  <!-- ==================== MAIN WORKSPACE: CHATS HOME + CALL SCREEN + CHAT ==================== -->
   <main class="flex-1 flex overflow-hidden relative min-h-0">
 
-    <!-- ==================== VIDEO STAGE ==================== -->
-    <section class="flex-1 relative flex flex-col bg-slate-950 p-2 sm:p-4 min-w-0 min-h-0">
+    <!-- ==================== CHATS HOME (CHAT-FIRST HOME SCREEN) ==================== -->
+    <div id="chatsHomeView" class="hidden lg:flex w-full lg:w-80 shrink-0 flex-col bg-slate-950 border-r border-slate-800 min-h-0">
+      <!-- Chats Home Header -->
+      <div class="h-14 shrink-0 px-4 border-b border-slate-800 flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold text-white">Chats</h2>
+        <div class="flex items-center gap-1">
+          <button
+            id="newGroupBtn"
+            type="button"
+            class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            title="New group"
+            aria-label="New group"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <button
+            id="newChatBtn"
+            type="button"
+            class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            title="New chat"
+            aria-label="New chat"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Chats List -->
+      <div id="chatsList" class="flex-1 overflow-y-auto min-h-0"></div>
+      <!-- My Identity Footer -->
+      <div class="shrink-0 px-4 py-2.5 border-t border-slate-800 text-[11px] text-slate-500 leading-relaxed">
+        <span>Signed in as </span><span id="myIdMini" class="font-mono text-slate-300">…</span>
+        <span class="block text-slate-600">Chats are saved on this device only.</span>
+      </div>
+    </div>
+
+    <!-- ==================== VIDEO STAGE (CALL SCREEN) ==================== -->
+    <section id="videoSection" class="hidden flex-1 relative flex flex-col bg-slate-950 p-2 sm:p-4 min-w-0 min-h-0">
       <div id="videoStageContainer" class="relative flex-1 w-full h-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-800/90 shadow-2xl flex items-center justify-center">
 
         <!-- Remote Video Feed -->
@@ -129,6 +168,9 @@
           playsinline
           class="hidden w-full h-full object-cover bg-slate-950"
         ></video>
+
+        <!-- Group Video Tile Grid (one tile per member) -->
+        <div id="groupVideoGrid" class="hidden absolute inset-0 z-[5] grid grid-cols-2 auto-rows-fr gap-2 p-3 overflow-y-auto bg-slate-950"></div>
 
         <!-- Remote Audio Unmute Fallback Button (shown only if browser blocks autoplay with audio) -->
         <button
@@ -361,10 +403,23 @@
       <!-- Chat Header -->
       <div class="h-14 shrink-0 px-4 border-b border-slate-800 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
-          <h2 class="text-sm font-semibold text-white">P2P Chat</h2>
+          <h2 id="chatTitle" class="text-sm font-semibold text-white truncate max-w-[140px] sm:max-w-[200px]">P2P Chat</h2>
           <span id="chatStatusPill" class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800 text-slate-400 border border-slate-700/70">Offline</span>
         </div>
         <div class="flex items-center gap-1">
+          <!-- Start / Open Video Call Button -->
+          <button
+            id="chatCallBtn"
+            type="button"
+            class="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            title="Video call"
+            aria-label="Start or open video call"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="callBtnDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400"></span>
+          </button>
           <!-- Clear Chat & Free Memory Button -->
           <button
             id="clearChatBtn"
@@ -390,6 +445,9 @@
         </div>
       </div>
 
+      <!-- Group Members Bar (shown for group chats) -->
+      <div id="groupMembersBar" class="hidden shrink-0 px-3 py-2 border-b border-slate-800 flex flex-wrap items-center gap-1.5 overflow-x-auto"></div>
+
       <!-- Messages List -->
       <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
         <!-- Empty State -->
@@ -405,6 +463,9 @@
           </p>
         </div>
       </div>
+
+      <!-- Typing Indicator -->
+      <div id="typingIndicator" class="hidden px-4 pt-2 text-[11px] text-indigo-300 italic animate-pulse shrink-0"></div>
 
       <!-- Chat Input Form -->
       <form id="chatForm" class="p-3 border-t border-slate-800 bg-slate-900/95 shrink-0">
@@ -573,6 +634,18 @@
               </button>
             </div>
             <p class="text-[11px] text-slate-500">Share this ID with your peer so they can call you, or enter theirs below.</p>
+            <div class="pt-1">
+              <label for="displayNameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Your display name</label>
+              <input
+                id="displayNameInput"
+                type="text"
+                maxlength="30"
+                placeholder="e.g. Karthick"
+                autocomplete="off"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
+              />
+              <p class="text-[11px] text-slate-500 mt-1.5">Shown to your peers instead of your Peer ID. Saved on this device.</p>
+            </div>
           </div>
 
           <!-- Connect to Remote Peer Form -->
@@ -599,6 +672,57 @@
               </button>
             </div>
           </form>
+
+          <!-- ==================== GROUP CHANNELS (QUICK CONNECT ONLY) ==================== -->
+          <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-3">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Group Channels</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Create a room or join one with its code. Groups are Quick Connect only. Chat up to 10, audio 6, video 4 members.</p>
+            </div>
+            <div class="space-y-2">
+              <input
+                id="groupNameInput"
+                type="text"
+                maxlength="30"
+                placeholder="Group name (optional)"
+                autocomplete="off"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
+              />
+              <button
+                id="createGroupBtn"
+                type="button"
+                class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-semibold transition cursor-pointer"
+              >
+                Create Group
+              </button>
+            </div>
+            <div class="space-y-2 pt-1 border-t border-slate-800">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 pt-2">Join a Group</label>
+              <input
+                id="joinRoomCodeInput"
+                type="text"
+                placeholder="Room code, e.g. amber-falcon-482"
+                autocomplete="off"
+                spellcheck="false"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 rounded-xl px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 outline-none transition"
+              />
+              <input
+                id="joinCreatorIdInput"
+                type="text"
+                placeholder="Creator's Peer ID"
+                autocomplete="off"
+                spellcheck="false"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 rounded-xl px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 outline-none transition"
+              />
+              <button
+                id="joinGroupBtn"
+                type="button"
+                class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 border border-slate-700 text-white text-sm font-semibold transition cursor-pointer"
+              >
+                Join Group
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- ==================== TAB 2: PURE SERVERLESS MANUAL MODE ==================== -->
@@ -763,10 +887,19 @@
           </div>
         </div>
 
+        <!-- Call Notifications -->
+        <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-3.5 space-y-1.5">
+          <label class="flex items-center justify-between gap-3 cursor-pointer">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Call Notifications</span>
+            <input id="callNotifyToggle" type="checkbox" class="w-4 h-4 accent-indigo-600 shrink-0" />
+          </label>
+          <p class="text-[11px] text-slate-500 leading-relaxed">Shows a phone notification when someone calls. Only works while PeerLink is open — there is no server, so a closed app cannot be reached.</p>
+        </div>
+
         <!-- Disconnect: fully closes the peer link (the explicit close) -->
         <div class="rounded-xl bg-slate-950/70 border border-rose-500/40 p-3.5 space-y-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-rose-300">Disconnect</span>
-          <p class="text-[11px] text-slate-400">Fully closes the connection to this peer. Chat, files and call history are cleared. Use End Call (red button) to stop only the video.</p>
+          <p class="text-[11px] text-slate-400">Fully closes the connection to this peer. The live chat view is cleared, but saved history stays on this device. Use End Call (red button) to stop only the video.</p>
           <button
             id="disconnectBtn"
             type="button"
@@ -776,6 +909,43 @@
           </button>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== INCOMING CALL PROMPT ==================== -->
+  <div id="incomingCallOverlay" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6">
+    <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700/80 shadow-2xl p-6 text-center space-y-4">
+      <div class="w-20 h-20 mx-auto rounded-full bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center">
+        <svg class="w-10 h-10 text-indigo-300" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <div>
+        <p id="incomingCallerName" class="text-lg font-semibold text-white truncate">Peer</p>
+        <p class="text-xs text-slate-400 mt-1">Incoming video call…</p>
+      </div>
+      <div class="flex items-center justify-center gap-4 pt-1">
+        <button
+          id="declineCallBtn"
+          type="button"
+          class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white shadow-lg shadow-rose-600/25 transition cursor-pointer flex items-center justify-center"
+          aria-label="Decline call"
+        >
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
+          </svg>
+        </button>
+        <button
+          id="acceptCallBtn"
+          type="button"
+          class="w-16 h-16 rounded-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 transition cursor-pointer flex items-center justify-center"
+          aria-label="Accept call"
+        >
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -862,6 +1032,10 @@
 
       const CHANNEL_CHAT = 'peerlink-chat';
       const CHANNEL_FILE = 'peerlink-file';
+      const GROUP_CAPS = { chat: 10, audio: 6, video: 4 };
+      const LS_OWN_ID = 'peerlink-own-id-v1';
+      const LS_DISPLAY_NAME = 'peerlink-display-name-v1';
+      const LS_NOTIFY = 'peerlink-notify-v1';
 
       const ICE_GATHER_TIMEOUT_MS = 3000;
       const BROKER_CONNECT_TIMEOUT_MS = 8000;
@@ -945,6 +1119,23 @@
         incomingTransfers: new Map(),     // numericId -> incoming receiver state
         fileObjectUrls: [],               // Tracked Object URLs revoked on cleanup
         fileDragDepth: 0,
+
+        // PeerLink v2: identity, history, views, groups, incoming calls
+        myDisplayName: '',
+        peerNames: new Map(),            // peerId -> display name
+        currentChatId: null,             // 'dm:<peerId>' | 'group:<roomCode>'
+        currentPeerId: null,             // DM peer id ('manual' for Manual Mode)
+        remoteName: '',
+        view: 'home',                    // 'home' | 'chat' | 'call'
+        group: null,                     // group session or null
+        myGroupMedia: 'none',            // 'none' | 'audio' | 'video'
+        pendingIncomingCall: null,
+        callNotifyEnabled: false,
+        typingSentAt: 0,
+        typingIdleTimer: null,
+        remoteTypingTimer: null,
+        ringTimer: null,
+        ringAudioCtx: null,
       };
 
       // ==================== DOM ELEMENT REFERENCES ====================
@@ -1066,6 +1257,31 @@
         lightboxMeta: document.getElementById('lightboxMeta'),
         lightboxDownloadBtn: document.getElementById('lightboxDownloadBtn'),
         closeLightboxBtn: document.getElementById('closeLightboxBtn'),
+
+        // PeerLink v2
+        chatsHomeView: document.getElementById('chatsHomeView'),
+        chatsList: document.getElementById('chatsList'),
+        newChatBtn: document.getElementById('newChatBtn'),
+        newGroupBtn: document.getElementById('newGroupBtn'),
+        myIdMini: document.getElementById('myIdMini'),
+        videoSection: document.getElementById('videoSection'),
+        groupVideoGrid: document.getElementById('groupVideoGrid'),
+        typingIndicator: document.getElementById('typingIndicator'),
+        groupMembersBar: document.getElementById('groupMembersBar'),
+        chatTitle: document.getElementById('chatTitle'),
+        chatCallBtn: document.getElementById('chatCallBtn'),
+        callBtnDot: document.getElementById('callBtnDot'),
+        displayNameInput: document.getElementById('displayNameInput'),
+        callNotifyToggle: document.getElementById('callNotifyToggle'),
+        createGroupBtn: document.getElementById('createGroupBtn'),
+        groupNameInput: document.getElementById('groupNameInput'),
+        joinRoomCodeInput: document.getElementById('joinRoomCodeInput'),
+        joinCreatorIdInput: document.getElementById('joinCreatorIdInput'),
+        joinGroupBtn: document.getElementById('joinGroupBtn'),
+        incomingCallOverlay: document.getElementById('incomingCallOverlay'),
+        incomingCallerName: document.getElementById('incomingCallerName'),
+        acceptCallBtn: document.getElementById('acceptCallBtn'),
+        declineCallBtn: document.getElementById('declineCallBtn'),
       };
 
       // ==================== UTILITY HELPERS ====================
@@ -1357,14 +1573,23 @@
           state.remoteStream.getVideoTracks().some((t) => t.readyState === 'live')
         );
 
-        const showRemoteVideo = state.connectionStatus === 'connected' && hasRemoteVideoTrack && !state.remoteCamOff;
+        const groupCallActive = state.group && groupHasAnyRemoteStream();
+        const showRemoteVideo = (state.connectionStatus === 'connected' && hasRemoteVideoTrack && !state.remoteCamOff) || groupCallActive;
 
         if (showRemoteVideo) {
-          dom.remoteVideo.classList.remove('hidden');
+          if (groupCallActive) {
+            dom.remoteVideo.classList.add('hidden');
+            dom.groupVideoGrid.classList.remove('hidden');
+            dom.remoteInfoLabel.textContent = state.group.name + ' • ' + state.group.members.size + ' in group';
+          } else {
+            dom.remoteVideo.classList.remove('hidden');
+            dom.groupVideoGrid.classList.add('hidden');
+          }
           dom.stageOverlay.classList.add('hidden');
           dom.remoteInfoPill.classList.remove('hidden');
         } else {
           dom.remoteVideo.classList.add('hidden');
+          dom.groupVideoGrid.classList.add('hidden');
           dom.stageOverlay.classList.remove('hidden');
 
           if (state.connectionStatus === 'connected') {
@@ -1390,6 +1615,8 @@
         const needsMediaChoice = !state.localStream && state.connectionStatus !== 'connected';
         dom.enableMediaBtn.classList.toggle('hidden', !needsMediaChoice);
         dom.chatOnlyFallbackBtn.classList.toggle('hidden', !(needsMediaChoice && !state.isChatOnly));
+        refreshCallView();
+        updateCallButton();
       }
 
       /**
@@ -1681,6 +1908,7 @@
         updateLocalMediaUI();
         updateVideoStageUI();
         refreshVideoDevices();
+        syncGroupMedia();
       }
 
       /**
@@ -1954,6 +2182,10 @@
           requestLocalMedia(false);
           return;
         }
+        if (state.isMicMuted && state.group && groupAudioCount() >= GROUP_CAPS.audio && state.myGroupMedia === 'none') {
+          showToast(`Audio is full in this group (${GROUP_CAPS.audio} max) — staying muted.`, 'warning');
+          return;
+        }
         state.isMicMuted = !state.isMicMuted;
         state.localStream.getAudioTracks().forEach((track) => {
           track.enabled = !state.isMicMuted;
@@ -1961,6 +2193,7 @@
         updateLocalMediaUI();
         sendChatControl({ action: 'media-state', camOff: state.isCamOff, micMuted: state.isMicMuted });
         showToast(state.isMicMuted ? 'Microphone muted' : 'Microphone unmuted', 'info');
+        syncGroupMedia();
       }
 
       /**
@@ -1971,6 +2204,10 @@
           requestLocalMedia(false);
           return;
         }
+        if (state.isCamOff && state.group && groupVideoCount() >= GROUP_CAPS.video && state.myGroupMedia !== 'video') {
+          showToast(`Video is full in this group (${GROUP_CAPS.video} max) — staying chat-only.`, 'warning');
+          return;
+        }
         state.isCamOff = !state.isCamOff;
         state.localStream.getVideoTracks().forEach((track) => {
           track.enabled = !state.isCamOff;
@@ -1978,6 +2215,7 @@
         updateLocalMediaUI();
         sendChatControl({ action: 'media-state', camOff: state.isCamOff, micMuted: state.isMicMuted });
         showToast(state.isCamOff ? 'Camera turned off' : 'Camera turned on', 'info');
+        syncGroupMedia();
       }
 
       /**
@@ -2219,7 +2457,7 @@
        * Handles incoming data arriving on 'peerlink-chat' (text chat, media control,
        * and graceful fallback if remote peer sends file messages on the primary channel).
        */
-      async function handleIncomingChatData(raw) {
+      async function handleIncomingChatData(raw, ctx) {
         // Fallback: handle binary chunk if sent on primary channel
         const maybeBin = await normalizeToArrayBuffer(raw);
         if (maybeBin) {
@@ -2232,7 +2470,18 @@
           try {
             payload = JSON.parse(raw);
           } catch {
-            appendChatMessage(raw, 'remote');
+            if (ctx && ctx.chatId && ctx.chatId.startsWith('group:')) {
+              sendToGroupPeer(ctx.fromPeerId, { type: 'control', action: 'group-busy', roomCode: ctx.chatId.slice(6) });
+              return;
+            }
+            const rawChatId = (ctx && ctx.fromPeerId) ? 'dm:' + ctx.fromPeerId : state.currentChatId;
+            if (rawChatId) {
+              saveChatMessage(rawChatId, { kind: 'text', sender: 'remote', name: peerNameFor(ctx && ctx.fromPeerId), text: raw, time: getTimeString(), ts: Date.now() });
+              if (rawChatId === state.currentChatId) appendChatMessage(raw, 'remote', undefined, peerNameFor(ctx && ctx.fromPeerId));
+              refreshChatsList();
+            } else {
+              appendChatMessage(raw, 'remote');
+            }
             return;
           }
         }
@@ -2240,18 +2489,75 @@
         if (!payload || typeof payload !== 'object') return;
 
         if (payload.type === 'chat' && typeof payload.text === 'string') {
-          appendChatMessage(payload.text, 'remote', payload.time);
+          let msgChatId = null;
+          if (ctx && ctx.chatId && ctx.chatId.startsWith('group:')) {
+            msgChatId = (typeof payload.chatId === 'string' && payload.chatId.startsWith('group:')) ? payload.chatId : ctx.chatId;
+          } else if (ctx && ctx.fromPeerId) {
+            msgChatId = 'dm:' + ctx.fromPeerId;
+          } else {
+            msgChatId = (typeof payload.chatId === 'string' && payload.chatId) || state.currentChatId;
+          }
+          const senderName = (typeof payload.name === 'string' && payload.name) || peerNameFor(ctx && ctx.fromPeerId);
+          if (msgChatId) {
+            // A DM arriving on a group connection means the sender tried to DM
+            // while we are in a group: tell them we are busy in a group.
+            if (ctx && ctx.chatId && ctx.chatId.startsWith('group:') && !(payload.chatId && payload.chatId.startsWith('group:'))) {
+              sendToGroupPeer(ctx.fromPeerId, { type: 'control', action: 'group-busy', roomCode: ctx.chatId.slice(6) });
+              return;
+            }
+            saveChatMessage(msgChatId, { kind: 'text', sender: 'remote', name: senderName, text: payload.text, time: payload.time || getTimeString(), ts: Date.now() });
+            if (msgChatId === state.currentChatId) {
+              appendChatMessage(payload.text, 'remote', payload.time, senderName);
+              hideTypingIndicator();
+            }
+            refreshChatsList();
+          } else {
+            appendChatMessage(payload.text, 'remote', payload.time, senderName);
+          }
         } else if (payload.type === 'control') {
           if (payload.action === 'media-state') {
             state.remoteCamOff = !!payload.camOff;
             state.remoteMicMuted = !!payload.micMuted;
             updateVideoStageUI();
+          } else if (payload.action === 'peer-info') {
+            handlePeerInfo(payload, ctx);
+          } else if (payload.action === 'typing') {
+            handleRemoteTyping(payload, ctx);
           } else if (payload.action === 'call-ended') {
-            showToast('Remote peer ended the call.', 'info');
-            endCall({ notifyPeer: false });
+            if (ctx && ctx.chatId && ctx.chatId.startsWith('group:')) {
+              endGroupMemberMedia(ctx.fromPeerId);
+            } else {
+              showToast('Remote peer ended the call.', 'info');
+              endCall({ notifyPeer: false });
+            }
           } else if (payload.action === 'hangup') {
-            showToast('Remote peer ended the call.', 'info');
+            if (ctx && ctx.chatId && ctx.chatId.startsWith('group:')) {
+              handleGroupLeave(payload, ctx);
+            } else {
+              showToast('Remote peer ended the call.', 'info');
+              cleanupSession({ notifyPeer: false });
+            }
+          } else if (payload.action === 'group-busy') {
+            showToast('That peer is in a group chat right now — try again later.', 'warning');
             cleanupSession({ notifyPeer: false });
+          } else if (payload.action === 'group-join') {
+            handleGroupJoin(payload, ctx);
+          } else if (payload.action === 'group-members') {
+            handleGroupMembers(payload, ctx);
+          } else if (payload.action === 'group-member-joined') {
+            handleGroupMemberJoined(payload, ctx);
+          } else if (payload.action === 'group-leave') {
+            handleGroupLeave(payload, ctx);
+          } else if (payload.action === 'group-join-rejected') {
+            showToast(payload.reason || 'Could not join the group.', 'warning');
+            if (state.group && state.group.roomCode === payload.roomCode) {
+              state.group = null;
+              state.currentChatId = null;
+              renderMembersBar();
+              setView('home');
+            }
+          } else if (payload.action === 'group-media-state') {
+            handleGroupMediaState(payload, ctx);
           }
         } else if (
           payload.type === 'file-meta' ||
@@ -2385,6 +2691,12 @@
       async function sendFile(file) {
         if (!file) return;
 
+        // Files are 1-to-1 only for now: in a group chat, keep files out.
+        if (state.currentChatId && state.currentChatId.startsWith('group:')) {
+          showToast('Files are 1-to-1 only for now — group chats are text only.', 'warning');
+          return;
+        }
+
         if (!isFileChannelReady()) {
           showToast('Connect to a peer before sharing files.', 'warning');
           return;
@@ -2412,6 +2724,11 @@
           mime,
           time: getTimeString(),
         });
+        // Save a file record (name/size/time only — never the file bytes).
+        if (state.currentChatId) {
+          saveChatMessage(state.currentChatId, { kind: 'file-record', sender: 'local', name: myDisplayName(), text: file.name, fileName: file.name, fileSize: file.size, time: getTimeString(), ts: Date.now() });
+          refreshChatsList();
+        }
 
         const transfer = {
           numericId,
@@ -2556,6 +2873,11 @@
             mime,
             time: getTimeString(),
           });
+          // Save a file record (name/size/time only — never the file bytes).
+          if (state.currentChatId) {
+            saveChatMessage(state.currentChatId, { kind: 'file-record', sender: 'remote', name: peerNameFor(state.currentPeerId), text: name, fileName: name, fileSize: size, time: getTimeString(), ts: Date.now() });
+            refreshChatsList();
+          }
 
           const incoming = {
             numericId,
@@ -3041,16 +3363,17 @@
       function closeChatPanel() {
         if (window.innerWidth >= 1024) {
           state.isChatVisibleDesktop = false;
+          applyChatVisibility();
         } else {
-          state.isChatOpenMobile = false;
+          // Chat-first: closing a conversation on mobile goes back to the chats list.
+          setView('home');
         }
-        applyChatVisibility();
       }
 
       /**
        * Appends a text chat message bubble to the chat panel.
        */
-      function appendChatMessage(text, sender, customTime) {
+      function appendChatMessage(text, sender, customTime, senderName, skipUnread) {
         dom.chatEmptyState.classList.add('hidden');
 
         const isLocal = sender === 'local';
@@ -3067,7 +3390,7 @@
         metaRow.className = 'flex items-center gap-1 mt-1 px-1';
         const meta = document.createElement('span');
         meta.className = 'text-[10px] text-slate-500';
-        meta.textContent = `${isLocal ? 'You' : 'Peer'} • ${customTime || getTimeString()}`;
+        meta.textContent = `${isLocal ? (senderName || 'You') : (senderName || 'Peer')} • ${customTime || getTimeString()}`;
         const copyBtn = document.createElement('button');
         copyBtn.type = 'button';
         copyBtn.className = 'p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer';
@@ -3083,7 +3406,7 @@
         dom.chatMessages.appendChild(wrapper);
         dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
 
-        if (!isLocal && !isChatCurrentlyVisible()) {
+        if (!isLocal && !skipUnread && !isChatCurrentlyVisible()) {
           state.unreadCount += 1;
           updateUnreadBadge();
         }
@@ -3096,6 +3419,12 @@
         abortAllActiveTransfers('Cleared');
         revokeTrackedFileUrls();
         closeImageLightbox();
+        // Explicit Clear Chat also deletes the saved history for the current chat.
+        // Silent clears (Disconnect / session reset) only clear the live view.
+        if (!silent && state.currentChatId) {
+          const chatId = state.currentChatId;
+          idbDeleteChat(chatId).then(() => refreshChatsList()).catch(() => {});
+        }
 
         // Remove all message nodes except empty state
         Array.from(dom.chatMessages.children).forEach((child) => {
@@ -3226,6 +3555,8 @@
 
         const desiredId = forceNewId || !state.myPeerId ? generateFriendlyId() : state.myPeerId;
         state.myPeerId = desiredId;
+        try { localStorage.setItem(LS_OWN_ID, desiredId); } catch {}
+        if (dom.myIdMini) dom.myIdMini.textContent = desiredId;
         dom.myPeerIdDisplay.textContent = desiredId;
         setBrokerUI('connecting');
 
@@ -3250,6 +3581,8 @@
             clearTimeout(state.brokerTimer);
             state.brokerTimer = null;
             state.myPeerId = id;
+            try { localStorage.setItem(LS_OWN_ID, id); } catch {}
+            if (dom.myIdMini) dom.myIdMini.textContent = id;
             state.peerJsReady = true;
             dom.myPeerIdDisplay.textContent = id;
             setBrokerUI('ready');
@@ -3266,6 +3599,9 @@
 
             if (conn.label === CHANNEL_FILE) {
               setupPeerJsFileConnection(conn);
+            } else if (state.group) {
+              // In a group, an incoming chat connection is a group member joining the mesh.
+              setupGroupChatConnection(conn, state.group.roomCode);
             } else {
               setupPeerJsChatConnection(conn);
             }
@@ -3280,14 +3616,14 @@
             }
             state.activeSessionMode = 'peerjs';
 
-            try {
-              const answerStream = state.localStream || new MediaStream();
-              call.answer(answerStream);
-              setupPeerJsMediaConnection(call);
-            } catch (err) {
-              console.warn('Failed to answer incoming PeerJS call:', err);
-              showToast('Could not answer incoming video call.', 'error');
+            // Calls from a member of my current group are expected: answer at once.
+            if (state.group && state.group.members.has(call.peer)) {
+              answerGroupMemberCall(call);
+              return;
             }
+
+            // Otherwise ring first: the user accepts or declines (no more silent auto-answer).
+            holdIncomingCall(call);
           });
 
           peer.on('disconnected', () => {
@@ -3365,6 +3701,7 @@
         // Clean up any existing active call/channels
         cleanupSession({ notifyPeer: false, keepPeerInstance: true });
 
+        activateChat('dm:' + targetId, targetId);
         state.activeSessionMode = 'peerjs';
         setConnectionStatus('connecting');
         showToast(`Connecting to ${targetId}...`, 'info');
@@ -3419,7 +3756,9 @@
           }
           setConnectionStatus('connected');
           closeConnectionModal();
+          activateChat('dm:' + conn.peer, conn.peer);
           sendChatControl({ action: 'media-state', camOff: state.isCamOff, micMuted: state.isMicMuted });
+          sendChatControl({ action: 'peer-info', name: myDisplayName(), peerId: state.myPeerId });
           showToast(`Connected to ${conn.peer}`, 'success');
         };
 
@@ -3430,7 +3769,7 @@
         }
 
         conn.on('data', (data) => {
-          handleIncomingChatData(data);
+          handleIncomingChatData(data, { fromPeerId: conn.peer });
         });
 
         conn.on('close', () => {
@@ -3620,11 +3959,13 @@
           dom.remoteInfoLabel.textContent = 'Manual Peer';
           setConnectionStatus('connected');
           closeConnectionModal();
+          activateChat('dm:manual', 'manual', 'Manual Peer');
           sendChatControl({ action: 'media-state', camOff: state.isCamOff, micMuted: state.isMicMuted });
+          sendChatControl({ action: 'peer-info', name: myDisplayName(), peerId: 'manual' });
         };
 
         dc.onmessage = (event) => {
-          handleIncomingChatData(event.data);
+          handleIncomingChatData(event.data, { fromPeerId: 'manual' });
         };
 
         dc.onclose = () => {
@@ -3828,6 +4169,14 @@
          * reconnecting. Use cleanupSession() only for an explicit Disconnect.
          */
         function endCall({ notifyPeer = true } = {}) {
+          // In a group, End Call only stops my media: close my group media
+          // calls, tell the group, and return to chat. The group stays up.
+          if (state.group) {
+            endGroupMedia();
+            refreshCallView();
+            showToast('Call ended — still in the group chat', 'info');
+            return;
+          }
           if (notifyPeer && isChatChannelOpen()) {
             sendChatControl({ action: 'call-ended' });
           }
@@ -3872,6 +4221,11 @@
        * and restores clean UI state.
        */
       function cleanupSession({ notifyPeer = true, keepPeerInstance = true, revokeFiles = false } = {}) {
+        // Leaving a group: tell the members, close the mesh, forget the group.
+        if (state.group) {
+          leaveGroupSession();
+        }
+        hideTypingIndicator();
         if (notifyPeer && isChatChannelOpen()) {
           sendChatControl({ action: 'hangup' });
         }
@@ -3990,6 +4344,1096 @@
         }
       }
 
+      // ======================================================================
+      // PeerLink v2: chat history (IndexedDB), stable identity, Recent chats,
+      // typing indicator, incoming-call ringing, group channels (mesh),
+      // chat-first views. Text only is saved; file bytes are never stored.
+      // ======================================================================
+
+      // ---------------- IndexedDB ----------------
+      let idbPromise = null;
+
+      function idbOpen() {
+        if (idbPromise) return idbPromise;
+        idbPromise = new Promise((resolve, reject) => {
+          if (!('indexedDB' in window)) {
+            reject(new Error('IndexedDB unavailable'));
+            return;
+          }
+          const req = indexedDB.open('peerlink-db', 1);
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('messages')) {
+              const ms = db.createObjectStore('messages', { autoIncrement: true });
+              ms.createIndex('chatId', 'chatId', { unique: false });
+            }
+            if (!db.objectStoreNames.contains('chats')) {
+              db.createObjectStore('chats', { keyPath: 'chatId' });
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+        });
+        idbPromise.catch(() => { idbPromise = null; });
+        return idbPromise;
+      }
+
+      // Save one message and refresh its chat row (name, last message, time).
+      function saveChatMessage(chatId, msg) {
+        if (!chatId || !msg) return;
+        idbOpen().then((db) => {
+          const tx = db.transaction(['messages', 'chats'], 'readwrite');
+          tx.objectStore('messages').add({
+            chatId,
+            kind: msg.kind || 'text',
+            sender: msg.sender || 'local',
+            name: msg.name || '',
+            text: msg.text || '',
+            fileName: msg.fileName || '',
+            fileSize: msg.fileSize || 0,
+            time: msg.time || getTimeString(),
+            ts: msg.ts || Date.now(),
+          });
+          const chats = tx.objectStore('chats');
+          const getReq = chats.get(chatId);
+          getReq.onsuccess = () => {
+            const isGroup = chatId.startsWith('group:');
+            const row = getReq.result || {
+              chatId,
+              kind: isGroup ? 'group' : 'dm',
+              name: isGroup ? chatId.slice(6) : chatId.slice(3),
+              peerId: isGroup ? null : chatId.slice(3),
+              roomCode: isGroup ? chatId.slice(6) : null,
+              creatorPeerId: null,
+              lastMessage: '',
+              lastTime: 0,
+            };
+            row.lastMessage = msg.kind === 'file-record'
+              ? 'File: ' + (msg.fileName || msg.text || 'file')
+              : (msg.text || '');
+            row.lastTime = msg.ts || Date.now();
+            // A remote sender's name upgrades the DM row name (never my own name,
+            // and never a group name, which is the room name).
+            if (msg.sender === 'remote' && row.kind === 'dm' && msg.name) row.name = msg.name;
+            chats.put(row);
+          };
+          tx.onerror = () => {};
+        }).catch(() => {});
+      }
+
+      function loadChatMessages(chatId) {
+        return idbOpen().then((db) => new Promise((resolve, reject) => {
+          const req = db.transaction('messages', 'readonly')
+            .objectStore('messages').index('chatId').getAll(chatId);
+          req.onsuccess = () => resolve((req.result || []).sort((a, b) => (a.ts || 0) - (b.ts || 0)));
+          req.onerror = () => reject(req.error || new Error('load messages failed'));
+        }));
+      }
+
+      function loadChats() {
+        return idbOpen().then((db) => new Promise((resolve, reject) => {
+          const req = db.transaction('chats', 'readonly').objectStore('chats').getAll();
+          req.onsuccess = () => resolve((req.result || []).sort((a, b) => (b.lastTime || 0) - (a.lastTime || 0)));
+          req.onerror = () => reject(req.error || new Error('load chats failed'));
+        }));
+      }
+
+      function upsertChatRow(row) {
+        idbOpen().then((db) => {
+          const tx = db.transaction('chats', 'readwrite');
+          tx.objectStore('chats').put(row);
+        }).catch(() => {});
+      }
+
+      // Remember a chat without wiping its saved history metadata.
+      function ensureChatRow(row) {
+        idbOpen().then((db) => {
+          const tx = db.transaction('chats', 'readwrite');
+          const store = tx.objectStore('chats');
+          const req = store.get(row.chatId);
+          req.onsuccess = () => {
+            const existing = req.result;
+            if (!existing) { store.put(row); return; }
+            // Only upgrade a bare ID name to a real name; keep everything else.
+            if (row.name && (existing.name === existing.peerId || existing.name === existing.chatId)) {
+              existing.name = row.name;
+            }
+            if (row.peerId && !existing.peerId) existing.peerId = row.peerId;
+            if (row.roomCode && !existing.roomCode) existing.roomCode = row.roomCode;
+            if (row.creatorPeerId && !existing.creatorPeerId) existing.creatorPeerId = row.creatorPeerId;
+            store.put(existing);
+          };
+        }).catch(() => {});
+      }
+
+      function idbDeleteChat(chatId) {
+        return idbOpen().then((db) => new Promise((resolve, reject) => {
+          const tx = db.transaction(['messages', 'chats'], 'readwrite');
+          const store = tx.objectStore('messages');
+          const idx = store.index('chatId');
+          const range = IDBKeyRange.only(chatId);
+          const cursorReq = idx.openKeyCursor(range);
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor) {
+              store.delete(cursor.primaryKey);
+              cursor.continue();
+            }
+          };
+          tx.objectStore('chats').delete(chatId);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error || new Error('delete chat failed'));
+        }));
+      }
+
+      // ---------------- Identity ----------------
+      function loadIdentity() {
+        try {
+          const savedId = localStorage.getItem(LS_OWN_ID);
+          if (savedId) state.myPeerId = savedId;
+          const savedName = localStorage.getItem(LS_DISPLAY_NAME);
+          if (savedName) state.myDisplayName = savedName;
+          state.callNotifyEnabled = localStorage.getItem(LS_NOTIFY) === '1';
+        } catch {}
+        if (dom.displayNameInput) dom.displayNameInput.value = state.myDisplayName || '';
+        if (dom.myIdMini) dom.myIdMini.textContent = state.myPeerId || '…';
+      }
+
+      function myDisplayName() {
+        return state.myDisplayName || state.myPeerId || '';
+      }
+
+      function peerNameFor(peerId) {
+        if (!peerId) return '';
+        if (peerId === 'manual') return 'Manual Peer';
+        return state.peerNames.get(peerId) || '';
+      }
+
+      function initNotifyToggle() {
+        if (!dom.callNotifyToggle) return;
+        dom.callNotifyToggle.checked = !!state.callNotifyEnabled;
+      }
+
+      // ---------------- Helpers ----------------
+      function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        })[c]);
+      }
+
+      function formatChatListTime(ts) {
+        const d = new Date(ts);
+        const now = new Date();
+        if (d.toDateString() === now.toDateString()) {
+          return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        return d.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+      }
+
+      // ---------------- Chats: activate, history, list ----------------
+      function activateChat(chatId, peerId, remoteName) {
+        state.currentChatId = chatId;
+        state.currentPeerId = peerId || null;
+        if (remoteName) state.remoteName = remoteName;
+        const display = remoteName || peerNameFor(peerId) || (peerId === 'manual' ? 'Manual Peer' : (peerId || 'Peer'));
+        dom.chatTitle.textContent = display;
+        if (peerId) dom.remoteInfoLabel.textContent = display;
+        ensureChatRow({
+          chatId,
+          kind: chatId.startsWith('group:') ? 'group' : 'dm',
+          name: display,
+          peerId: chatId.startsWith('group:') ? null : (peerId === 'manual' ? null : peerId),
+          roomCode: chatId.startsWith('group:') ? chatId.slice(6) : null,
+          creatorPeerId: null,
+          lastMessage: '',
+          lastTime: 0,
+        });
+        renderHistory(chatId);
+        refreshChatsList();
+        setView('chat');
+      }
+
+      function renderHistory(chatId) {
+        Array.from(dom.chatMessages.children).forEach((child) => {
+          if (child !== dom.chatEmptyState) child.remove();
+        });
+        dom.chatEmptyState.classList.remove('hidden');
+        loadChatMessages(chatId).then((msgs) => {
+          // The user may have opened another chat while history was loading.
+          if (state.currentChatId !== chatId) return;
+          msgs.forEach((m) => {
+            if (m.kind === 'file-record') {
+              appendFileRecordMessage({
+                name: m.fileName || m.text,
+                size: m.fileSize || 0,
+                time: m.time,
+                direction: m.sender,
+              });
+            } else {
+              appendChatMessage(m.text, m.sender, m.time, m.name, true);
+            }
+          });
+        }).catch(() => {});
+      }
+
+      function appendFileRecordMessage({ name, size, time, direction }) {
+        dom.chatEmptyState.classList.add('hidden');
+        const isLocal = direction === 'local';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex flex-col ' + (isLocal ? 'items-end' : 'items-start');
+        const card = document.createElement('div');
+        card.className = 'max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed bg-slate-800/60 border border-slate-700/60 text-slate-300 shadow break-words';
+        card.textContent = 'File: ' + (name || 'file') + ' • ' + formatFileSize(size || 0) + ' • ' + (time || getTimeString()) + ' — file not stored on this device';
+        wrapper.appendChild(card);
+        dom.chatMessages.appendChild(wrapper);
+        dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
+      }
+
+      function renderChatsList() {
+        return loadChats().then((rows) => {
+          dom.chatsList.innerHTML = '';
+          if (!rows.length) {
+            const empty = document.createElement('div');
+            empty.className = 'px-4 py-8 text-center';
+            empty.innerHTML = '<p class="text-sm font-medium text-slate-300 mb-1">No chats yet</p><p class="text-xs text-slate-500 leading-relaxed">Connect to a peer or create a group to start chatting.</p>';
+            dom.chatsList.appendChild(empty);
+            return;
+          }
+          rows.forEach((row) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.dataset.chatId = row.chatId;
+            btn.className = 'w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-900 transition border-b border-slate-800/60 cursor-pointer';
+            const initial = (row.name || '?').trim().charAt(0).toUpperCase() || '?';
+            const time = row.lastTime ? formatChatListTime(row.lastTime) : '';
+            btn.innerHTML =
+              '<span class="w-10 h-10 shrink-0 rounded-full ' + (row.kind === 'group'
+                ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
+                : 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30') +
+              ' flex items-center justify-center text-sm font-bold">' + escapeHtml(initial) + '</span>' +
+              '<span class="flex-1 min-w-0">' +
+                '<span class="flex items-center justify-between gap-2"><span class="text-sm font-semibold text-white truncate">' + escapeHtml(row.name || row.chatId) + '</span>' +
+                (time ? '<span class="text-[10px] text-slate-500 shrink-0">' + time + '</span>' : '') + '</span>' +
+                '<span class="block text-xs text-slate-400 truncate mt-0.5">' + escapeHtml(row.lastMessage || (row.kind === 'group' ? 'Group chat' : 'Say hello…')) + '</span>' +
+              '</span>';
+            dom.chatsList.appendChild(btn);
+          });
+        }).catch(() => {});
+      }
+
+      function refreshChatsList() {
+        renderChatsList().catch(() => {});
+      }
+
+      function openChat(chatId) {
+        if (!chatId) return;
+        if (chatId.startsWith('group:')) {
+          const roomCode = chatId.slice(6);
+          if (state.group && state.group.roomCode === roomCode) {
+            activateChat(chatId, null, state.group.name);
+            return;
+          }
+          // Rejoin: the creator's ID is stored on the chat row.
+          loadChats().then((rows) => {
+            const row = rows.find((r) => r.chatId === chatId);
+            if (row && row.creatorPeerId) {
+              joinGroup(roomCode, row.creatorPeerId, row.name);
+            } else {
+              showToast('This group cannot be rejoined — the creator ID is not saved.', 'warning');
+            }
+          }).catch(() => {});
+          return;
+        }
+        const peerId = chatId.slice(3);
+        if (peerId === 'manual') {
+          activateChat(chatId, 'manual', 'Manual Peer');
+          openConnectionModal('manual');
+          return;
+        }
+        if (state.connectionStatus === 'connected' && state.currentPeerId === peerId && !state.group) {
+          activateChat(chatId, peerId);
+          return;
+        }
+        activateChat(chatId, peerId);
+        dom.remotePeerIdInput.value = peerId;
+        connectToPeerJs(peerId);
+      }
+
+      // ---------------- Chat-first views ----------------
+      function isInCall() {
+        if (state.connectionStatus !== 'connected') return false;
+        if (state.currentMediaConn || state.remoteStream) return true;
+        if (state.group && (state.myGroupMedia !== 'none' || groupHasAnyRemoteStream())) return true;
+        return false;
+      }
+
+      function groupHasAnyRemoteStream() {
+        if (!state.group) return false;
+        let found = false;
+        state.group.members.forEach((m) => { if (m.mediaConn || m.remoteStream) found = true; });
+        return found;
+      }
+
+      function setView(view) {
+        state.view = view;
+        const isMobile = window.innerWidth < 1024;
+        // Chats home list: always visible on desktop, only in 'home' on mobile.
+        if (view === 'home') {
+          dom.chatsHomeView.classList.remove('hidden');
+          dom.chatsHomeView.classList.add('flex');
+        } else if (isMobile) {
+          dom.chatsHomeView.classList.add('hidden');
+          dom.chatsHomeView.classList.remove('flex');
+        }
+        // Call screen: only in 'call' view.
+        if (view === 'call') {
+          dom.videoSection.classList.remove('hidden');
+        } else {
+          dom.videoSection.classList.add('hidden');
+        }
+        // Conversation panel on mobile follows the view.
+        if (isMobile) {
+          state.isChatOpenMobile = (view === 'chat');
+          applyChatVisibility();
+        }
+        updateCallButton();
+      }
+
+      function refreshCallView() {
+        // Never yank the user into the call screen automatically: the call screen
+        // opens from the call button or by accepting a call. Only leave it when
+        // the call actually ended.
+        if (!isInCall() && state.view === 'call') {
+          setView(state.currentChatId ? 'chat' : 'home');
+        }
+        updateCallButton();
+      }
+
+      function openCallView() {
+        if (state.connectionStatus !== 'connected') {
+          openConnectionModal();
+          return;
+        }
+        setView('call');
+      }
+
+      function updateCallButton() {
+        if (!dom.chatCallBtn) return;
+        const showDot = isInCall() && state.view !== 'call';
+        dom.callBtnDot.classList.toggle('hidden', !showDot);
+      }
+
+      function onChatCallButton() {
+        if (state.connectionStatus !== 'connected') {
+          openConnectionModal();
+          return;
+        }
+        if (isInCall()) {
+          openCallView();
+          return;
+        }
+        // Connected but no media yet: get camera/mic; the existing auto-call in
+        // attachLocalStream upgrades the session, then open the call screen.
+        if (!state.localStream) requestLocalMedia(false);
+        openCallView();
+      }
+
+      // ---------------- Typing indicator ----------------
+      function sendTyping(typing) {
+        if (!isChatChannelOpen()) return;
+        const now = Date.now();
+        if (typing) {
+          if (now - state.typingSentAt < 2000) return; // throttle: max once per 2s
+          state.typingSentAt = now;
+          if (state.typingIdleTimer) clearTimeout(state.typingIdleTimer);
+          state.typingIdleTimer = setTimeout(() => sendTyping(false), 2500);
+        } else {
+          if (state.typingIdleTimer) {
+            clearTimeout(state.typingIdleTimer);
+            state.typingIdleTimer = null;
+          }
+        }
+        const payload = {
+          type: 'control',
+          action: 'typing',
+          typing: !!typing,
+          name: myDisplayName(),
+          from: state.myPeerId || 'manual',
+          chatId: state.currentChatId,
+        };
+        if (state.currentChatId && state.currentChatId.startsWith('group:')) {
+          broadcastChatPayload(payload);
+        } else {
+          sendChatControl(payload);
+        }
+      }
+
+      function showTypingIndicator(name) {
+        if (!name) name = 'Peer';
+        dom.typingIndicator.textContent = name + ' is typing…';
+        dom.typingIndicator.classList.remove('hidden');
+        if (state.remoteTypingTimer) clearTimeout(state.remoteTypingTimer);
+        state.remoteTypingTimer = setTimeout(hideTypingIndicator, 3000);
+      }
+
+      function hideTypingIndicator() {
+        if (state.remoteTypingTimer) {
+          clearTimeout(state.remoteTypingTimer);
+          state.remoteTypingTimer = null;
+        }
+        dom.typingIndicator.classList.add('hidden');
+      }
+
+      function handleRemoteTyping(payload, ctx) {
+        if (!payload.typing) {
+          hideTypingIndicator();
+          return;
+        }
+        let chatId = null;
+        if (payload.chatId && payload.chatId.startsWith('group:')) chatId = payload.chatId;
+        else if (ctx && ctx.fromPeerId) chatId = 'dm:' + ctx.fromPeerId;
+        else chatId = state.currentChatId;
+        if (chatId && chatId !== state.currentChatId) return;
+        showTypingIndicator(payload.name || peerNameFor(payload.from) || peerNameFor(ctx && ctx.fromPeerId) || 'Peer');
+      }
+
+      // ---------------- Peer names ----------------
+      function handlePeerInfo(payload, ctx) {
+        const peerId = payload.peerId || (ctx && ctx.fromPeerId);
+        const name = (typeof payload.name === 'string' && payload.name.trim()) ? payload.name.trim() : '';
+        if (peerId && peerId !== 'manual' && name) {
+          state.peerNames.set(peerId, name);
+        }
+        if (ctx && ctx.chatId && ctx.chatId.startsWith('group:')) {
+          // Group member introducing themselves: record the name on the member.
+          if (state.group && state.group.roomCode === ctx.chatId.slice(6) && peerId) {
+            const m = state.group.members.get(peerId);
+            if (m && name) {
+              m.name = name;
+              renderMembersBar();
+            }
+          }
+          return;
+        }
+        if (name) {
+          state.remoteName = name;
+          if (state.currentChatId && !state.currentChatId.startsWith('group:')) {
+            dom.chatTitle.textContent = name;
+            dom.remoteInfoLabel.textContent = name;
+            // Upgrade the chat row name from the bare ID to the real name.
+            idbOpen().then((db) => {
+              const tx = db.transaction('chats', 'readwrite');
+              const store = tx.objectStore('chats');
+              const req = store.get(state.currentChatId);
+              req.onsuccess = () => {
+                const row = req.result;
+                if (row && (row.name === row.peerId || row.name === row.chatId)) {
+                  row.name = name;
+                  store.put(row);
+                  refreshChatsList();
+                }
+              };
+            }).catch(() => {});
+          }
+        }
+      }
+
+      // ---------------- Group send helpers ----------------
+      function sendToGroupPeer(peerId, payload) {
+        if (!state.group) return false;
+        const m = state.group.members.get(peerId);
+        if (!m || !m.chatConn || !m.chatConn.open) return false;
+        try {
+          m.chatConn.send(payload);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function broadcastChatPayload(payload) {
+        if (!state.group) return false;
+        let sent = false;
+        state.group.members.forEach((m) => {
+          if (m.peerId === state.myPeerId) return;
+          if (m.chatConn && m.chatConn.open) {
+            try {
+              m.chatConn.send(payload);
+              sent = true;
+            } catch (e) {}
+          }
+        });
+        return sent;
+      }
+
+      function sendGroupControl(payload) {
+        return broadcastChatPayload({ type: 'control', ...payload });
+      }
+
+      // ---------------- Groups ----------------
+      function newGroupSession(roomCode, name, isCreator, creatorPeerId) {
+        return {
+          roomCode,
+          name,
+          isCreator,
+          creatorPeerId,
+          members: new Map([[state.myPeerId, {
+            peerId: state.myPeerId,
+            name: myDisplayName() || state.myPeerId,
+            chatConn: null,
+            mediaConn: null,
+            media: 'none',
+            remoteStream: null,
+            videoEl: null,
+            pending: false,
+          }]]),
+        };
+      }
+
+      function createGroup() {
+        if (!state.peer || !state.peerJsReady) {
+          showToast('Quick Connect is not ready yet — wait for the broker or use Manual Mode.', 'error');
+          return;
+        }
+        const name = (dom.groupNameInput.value || '').trim();
+        const roomCode = generateFriendlyId();
+        cleanupSession({ notifyPeer: false, keepPeerInstance: true });
+        state.group = newGroupSession(roomCode, name || ('Group ' + roomCode), true, state.myPeerId);
+        state.myGroupMedia = 'none';
+        const chatId = 'group:' + roomCode;
+        upsertChatRow({
+          chatId,
+          kind: 'group',
+          name: state.group.name,
+          peerId: null,
+          roomCode,
+          creatorPeerId: state.myPeerId,
+          lastMessage: 'Group created',
+          lastTime: Date.now(),
+        });
+        activateChat(chatId, null, state.group.name);
+        closeConnectionModal();
+        renderMembersBar();
+        refreshChatsList();
+        showToast('Group created — share the room code ' + roomCode + ' to invite members.', 'success');
+      }
+
+      function joinGroup(roomCode, creatorId, groupName) {
+        roomCode = (roomCode || '').trim().toLowerCase();
+        creatorId = (creatorId || '').trim();
+        if (!roomCode || !creatorId) {
+          showToast('Enter a room code and the creator\'s Peer ID.', 'warning');
+          return;
+        }
+        if (creatorId === state.myPeerId) {
+          showToast('You cannot join your own group — you are its creator.', 'warning');
+          return;
+        }
+        if (!state.peer || !state.peerJsReady) {
+          showToast('Quick Connect is not ready yet.', 'error');
+          return;
+        }
+        cleanupSession({ notifyPeer: false, keepPeerInstance: true });
+        state.group = newGroupSession(roomCode, groupName || ('Group ' + roomCode), false, creatorId);
+        state.myGroupMedia = 'none';
+        const chatId = 'group:' + roomCode;
+        upsertChatRow({
+          chatId,
+          kind: 'group',
+          name: state.group.name,
+          peerId: null,
+          roomCode,
+          creatorPeerId: creatorId,
+          lastMessage: '',
+          lastTime: Date.now(),
+        });
+        activateChat(chatId, null, state.group.name);
+        closeConnectionModal();
+        setConnectionStatus('connecting');
+        connectToGroupMember(creatorId, roomCode);
+        showToast('Joining group ' + roomCode + '…', 'info');
+      }
+
+      function connectToGroupMember(peerId, roomCode) {
+        if (!state.peer || !state.peerJsReady || !state.group) return;
+        if (peerId === state.myPeerId) return;
+        const existing = state.group.members.get(peerId);
+        if (existing && existing.chatConn && existing.chatConn.open) return;
+        try {
+          const conn = state.peer.connect(peerId, { label: CHANNEL_CHAT, reliable: true });
+          setupGroupChatConnection(conn, roomCode);
+        } catch (e) {
+          console.warn('Could not connect to group member:', peerId, e);
+        }
+      }
+
+      function setupGroupChatConnection(conn, roomCode) {
+        if (!state.group || state.group.roomCode !== roomCode) {
+          try { conn.close(); } catch {}
+          return;
+        }
+        const peerId = conn.peer;
+        let member = state.group.members.get(peerId);
+        if (member && member.chatConn && member.chatConn !== conn && member.chatConn.open) {
+          try { conn.close(); } catch {}
+          return;
+        }
+        if (!member) {
+          member = { peerId, name: peerId, chatConn: null, mediaConn: null, media: 'none', remoteStream: null, videoEl: null, pending: true };
+          state.group.members.set(peerId, member);
+        }
+        member.chatConn = conn;
+        const onOpen = () => {
+          if (!state.group || state.group.roomCode !== roomCode) return;
+          setConnectionStatus('connected');
+          closeConnectionModal();
+          sendToGroupPeer(peerId, { type: 'control', action: 'peer-info', name: myDisplayName(), peerId: state.myPeerId, roomCode });
+          sendToGroupPeer(peerId, { type: 'control', action: 'group-join', roomCode, peerId: state.myPeerId, name: myDisplayName() });
+          sendToGroupPeer(peerId, { type: 'control', action: 'group-media-state', roomCode, peerId: state.myPeerId, name: myDisplayName(), media: state.myGroupMedia });
+        };
+        if (conn.open) {
+          onOpen();
+        } else {
+          conn.on('open', onOpen);
+        }
+        conn.on('data', (data) => {
+          handleIncomingChatData(data, { fromPeerId: peerId, chatId: 'group:' + roomCode, groupConn: conn });
+        });
+        conn.on('close', () => {
+          if (!state.group || state.group.roomCode !== roomCode) return;
+          const m = state.group.members.get(peerId);
+          if (m && m.chatConn === conn) {
+            m.chatConn = null;
+            if (m.mediaConn) {
+              try { m.mediaConn.close(); } catch {}
+              m.mediaConn = null;
+            }
+            m.remoteStream = null;
+            removeGroupTile(peerId);
+            renderMembersBar();
+            refreshCallView();
+          }
+        });
+        conn.on('error', (err) => { console.error('Group chat connection error:', err); });
+      }
+
+      function handleGroupJoin(payload, ctx) {
+        if (!state.group || state.group.roomCode !== payload.roomCode) return;
+        const peerId = payload.peerId || (ctx && ctx.fromPeerId);
+        if (!peerId || peerId === state.myPeerId) return;
+        if (state.group.members.size >= GROUP_CAPS.chat) {
+          sendToGroupPeer(peerId, { type: 'control', action: 'group-join-rejected', roomCode: payload.roomCode, reason: 'This group is full (' + GROUP_CAPS.chat + ' members max).' });
+          return;
+        }
+        let member = state.group.members.get(peerId);
+        if (!member) {
+          member = { peerId, name: payload.name || peerId, chatConn: null, mediaConn: null, media: 'none', remoteStream: null, videoEl: null, pending: false };
+          state.group.members.set(peerId, member);
+        }
+        member.name = payload.name || member.name;
+        member.pending = false;
+        if (ctx && ctx.groupConn) member.chatConn = ctx.groupConn;
+        // If I am the creator, introduce the newcomer to everyone else.
+        if (state.group.isCreator) {
+          const list = [];
+          state.group.members.forEach((m) => { if (!m.pending) list.push({ peerId: m.peerId, name: m.name }); });
+          sendToGroupPeer(peerId, { type: 'control', action: 'group-members', roomCode: payload.roomCode, members: list });
+          state.group.members.forEach((m) => {
+            if (m.peerId !== state.myPeerId && m.peerId !== peerId && m.chatConn && m.chatConn.open) {
+              sendToGroupPeer(m.peerId, { type: 'control', action: 'group-member-joined', roomCode: payload.roomCode, peerId, name: member.name });
+            }
+          });
+        }
+        renderMembersBar();
+        refreshChatsList();
+      }
+
+      function handleGroupMembers(payload, ctx) {
+        if (!state.group || state.group.roomCode !== payload.roomCode) return;
+        (payload.members || []).forEach((info) => {
+          if (!info.peerId || info.peerId === state.myPeerId) return;
+          let m = state.group.members.get(info.peerId);
+          if (!m) {
+            m = { peerId: info.peerId, name: info.name || info.peerId, chatConn: null, mediaConn: null, media: 'none', remoteStream: null, videoEl: null, pending: true };
+            state.group.members.set(info.peerId, m);
+          } else if (info.name) {
+            m.name = info.name;
+          }
+          connectToGroupMember(info.peerId, payload.roomCode);
+        });
+        renderMembersBar();
+      }
+
+      function handleGroupMemberJoined(payload, ctx) {
+        if (!state.group || state.group.roomCode !== payload.roomCode) return;
+        const peerId = payload.peerId;
+        if (!peerId || peerId === state.myPeerId) return;
+        let m = state.group.members.get(peerId);
+        if (!m) {
+          m = { peerId, name: payload.name || peerId, chatConn: null, mediaConn: null, media: 'none', remoteStream: null, videoEl: null, pending: true };
+          state.group.members.set(peerId, m);
+        } else if (payload.name) {
+          m.name = payload.name;
+        }
+        connectToGroupMember(peerId, payload.roomCode);
+        renderMembersBar();
+      }
+
+      function handleGroupLeave(payload, ctx) {
+        if (!state.group || state.group.roomCode !== payload.roomCode) return;
+        const peerId = payload.peerId || (ctx && ctx.fromPeerId);
+        if (!peerId || peerId === state.myPeerId) return;
+        const m = state.group.members.get(peerId);
+        if (m) {
+          if (m.chatConn) { try { m.chatConn.close(); } catch {} }
+          if (m.mediaConn) { try { m.mediaConn.close(); } catch {} }
+          removeGroupTile(peerId);
+          state.group.members.delete(peerId);
+        }
+        renderMembersBar();
+        refreshCallView();
+      }
+
+      function handleGroupMediaState(payload, ctx) {
+        if (!state.group || state.group.roomCode !== payload.roomCode) return;
+        const peerId = payload.peerId || (ctx && ctx.fromPeerId);
+        if (!peerId || peerId === state.myPeerId) return;
+        const m = state.group.members.get(peerId);
+        if (!m) return;
+        m.media = (payload.media === 'video' || payload.media === 'audio') ? payload.media : 'none';
+        if (payload.name) m.name = payload.name;
+        renderMembersBar();
+        updateVideoStageUI();
+      }
+
+      function leaveGroupSession() {
+        if (!state.group) return;
+        const roomCode = state.group.roomCode;
+        state.group.members.forEach((m) => {
+          if (m.peerId === state.myPeerId) return;
+          if (m.chatConn && m.chatConn.open) {
+            try { m.chatConn.send({ type: 'control', action: 'group-leave', roomCode, peerId: state.myPeerId }); } catch {}
+          }
+          if (m.chatConn) { try { m.chatConn.close(); } catch {} }
+          if (m.mediaConn) { try { m.mediaConn.close(); } catch {} }
+          removeGroupTile(m.peerId);
+        });
+        state.group = null;
+        state.myGroupMedia = 'none';
+        state.currentChatId = null;
+        state.currentPeerId = null;
+        state.remoteName = '';
+        renderMembersBar();
+      }
+
+      function endGroupMedia() {
+        if (!state.group) return;
+        state.group.members.forEach((m) => {
+          if (m.mediaConn) {
+            try { m.mediaConn.close(); } catch {}
+            m.mediaConn = null;
+          }
+          m.remoteStream = null;
+          removeGroupTile(m.peerId);
+        });
+        state.myGroupMedia = 'none';
+        sendGroupControl({ action: 'group-media-state', roomCode: state.group.roomCode, peerId: state.myPeerId, name: myDisplayName(), media: 'none' });
+        renderMembersBar();
+        updateVideoStageUI();
+      }
+
+      function endGroupMemberMedia(peerId) {
+        if (!state.group || !peerId) return;
+        const m = state.group.members.get(peerId);
+        if (!m) return;
+        if (m.mediaConn) {
+          try { m.mediaConn.close(); } catch {}
+          m.mediaConn = null;
+        }
+        m.media = 'none';
+        m.remoteStream = null;
+        removeGroupTile(peerId);
+        renderMembersBar();
+        updateVideoStageUI();
+      }
+
+      function renderMembersBar() {
+        const bar = dom.groupMembersBar;
+        if (!state.group) {
+          bar.classList.add('hidden');
+          bar.innerHTML = '';
+          return;
+        }
+        bar.classList.remove('hidden');
+        bar.innerHTML = '';
+        const label = document.createElement('span');
+        label.className = 'text-[10px] font-semibold uppercase tracking-wider text-slate-500 mr-1';
+        label.textContent = state.group.members.size + ' in group';
+        bar.appendChild(label);
+        state.group.members.forEach((m) => {
+          if (m.pending) return;
+          const chip = document.createElement('span');
+          const dot = m.media === 'video' ? 'bg-emerald-400' : (m.media === 'audio' ? 'bg-amber-400' : 'bg-slate-500');
+          chip.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-800 border border-slate-700/70 text-[11px] font-medium text-slate-200';
+          chip.innerHTML = '<span class="w-1.5 h-1.5 rounded-full ' + dot + '"></span>' + escapeHtml(m.peerId === state.myPeerId ? (m.name || 'You') + ' (you)' : m.name);
+          bar.appendChild(chip);
+        });
+      }
+
+      // ---------------- Group video tiles ----------------
+      function ensureGroupTile(peerId, name) {
+        let tile = document.getElementById('group-tile-' + peerId);
+        if (tile) return tile.querySelector('video');
+        tile = document.createElement('div');
+        tile.id = 'group-tile-' + peerId;
+        tile.className = 'relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video';
+        const video = document.createElement('video');
+        video.autoplay = true;
+        video.playsInline = true;
+        video.className = 'w-full h-full object-cover bg-slate-950';
+        const label = document.createElement('span');
+        label.className = 'absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-slate-950/75 text-[10px] font-medium text-slate-200';
+        label.textContent = name || peerId;
+        tile.appendChild(video);
+        tile.appendChild(label);
+        dom.groupVideoGrid.appendChild(tile);
+        return video;
+      }
+
+      function removeGroupTile(peerId) {
+        const tile = document.getElementById('group-tile-' + peerId);
+        if (tile) tile.remove();
+      }
+
+      function mediaStreamFor(media) {
+        if (!state.localStream) return null;
+        if (media === 'video') return state.localStream;
+        if (media === 'audio') {
+          const audioTracks = state.localStream.getAudioTracks();
+          if (!audioTracks.length) return null;
+          return new MediaStream(audioTracks);
+        }
+        return null;
+      }
+
+      function answerGroupMemberCall(call) {
+        const member = state.group ? state.group.members.get(call.peer) : null;
+        if (!member) return;
+        try {
+          const stream = mediaStreamFor(state.myGroupMedia) || new MediaStream();
+          call.answer(stream);
+          setupGroupMediaConnection(call, call.peer);
+        } catch (err) {
+          console.warn('Could not answer group member call:', err);
+        }
+      }
+
+      function setupGroupMediaConnection(call, peerId) {
+        if (!state.group) return;
+        const m = state.group.members.get(peerId);
+        if (!m) return;
+        if (m.mediaConn && m.mediaConn !== call) {
+          try { m.mediaConn.close(); } catch {}
+        }
+        m.mediaConn = call;
+        call.on('stream', (remoteStream) => {
+          if (!state.group || state.group.members.get(peerId) !== m || m.mediaConn !== call) return;
+          m.remoteStream = remoteStream;
+          const video = ensureGroupTile(peerId, m.name);
+          video.srcObject = remoteStream;
+          video.play().catch(() => {});
+          updateVideoStageUI();
+          refreshCallView();
+        });
+        call.on('close', () => {
+          if (!state.group) return;
+          const cur = state.group.members.get(peerId);
+          if (cur && cur.mediaConn === call) {
+            cur.mediaConn = null;
+            cur.remoteStream = null;
+            removeGroupTile(peerId);
+            updateVideoStageUI();
+            refreshCallView();
+          }
+        });
+        call.on('error', (err) => { console.error('Group media error:', err); });
+      }
+
+      function groupVideoCount() {
+        if (!state.group) return 0;
+        let n = state.myGroupMedia === 'video' ? 1 : 0;
+        state.group.members.forEach((m) => { if (m.peerId !== state.myPeerId && m.media === 'video') n += 1; });
+        return n;
+      }
+
+      function groupAudioCount() {
+        if (!state.group) return 0;
+        let n = state.myGroupMedia !== 'none' ? 1 : 0;
+        state.group.members.forEach((m) => { if (m.peerId !== state.myPeerId && m.media !== 'none') n += 1; });
+        return n;
+      }
+
+      function syncGroupMedia() {
+        if (!state.group) return;
+        const hasVideo = !!(state.localStream && state.localStream.getVideoTracks().some((t) => t.readyState === 'live') && !state.isCamOff);
+        const hasAudio = !!(state.localStream && state.localStream.getAudioTracks().length > 0 && !state.isMicMuted);
+        const desired = hasVideo ? 'video' : (hasAudio ? 'audio' : 'none');
+        // Enforce caps when media turns on.
+        let target = desired;
+        if (desired === 'video' && groupVideoCount() >= GROUP_CAPS.video && state.myGroupMedia !== 'video') {
+          showToast('Video is full in this group (' + GROUP_CAPS.video + ' max) — staying chat-only.', 'warning');
+          target = hasAudio ? 'audio' : 'none';
+        }
+        if (target === 'audio' && groupAudioCount() >= GROUP_CAPS.audio && state.myGroupMedia === 'none') {
+          showToast('Audio is full in this group (' + GROUP_CAPS.audio + ' max).', 'warning');
+          target = 'none';
+        }
+        const changed = target !== state.myGroupMedia;
+        state.myGroupMedia = target;
+        if (changed) {
+          sendGroupControl({ action: 'group-media-state', roomCode: state.group.roomCode, peerId: state.myPeerId, name: myDisplayName(), media: target });
+          renderMembersBar();
+        }
+        // (Re)establish media calls to every member when I have media.
+        if (target !== 'none' && state.peer && state.peerJsReady) {
+          state.group.members.forEach((m) => {
+            if (m.peerId === state.myPeerId || m.pending) return;
+            if (m.mediaConn) return;
+            try {
+              const stream = mediaStreamFor(target);
+              if (!stream) return;
+              const call = state.peer.call(m.peerId, stream);
+              setupGroupMediaConnection(call, m.peerId);
+            } catch (e) {
+              console.warn('Could not call group member:', m.peerId, e);
+            }
+          });
+        }
+        if (target === 'none') {
+          state.group.members.forEach((m) => {
+            if (m.mediaConn) {
+              try { m.mediaConn.close(); } catch {}
+              m.mediaConn = null;
+            }
+            m.remoteStream = null;
+            removeGroupTile(m.peerId);
+          });
+        }
+        updateVideoStageUI();
+      }
+
+      // ---------------- Incoming-call prompt ----------------
+      function holdIncomingCall(call) {
+        // If a previous prompt is still up, decline the new call politely.
+        if (state.pendingIncomingCall) {
+          try { call.close(); } catch {}
+          return;
+        }
+        state.pendingIncomingCall = call;
+        const name = peerNameFor(call.peer) || call.peer || 'Peer';
+        dom.incomingCallerName.textContent = name;
+        dom.incomingCallOverlay.classList.remove('hidden');
+        startRinging();
+        fireCallNotification(name);
+        call.on('close', () => {
+          if (state.pendingIncomingCall === call) {
+            stopRinging();
+            state.pendingIncomingCall = null;
+            dom.incomingCallOverlay.classList.add('hidden');
+          }
+        });
+      }
+
+      function acceptIncomingCall() {
+        const call = state.pendingIncomingCall;
+        if (!call) return;
+        state.pendingIncomingCall = null;
+        stopRinging();
+        dom.incomingCallOverlay.classList.add('hidden');
+        try {
+          const answerStream = state.localStream || new MediaStream();
+          call.answer(answerStream);
+          setupPeerJsMediaConnection(call);
+          activateChat('dm:' + call.peer, call.peer);
+          openCallView();
+        } catch (err) {
+          console.warn('Failed to answer incoming PeerJS call:', err);
+          showToast('Could not answer incoming video call.', 'error');
+        }
+      }
+
+      function declineIncomingCall() {
+        const call = state.pendingIncomingCall;
+        if (!call) return;
+        state.pendingIncomingCall = null;
+        stopRinging();
+        dom.incomingCallOverlay.classList.add('hidden');
+        try { call.close(); } catch {}
+      }
+
+      function startRinging() {
+        stopRinging();
+        if (typeof navigator.vibrate === 'function') {
+          try { navigator.vibrate([400, 200, 400, 200, 400]); } catch {}
+        }
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          if (!state.ringAudioCtx) state.ringAudioCtx = new Ctx();
+          const ctx = state.ringAudioCtx;
+          if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+          const beep = () => {
+            if (!state.pendingIncomingCall) return;
+            try {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.value = 880;
+              gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+              gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+              osc.connect(gain).connect(ctx.destination);
+              osc.start();
+              osc.stop(ctx.currentTime + 0.4);
+            } catch {}
+          };
+          beep();
+          state.ringTimer = setInterval(() => {
+            beep();
+            if (typeof navigator.vibrate === 'function') {
+              try { navigator.vibrate([400, 200, 400, 200, 400]); } catch {}
+            }
+          }, 1500);
+        } catch {}
+      }
+
+      function stopRinging() {
+        if (state.ringTimer) {
+          clearInterval(state.ringTimer);
+          state.ringTimer = null;
+        }
+        if (typeof navigator.vibrate === 'function') {
+          try { navigator.vibrate(0); } catch {}
+        }
+      }
+
+      function fireCallNotification(name) {
+        // System notifications only work while PeerLink is open: there is no
+        // server and no push service, so a fully closed app cannot be reached.
+        if (!state.callNotifyEnabled) return;
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+          const n = new Notification('Incoming call from ' + name, {
+            body: 'Tap to open PeerLink and answer.',
+            tag: 'peerlink-incoming-call',
+          });
+          n.onclick = () => {
+            try { window.focus(); } catch {}
+            n.close();
+          };
+        } catch {}
+      }
+
       // ==================== EVENT LISTENERS ====================
 
       function bindEventListeners() {
@@ -4054,10 +5498,17 @@
           }
 
           const time = getTimeString();
-          const sent = sendChatPayload({ type: 'chat', text, time });
+          const payload = { type: 'chat', text, time, name: myDisplayName(), from: state.myPeerId || 'manual', chatId: state.currentChatId };
+          const inGroup = !!(state.currentChatId && state.currentChatId.startsWith('group:'));
+          const sent = inGroup ? broadcastChatPayload(payload) : sendChatPayload(payload);
           if (sent) {
-            appendChatMessage(text, 'local', time);
+            appendChatMessage(text, 'local', time, myDisplayName() || 'You');
+            if (state.currentChatId) {
+              saveChatMessage(state.currentChatId, { kind: 'text', sender: 'local', name: myDisplayName(), text, time, ts: Date.now() });
+              refreshChatsList();
+            }
             dom.chatInput.value = '';
+            sendTyping(false);
           } else {
             showToast('Message could not be sent.', 'error');
           }
@@ -4197,6 +5648,51 @@
           if (e.target === dom.imageLightbox) closeImageLightbox();
         });
 
+        // PeerLink v2: typing indicator (throttled inside sendTyping).
+        dom.chatInput.addEventListener('input', () => {
+          if (dom.chatInput.value.trim()) sendTyping(true);
+        });
+
+        // PeerLink v2: video-call button in the chat header.
+        dom.chatCallBtn.addEventListener('click', onChatCallButton);
+
+        // PeerLink v2: new chat / new group buttons open the connection modal.
+        dom.newChatBtn.addEventListener('click', () => openConnectionModal());
+        dom.newGroupBtn.addEventListener('click', () => openConnectionModal());
+
+        // PeerLink v2: save the display name as it is typed.
+        dom.displayNameInput.addEventListener('input', () => {
+          state.myDisplayName = dom.displayNameInput.value.trim();
+          try { localStorage.setItem(LS_DISPLAY_NAME, state.myDisplayName); } catch {}
+        });
+
+        // PeerLink v2: call-notifications toggle (requests permission when turned on).
+        dom.callNotifyToggle.addEventListener('change', () => {
+          state.callNotifyEnabled = dom.callNotifyToggle.checked;
+          try { localStorage.setItem(LS_NOTIFY, state.callNotifyEnabled ? '1' : '0'); } catch {}
+          if (state.callNotifyEnabled && 'Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then((perm) => {
+              if (perm !== 'granted') showToast('Call notifications need the browser permission.', 'warning');
+            }).catch(() => {});
+          }
+        });
+
+        // PeerLink v2: group create / join.
+        dom.createGroupBtn.addEventListener('click', createGroup);
+        dom.joinGroupBtn.addEventListener('click', () => {
+          joinGroup(dom.joinRoomCodeInput.value, dom.joinCreatorIdInput.value, dom.groupNameInput.value);
+        });
+
+        // PeerLink v2: incoming-call Accept / Decline.
+        dom.acceptCallBtn.addEventListener('click', acceptIncomingCall);
+        dom.declineCallBtn.addEventListener('click', declineIncomingCall);
+
+        // PeerLink v2: tap a chat in the Recent chats list to open it.
+        dom.chatsList.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-chat-id]');
+          if (btn) openChat(btn.dataset.chatId);
+        });
+
         // Global keyboard shortcuts (Esc closes modals)
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
@@ -4234,6 +5730,14 @@
 
         // Auto-request camera & mic on startup (graceful fallback to Chat-Only if denied/unavailable)
         requestLocalMedia(true);
+
+        // PeerLink v2: restore stable identity + display name before first connect.
+        loadIdentity();
+        initNotifyToggle();
+
+        // Chat-first home screen.
+        setView('home');
+        renderChatsList();
 
         // Initialize PeerJS 1.5.5 Quick Connect client (auto-switches to Manual Mode if Canvas blocks WebSockets)
         initPeerJs(false, { autoSwitchOnSandbox: true });
