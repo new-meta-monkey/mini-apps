@@ -3,6 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- PWA: installable (manifest + service worker registered below) -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0F172A" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    /* Fit the visible viewport on phones: 100vh counts the area behind
+       the browser address bar, so the bottom controls sat below the
+       screen with no scroll to reach them. dvh tracks the visible
+       height instead. */
+    @supports (height: 100dvh) {
+      body { height: 100dvh; }
+      #chatPanel { height: 100dvh; }
+    }
+  </style>
   <title>PeerLink — P2P Video, Chat &amp; Binary File Share</title>
 
   <!-- Google Fonts: Inter -->
@@ -28,7 +42,7 @@
   <!-- PeerJS 1.5.5 via cdnjs for Quick Connect Mode -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js" defer></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen w-screen overflow-hidden flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-dvh w-screen overflow-hidden flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
 
   <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
   <div id="toastContainer" class="fixed top-4 right-4 z-[60] flex flex-col gap-2 max-w-xs sm:max-w-sm w-full pointer-events-none px-2 sm:px-0"></div>
@@ -317,7 +331,7 @@
     <!-- ==================== SIDE CHAT PANEL ==================== -->
     <aside
       id="chatPanel"
-      class="fixed lg:relative inset-y-0 right-0 z-40 w-full max-w-sm lg:w-96 bg-slate-900 border-l border-slate-800 flex flex-col transform translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shadow-2xl lg:shadow-none"
+      class="fixed lg:relative inset-y-0 right-0 z-40 h-dvh w-full max-w-sm lg:w-96 bg-slate-900 border-l border-slate-800 flex flex-col transform translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shadow-2xl lg:shadow-none"
     >
       <!-- Full-Panel Drag-and-Drop File Upload Overlay -->
       <div
@@ -4096,6 +4110,14 @@
 
       window.addEventListener('DOMContentLoaded', initApp);
     })();
+  </script>
+  <script>
+    // PWA: register the service worker so the app installs and its shell loads offline.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
   </script>
 </body>
 </html>
