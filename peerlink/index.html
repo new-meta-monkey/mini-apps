@@ -4613,9 +4613,9 @@
             const empty = document.createElement('div');
             empty.className = 'px-4 py-8 text-center';
             empty.innerHTML = '<p class="text-sm font-medium text-slate-300 mb-1">No chats yet</p><p class="text-xs text-slate-500 leading-relaxed mb-4">PeerLink connects your browser straight to your friend\'s browser. No account, no server.</p><button id="emptyStartChatBtn" type="button" class="w-full px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition cursor-pointer">Start a chat</button><button id="emptyCreateGroupBtn" type="button" class="mt-2 w-full px-4 py-1.5 text-xs font-medium text-indigo-300 hover:text-indigo-200 transition cursor-pointer">Create a group</button>';
+            dom.chatsList.appendChild(empty);
             document.getElementById('emptyStartChatBtn').addEventListener('click', () => openConnectionModal());
             document.getElementById('emptyCreateGroupBtn').addEventListener('click', () => openConnectionModal());
-            dom.chatsList.appendChild(empty);
             return;
           }
           rows.forEach((row) => {
