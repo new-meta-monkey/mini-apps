@@ -474,7 +474,7 @@ function save(){try{const s=activeShop();if(s)localStorage.setItem(s.dbKey,JSON.
 function clearDB(){try{const s=activeShop();if(s)localStorage.removeItem(s.dbKey);}catch(e){}}
 function load(){try{const s=activeShop();if(!s)return false;const raw=localStorage.getItem(s.dbKey);if(raw){const d=JSON.parse(raw);
   db=d;db.settings=Object.assign(defaultSettings(),d.settings||{});
-  db.returns=db.returns||[];db.expenses=db.expenses||[];db.production=db.production||[];db.jobwork=db.jobwork||[];db.estimates=db.estimates||[];db.employees=db.employees||[];db.attendance=db.attendance||[];db.payroll=db.payroll||[];db.audits=db.audits||[];db.payments=db.payments||[];db.cashLogs=db.cashLogs||[];
+  db.returns=db.returns||[];db.expenses=db.expenses||[];db.recurringExpenses=db.recurringExpenses||[];db.production=db.production||[];db.jobwork=db.jobwork||[];db.estimates=db.estimates||[];db.employees=db.employees||[];db.attendance=db.attendance||[];db.payroll=db.payroll||[];db.audits=db.audits||[];db.payments=db.payments||[];db.cashLogs=db.cashLogs||[];
   db.counters=Object.assign({invoice:0,purchase:0,ret:0,production:0,jobwork:0,est:0},d.counters||{});
   return true;}}catch(e){}return false;}
 
@@ -815,6 +815,7 @@ function switchShop(id){
   master.activeId=id;saveMaster();
   S.pos=null;S.pur=null;S.prod=null;S.job=null;S.est=null;S.currentInvoice=null;S.currentCustomer=null;S.view='dashboard';
   if(!load())seedShopData(activeShop().type,activeShop().name);
+  postDueRecurring();
   applyTheme();render();
   toast('Switched to '+activeShop().name,'ok');
 }
@@ -3223,6 +3224,41 @@ function savePurchase(){
 /* =====================================================
    EXPENSES
    ===================================================== */
+/* ---------- Recurring expenses ---------- */
+function addDaysStr(ds,n){const p=ds.split('-').map(Number);const d=new Date(p[0],p[1]-1,p[2]+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function addPeriodStr(ds,freq){
+  if(freq==='weekly')return addDaysStr(ds,7);
+  const p=ds.split('-').map(Number);const day=p[2];
+  const d=new Date(p[0],p[1]-1,1);
+  if(freq==='monthly')d.setMonth(d.getMonth()+1);
+  else if(freq==='quarterly')d.setMonth(d.getMonth()+3);
+  else if(freq==='yearly')d.setFullYear(d.getFullYear()+1);
+  else return ds;
+  const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  d.setDate(Math.min(day,last));
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function freqLabel(f){return {weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',yearly:'Yearly'}[f]||f;}
+function postDueRecurring(){
+  const rules=db.recurringExpenses||[];if(!rules.length)return;
+  const today=todayStr();let changed=false;
+  rules.forEach(r=>{
+    if(!r.active)return;
+    let posted=0;
+    while(r.nextDate&&r.nextDate<=today&&posted<24){
+      if(r.endDate&&r.nextDate>r.endDate){r.active=false;break;}
+      db.expenses.push({id:uid(),date:r.nextDate,category:r.category,note:r.note||'',amount:Math.round(num(r.amount)*100)/100,recurringId:r.id,createdAt:Date.now()});
+      r.amount=Math.round(num(r.amount)*(1+num(r.changePct)/100)*100)/100;
+      r.nextDate=addPeriodStr(r.nextDate,r.frequency);
+      posted++;changed=true;
+    }
+    if(r.endDate&&r.nextDate>r.endDate)r.active=false;
+  });
+  if(changed)save();
+}
+function pauseRecurring(id){const r=(db.recurringExpenses||[]).find(x=>x.id===id);if(!r)return;r.active=!r.active;save();render();toast(r.active?'Recurring expense resumed':'Recurring expense paused','ok');}
+function stopRecurring(id){const r=(db.recurringExpenses||[]).find(x=>x.id===id);if(!r)return;askConfirm('Stop this recurring expense? Future entries will not be added. Past entries stay.',()=>{db.recurringExpenses=(db.recurringExpenses||[]).filter(x=>x.id!==id);save();render();toast('Recurring expense stopped','ok');},'Stop');}
+
 function vExpenses(){
   const q=(S.expQuery||'').toLowerCase();
   const list=[...db.expenses].filter(e=>inRange(e.date,'exp')&&(!q||e.category.toLowerCase().includes(q)||(e.note||'').toLowerCase().includes(q))).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -3241,12 +3277,13 @@ function vExpenses(){
     <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">${I.plus} Add Expense</button>
     <button class="btn btn-outline btn-sm" onclick="exportExpensesCSV()">${I.down} Export CSV</button>
   </div>
+  ${(()=>{const rules=db.recurringExpenses||[];if(!rules.length)return '';return `<div class="card" style="margin-top:12px;padding:12px 16px"><div style="font-weight:700;margin-bottom:4px">\u21bb Recurring expenses</div>${rules.map(r=>`<div class="lrow" style="padding:10px 0"><div class="l-main"><div class="l-t">${esc(r.category)}${r.active?'':' \u00b7 Paused'}</div><div class="l-s">${freqLabel(r.frequency)} \u00b7 ${fmt(r.amount)}${num(r.changePct)?' \u00b7 '+(num(r.changePct)>0?'+':'')+num(r.changePct)+'% / period':''} \u00b7 next ${niceDate(r.nextDate)}${r.endDate?' \u00b7 until '+niceDate(r.endDate):''}</div></div><div class="l-r" style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="pauseRecurring('${r.id}')">${r.active?'Pause':'Resume'}</button><button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="stopRecurring('${r.id}')">Stop</button></div></div>`).join('')}</div>`;})()}
   ${multiBarHTML('expenses',list.map(e=>e.id))}
   <div style="margin-top:12px">
   ${list.length?`<div class="card">${list.slice(0,60).map(e=>`
     <div class="lrow" onclick="${multiOn('expenses')?`multiTap('expenses','${e.id}')`:`openExpenseModal('${e.id}')`}">
       ${multiOn('expenses')?multiSelHTML('expenses',e.id):`<div class="l-ic" style="background:var(--red-bg);color:var(--red)">${I.wallet}</div>`}
-      <div class="l-main"><div class="l-t">${esc(e.category)}</div><div class="l-s">${niceDate(e.date)}${e.note?' · '+esc(e.note):''}</div></div>
+      <div class="l-main"><div class="l-t">${esc(e.category)}${e.recurringId?' <span title="Recurring expense" style="color:var(--primary-600)">\u21bb</span>':''}</div><div class="l-s">${niceDate(e.date)}${e.note?' · '+esc(e.note):''}</div></div>
       <div class="l-r"><div class="l-t mono">− ${fmt(e.amount)}</div>
         ${multiOn('expenses')?'':`<button class="btn-icon btn-outline" style="width:30px;height:30px;color:var(--red)" onclick="event.stopPropagation();deleteExpense('${e.id}')">${I.trash}</button>`}
       </div>
@@ -3261,6 +3298,13 @@ function openExpenseModal(id){
       <div><label class="label">Category</label><select id="ef_cat" class="select">${EXP_CATS.map(c=>`<option ${e?.category===c?'selected':''}>${c}</option>`).join('')}</select></div>
       <div class="full"><label class="label">Amount ₹ *</label><input id="ef_amt" class="input" type="number" value="${e?.amount??''}" placeholder="0"></div>
       <div class="full"><label class="label">Note</label><input id="ef_note" class="input" value="${esc(e?.note||'')}" placeholder="e.g. EB bill, courier charge…"></div>
+${e?'':`
+      <div class="full"><label class="label" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="ef_repeat" onchange="document.getElementById('ef_repeatFields').style.display=this.checked?'grid':'none'"> Repeat this expense</label></div>
+      <div class="full" id="ef_repeatFields" style="display:none;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="label">Frequency</label><select id="ef_freq" class="select"><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></div>
+        <div><label class="label">Change % per period</label><input id="ef_change" class="input" type="number" value="0" placeholder="e.g. 5"></div>
+        <div class="full"><label class="label">Repeat until (optional)</label><input id="ef_until" class="input" type="date"></div>
+      </div>`}
     </div>
   `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveExpense('${id||''}')">${I.check} Save</button>`);
   setTimeout(()=>{const el=$('#ef_amt');if(el)el.focus();},60);
@@ -3270,8 +3314,18 @@ function saveExpense(id){
   const amt=num($('#ef_amt').value);
   if(amt<=0){toast('Enter amount','err');return;}
   const data={date:$('#ef_date').value||todayStr(),category:$('#ef_cat').value,amount:amt,note:$('#ef_note').value.trim()};
-  if(id)Object.assign(db.expenses.find(x=>x.id===id),data);
-  else db.expenses.push({id:uid(),...data,createdAt:Date.now()});
+  if(id){Object.assign(db.expenses.find(x=>x.id===id),data);save();closeModal();render();toast('Expense saved','ok');return;}
+  const repEl=$('#ef_repeat');
+  if(repEl&&repEl.checked){
+    const freq=(($('#ef_freq')||{}).value)||'monthly';
+    const pct=num((($('#ef_change')||{}).value));
+    const until=((($('#ef_until')||{}).value)||null);
+    const rid=uid();
+    db.expenses.push({id:uid(),...data,recurringId:rid,createdAt:Date.now()});
+    (db.recurringExpenses=db.recurringExpenses||[]).push({id:rid,category:data.category,note:data.note,amount:Math.round(amt*(1+pct/100)*100)/100,frequency:freq,changePct:pct,nextDate:addPeriodStr(data.date,freq),endDate:until,active:true,createdAt:Date.now()});
+    save();closeModal();render();toast('Recurring expense saved','ok');return;
+  }
+  db.expenses.push({id:uid(),...data,createdAt:Date.now()});
   save();closeModal();render();toast('Expense saved','ok');
 }
 function deleteExpense(id){
@@ -3954,7 +4008,7 @@ async function cloudPull(){
       const j=await r.json();const data=j&&j.data?j.data:j;
       if(!data||!data.settings||!Array.isArray(data.products))throw new Error('endpoint did not return a ShopPulse backup');
       db=data;db.settings=Object.assign(defaultSettings(),data.settings||{});
-      db.returns=db.returns||[];db.expenses=db.expenses||[];db.production=db.production||[];db.jobwork=db.jobwork||[];db.estimates=db.estimates||[];db.employees=db.employees||[];db.attendance=db.attendance||[];db.payroll=db.payroll||[];db.audits=db.audits||[];db.payments=db.payments||[];db.cashLogs=db.cashLogs||[];
+      db.returns=db.returns||[];db.expenses=db.expenses||[];db.recurringExpenses=db.recurringExpenses||[];db.production=db.production||[];db.jobwork=db.jobwork||[];db.estimates=db.estimates||[];db.employees=db.employees||[];db.attendance=db.attendance||[];db.payroll=db.payroll||[];db.audits=db.audits||[];db.payments=db.payments||[];db.cashLogs=db.cashLogs||[];
       db.counters=Object.assign({invoice:0,purchase:0,ret:0,production:0,jobwork:0,est:0},data.counters||{});
       db.settings.lastCloudSyncAt=new Date().toISOString();db.settings.lastCloudDir='pull';
       save();S.pos=null;S.currentInvoice=null;S.currentCustomer=null;S.currentEmp=null;S.currentEstimate=null;S.multi={view:null,ids:[]};S.view='dashboard';applyTheme();render();
@@ -4115,7 +4169,7 @@ function restoreBackup(input){
     const data=JSON.parse(r.result);
     if(!data.products||!data.settings)throw new Error('bad');
     db=data;db.settings=Object.assign(defaultSettings(),data.settings||{});
-    db.returns=db.returns||[];db.expenses=db.expenses||[];
+    db.returns=db.returns||[];db.expenses=db.expenses||[];db.recurringExpenses=db.recurringExpenses||[];
     save();S.pos=null;S.currentInvoice=null;S.view='dashboard';applyTheme();render();toast('Backup restored successfully','ok');
   }catch(e){toast('Invalid backup file','err');}};
   r.readAsText(f);input.value='';
@@ -4146,6 +4200,7 @@ window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(S.v
 /* ---------- Boot ---------- */
 function bootApp(){
   applyTheme();
+  postDueRecurring();
   try{window.addEventListener&&window.addEventListener('hashchange',applyHashRoute);}catch(e){}
   const hr=parseHash();if(hr&&hr.view!=='dashboard')navFromHash(hr);
   render();

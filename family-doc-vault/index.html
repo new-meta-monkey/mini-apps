@@ -92,6 +92,115 @@
       }
     }
 
+    /* App shell is a column flex on mobile; the desktop media query
+       below turns it into a grid. (Layout lives here, not in the
+       inline style, so the media query can override it.) */
+    #appShell { display: flex; flex-direction: column; }
+
+    /* ============================================================
+       DESKTOP LAYOUT (min-width: 1024px)
+       Wide shell, sidebar nav, document grid, detail as a side
+       panel. Mobile below 1024px is untouched. Biometric UI is
+       hidden here: platform biometrics only exist on supported
+       phones (Android), so desktop uses password unlock only.
+       The JS availability check is untouched.
+       ============================================================ */
+    @media (min-width: 1024px) {
+      body { background: #e2e8f0; }
+      .mobile-shell { max-width: 1120px; }
+
+      /* Lock screen stays a centered narrow card on desktop. */
+      .lock-screen { max-width: 520px; width: 100%; margin: 0 auto; }
+
+      /* App shell becomes a grid: header across the top, sidebar
+         nav on the left, the active tab's content on the right. */
+      #appShell {
+        display: grid;
+        grid-template-columns: 232px minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "header header"
+          "nav main";
+        align-items: start;
+      }
+      .app-header { grid-area: header; position: static; }
+      .app-main { grid-area: main; min-width: 0; padding-bottom: 22px; }
+
+      /* Bottom tab bar becomes a sticky left sidebar. Same buttons,
+         same tab-switching behaviour, just laid out on the side. */
+      .bottom-nav {
+        grid-area: nav;
+        position: sticky;
+        top: 16px;
+        left: auto;
+        transform: none;
+        width: auto;
+        max-width: none;
+        height: auto;
+        margin: 16px 0 16px 16px;
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: stretch;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .nav-tab {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 10px 12px;
+        font-size: 0.86rem;
+        border-radius: 12px;
+      }
+      .nav-tab.active { background: var(--primary-soft); }
+      .nav-tab .add-pill { width: 36px; height: 36px; }
+
+      /* Document lists become cards in a grid. */
+      #docList.inset-list,
+      #expiringList.inset-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+      }
+      #docList .list-item,
+      #expiringList .list-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        align-items: flex-start;
+      }
+      #docList .list-item:not(:last-child)::after,
+      #expiringList .list-item:not(:last-child)::after { display: none; }
+
+      /* Sheets become a right-side panel instead of a bottom sheet. */
+      .sheet-backdrop { align-items: stretch; justify-content: flex-end; }
+      .sheet {
+        width: 440px;
+        max-width: 440px;
+        height: 100dvh;
+        max-height: none;
+        border-radius: 0;
+        padding-bottom: 0;
+        animation: fadeIn 0.18s ease;
+      }
+      .sheet-handle { display: none; }
+
+      /* Biometric UI hidden on desktop only. */
+      #biometricUnlockArea { display: none !important; }
+      #bioSettingsRow { display: none !important; }
+    }
+
     /* ============================================================
        LOCK SCREEN (Native Biometric + Passcode Feel)
        ============================================================ */
@@ -1078,7 +1187,7 @@
     <!-- ================================================================
          2. MAIN NATIVE APP SHELL
          ================================================================ -->
-    <div id="appShell" class="hidden" style="display:flex; flex-direction:column; min-height:100dvh;">
+    <div id="appShell" class="hidden" style="min-height:100dvh;">
       <header class="app-header">
         <div class="header-row">
           <div class="header-title-wrap">
@@ -1166,7 +1275,7 @@
           <h2>Security &amp; Biometrics</h2>
         </div>
         <div class="settings-group">
-          <div class="settings-row">
+          <div class="settings-row" id="bioSettingsRow">
             <div>
               <div class="sr-title">Biometric Unlock</div>
               <div class="sr-desc" id="bioStatusDesc">Use Face ID / Touch ID / Fingerprint to unlock</div>
